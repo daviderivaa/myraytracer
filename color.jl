@@ -5,6 +5,9 @@ struct Color
 
     # Costruttore con valori di default
     Color(r=0.0, g=0.0, b=0.0) = new(r, g, b)
+
+    function _add()
+        
 end
 
 struct HdrImage
