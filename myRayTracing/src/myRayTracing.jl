@@ -2,6 +2,8 @@ module myRayTracing
 
 export Color, add, multiply, is_close, is_colors_close, HdrImage, set_pixel, get_pixel, print_image, valid_pixel #Esporta le classi e le funzioni per poterle leggere nel main
 
+###COLOR STRUCT!!!
+
 struct Color
     r::Float64
     g::Float64
@@ -13,6 +15,8 @@ struct Color
     end
         
 end
+
+###COLOR FUNCTIONS!!!
 
 function add(c1::Color, c2::Color)
     return Color(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b) #Somma due colori
@@ -30,35 +34,43 @@ function is_colors_close(c1::Color, c2:: Color)
     return is_close(c1.r, c2.r) && is_close(c1.g, c2.g) && is_close(c1.b, c2.b) #Controlla se due colori sono vicini per ogni componente
 end
 
+###COLOR TESTS!!!
+
+###IMAGE STRUCT!!!
+
 struct HdrImage
-    height::Int
     width::Int
+    height::Int
     pixels::Matrix{Color}
 
-    function HdrImage(height::Int=0, width::Int=0) # Costruttore personalizzato con valori di default nulli
-        pixels = [Color() for _ in 1:height, _ in 1:width]
-        new(height, width, pixels)
+    function HdrImage(width::Int=0, height::Int=0) # Costruttore personalizzato con valori di default nulli
+        pixels = [Color() for _ in 1:width, _ in 1:height]
+        new(width, height, pixels)
     end
 end
+
+###IMAGE FUNCTIONS!!!
 
 function set_pixel(img::HdrImage, line::Int, column::Int, c::Color)
     img.pixels[line, column] = c #Setta il colore di un pixel
 end
 
-function get_pixel(img::HdrImage, line::Int, column::Int)
-    println(img.pixels[line, column]) #Legge il colore di un pixel
+function get_pixel(img::HdrImage, column::Int, line::Int)
+    println(img.pixels[column, line]) #Legge il colore di un pixel
 end
 
 function print_image(img::HdrImage)
     println("Colore dei pixel dell'immagine $(img.height)x$(img.width):") #Stampa un'immagine pixel per pixel
-    for i in 1:img.height
-        for j in 1:img.width
+    for i in 1:img.width
+        for j in 1:img.height
             println("Pixel ($i, $j): ", img.pixels[i, j])
         end
     end
 end
 
-function valid_pixel(img::HdrImage, line::Int, column::Int)
+###IMAGE TESTS!!!
+
+function valid_pixel(img::HdrImage, column::Int, line::Int)
     return line >= 1 && line <= img.height && column >= 1 && column <= img.width
 end
 
