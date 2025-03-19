@@ -84,35 +84,68 @@ end
 
 ###PFM FUNCTIONS & TESTS!!!
 
-function _read_float()
+#Legge numeri 32bit Floating point
+function _read_float(io::IO, endianness::Int)
+    raw = read(io, UInt32)  #Legge 4 byte come UInt32
+    if endianness == 1
+        raw = bswap(raw)  #Se little-endian, inverte i byte
+    end
+    return reinterpret(Float32, raw)  #Converte il valore a Float32
 end
 
-
-
-
-###
-function _read_line()
+#Legge una riga di un file PFM
+function _read_line(io::IO)
+    result = UInt8[]  #Array dinamico di byte
+    while !eof(io)  #Continua fino alla fine del file
+        cur_byte = read(io, UInt8)  #Legge un singolo byte
+        if cur_byte == 0x0A  #Controlla se è il carattere '\n'
+            return String(result)  #Converte i byte in stringa e restituisce
+        end
+        push!(result, cur_byte)  #Aggiunge il byte alla lista
+    end
+    return String(result)  #Se EOF, restituisce comunque il risultato
 end
 
-
-
-
-
-###
-function _parse_img_size()
+#Legge le dimensioni dell'immagine
+#Stampa una stringa specificata nell'input quando gli passo un formato PFM invalido
+struct InvalidPfmFileFormat <: Exception
+    msg::String
 end
 
+function _parse_img_size(line::String)
+    elements = split(line, " ")  #Divide la stringa in parti
+    if length(elements) != 2
+        throw(InvalidPfmFileFormat("Invalid image size specification"))
+    end
 
+    try
+        width, height = parse(Int, elements[1]), parse(Int, elements[2])
+        if width < 0 || height < 0
+            throw(InvalidPfmFileFormat("Invalid width/height (negative value)"))
+        end
+        return width, height
+    catch
+        throw(InvalidPfmFileFormat("Invalid width/height"))
+    end
+end
 
-
-
-###
+#Legge l'endianness del binario
 function _parse_endianness()
 end
 
+function read_pfm(filename)
+    open(filename, "r") do io
+        format = _read_line(io)  # "Pf" o "PF"
+        width, height = parse.(Int, split(_read_line(io)))  # Larghezza e altezza
+        scale = parse(Float32, _read_line(io))  # Legge il valore di scala
+        
+        endianness = scale < 0 ? 1 : 0  # Se negativo → Big-endian, altrimenti Little-endian
 
+        # Legge i dati pixel
+        pixel_data = [ _read_float(io, endianness) for _ in 1:(width * height) ]
 
-
-
+        return pixel_data, width, height, format
+    end
+end
 
 end
