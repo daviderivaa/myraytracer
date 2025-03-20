@@ -1,6 +1,6 @@
 module myRayTracing
 
-export Color, add, multiply, is_close, is_colors_close, HdrImage, set_pixel, get_pixel, print_image, valid_pixel #Esporta le classi e le funzioni per poterle leggere nel main
+export Color, add, multiply, is_close, is_colors_close, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, _read_float #Esporta le classi e le funzioni per poterle leggere nel main
 
 ###COLOR STRUCT!!!
 
@@ -86,9 +86,9 @@ end
 
 #Legge numeri 32bit Floating point
 function _read_float(io::IO, endianness::Int)
-    raw = read(io, UInt32)  #Legge 4 byte come UInt32
-    if endianness == 1
-        raw = bswap(raw)  #Se little-endian, inverte i byte
+    raw = read(io, UInt32)  #Legge 4 byte come UInt32 (default legge in little-endian)
+    if endianness > 0
+        raw = bswap(raw)  #Se big-endian, inverte i byte
     end
     return reinterpret(Float32, raw)  #Converte il valore a Float32
 end
