@@ -1,6 +1,8 @@
 module myRayTracing
+import Colors
+import ColorTypes: ColorTypes, RGB
 
-export HdrImage, set_pixel, get_pixel, print_image, valid_pixel, _read_float, _read_line, _parse_endianness,_parse_img_size #Esporta le classi e le funzioni per poterle leggere nel main
+export RGB, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, InvalidPfmFileFormat, _read_float, _read_line, _parse_endianness,_parse_img_size #Esporta le classi e le funzioni per poterle leggere nel main
 
 
 ########################################################################################################
@@ -42,6 +44,17 @@ export HdrImage, set_pixel, get_pixel, print_image, valid_pixel, _read_float, _r
 #     return is_close(c1.r, c2.r) && is_close(c1.g, c2.g) && is_close(c1.b, c2.b)
 # end
 
+
+# #Setta il colore di un pixel
+# function set_pixel(img::HdrImage, line::Int, column::Int, c::Color)
+#     img.pixels[line, column] = c
+# end
+
+# #Legge il colore di un pixel
+# function get_pixel(img::HdrImage, column::Int, line::Int)
+#     println(img.pixels[column, line])
+# end
+
 #######################################################################################################
 
 ###IMAGE STRUCT!
@@ -49,25 +62,15 @@ export HdrImage, set_pixel, get_pixel, print_image, valid_pixel, _read_float, _r
 struct HdrImage
     width::Int
     height::Int
-    pixels::Matrix{Color}
+    pixels::Matrix{RGB}
 
     function HdrImage(width::Int=0, height::Int=0) #Costruttore personalizzato con valori di default nulli
-        pixels = [Color() for _ in 1:width, _ in 1:height]
+        pixels = Matrix{RGB}(undef, height, width)
         new(width, height, pixels)
     end
 end
 
 ###IMAGE FUNCTIONS!!!
-
-#Setta il colore di un pixel
-function set_pixel(img::HdrImage, line::Int, column::Int, c::Color)
-    img.pixels[line, column] = c
-end
-
-#Legge il colore di un pixel
-function get_pixel(img::HdrImage, column::Int, line::Int)
-    println(img.pixels[column, line])
-end
 
 #Stampa un'immagine pixel per pixel
 function print_image(img::HdrImage)
@@ -88,6 +91,11 @@ end
 
 
 ###PFM FUNCTIONS
+
+#Stampa una stringa specificata nell'input quando gli passo un formato PFM invalido
+struct InvalidPfmFileFormat <: Exception
+    msg::String
+end
 
 #Legge numeri 32bit Floating point
 function _read_float(io::IO, endianness::Int)
@@ -112,11 +120,6 @@ function _read_line(io::IO)
 end
 
 #Legge le dimensioni dell'immagine
-#Stampa una stringa specificata nell'input quando gli passo un formato PFM invalido
-struct InvalidPfmFileFormat <: Exception
-    msg::String
-end
-
 function _parse_img_size(line::String)
     elements = split(line, " ")  #Divide la stringa in parti
     if length(elements) != 2
@@ -135,7 +138,19 @@ function _parse_img_size(line::String)
 end
 
 #Legge l'endianness del binario
-function _parse_endianness()
+function _parse_endianness(endian::String)
+
+    value = try
+        parse(Int32,endian) #Prova a leggere l'endianness come intero
+    catch
+        throw(InvalidPfmFileFormat("Unable to read endianness")) #Stampa l'errore in lettura pfm
+    end
+
+    if value==0
+        throw(InvalidPfmFileFormat("Endiannes = 0")) #Stampa errore se endianness è uguale a 0
+    end
+
+    return value
 end
 
 function read_pfm(filename)
