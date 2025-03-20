@@ -72,14 +72,10 @@ end
 
 ###IMAGE FUNCTIONS!!!
 
-#Stampa un'immagine pixel per pixel
+#Stampa un'immagine 
 function print_image(img::HdrImage)
     println("Colore dei pixel dell'immagine $(img.height)x$(img.width):")
-    for i in 1:img.width
-        for j in 1:img.height
-            println("Pixel ($i, $j): ", img.pixels[i, j])
-        end
-    end
+    println(img)
 end
 
 #Controlla che un pixel stia nell'immagine
