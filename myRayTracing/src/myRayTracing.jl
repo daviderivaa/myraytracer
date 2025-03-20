@@ -1,8 +1,8 @@
 module myRayTracing
 
-export Color, add, multiply, is_close, is_colors_close, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, _read_float #Esporta le classi e le funzioni per poterle leggere nel main
+export Color, add, multiply, is_close, is_colors_close, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, _read_float, _read_line, _parse_endianness,_parse_img_size #Esporta le classi e le funzioni per poterle leggere nel main
 
-###COLOR STRUCT!!!
+###COLOR STRUCT
 
 struct Color
     r::Float64
