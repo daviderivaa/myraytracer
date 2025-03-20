@@ -1,46 +1,50 @@
 module myRayTracing
 
-export Color, add, multiply, is_close, is_colors_close, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, _read_float, _read_line, _parse_endianness,_parse_img_size #Esporta le classi e le funzioni per poterle leggere nel main
+export HdrImage, set_pixel, get_pixel, print_image, valid_pixel, _read_float, _read_line, _parse_endianness,_parse_img_size #Esporta le classi e le funzioni per poterle leggere nel main
 
+
+########################################################################################################
+
+#NOT USING PERSONAL COLOR STRUCT: left as comment
 ###COLOR STRUCT
 
-struct Color
-    r::Float64
-    g::Float64
-    b::Float64
+# struct Color
+#     r::Float64
+#     g::Float64
+#     b::Float64
 
-    # Costruttore con valori di default nulli
-    function Color(r=0.0, g=0.0, b=0.0)
-        new(r, g, b)
-    end
+#     # Costruttore con valori di default nulli
+#     function Color(r=0.0, g=0.0, b=0.0)
+#         new(r, g, b)
+#     end
         
-end
+# end
 
-###COLOR FUNCTIONS!!!
+# ###COLOR FUNCTIONS!!!
 
-#Somma due colori
-function add(c1::Color, c2::Color)
-    return Color(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b)
-end
+# #Somma due colori
+# function add(c1::Color, c2::Color)
+#     return Color(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b)
+# end
 
-#Moltiplilca colore per scalare
-function multiply(c1::Color, a::Float64)
-    return Color(c1.r * a, c1.g * a, c1.b * a)
-end
+# #Moltiplilca colore per scalare
+# function multiply(c1::Color, a::Float64)
+#     return Color(c1.r * a, c1.g * a, c1.b * a)
+# end
 
-#Controlla se due numeri sono vicini entro 1e-5
-function is_close(x, y, epsilon = 1e-5)
-    return abs(x - y) < epsilon
-end
+# #Controlla se due numeri sono vicini entro 1e-5
+# function is_close(x, y, epsilon = 1e-5)
+#     return abs(x - y) < epsilon
+# end
 
-#Controlla se due colori sono vicini per ogni componente
-function is_colors_close(c1::Color, c2:: Color)
-    return is_close(c1.r, c2.r) && is_close(c1.g, c2.g) && is_close(c1.b, c2.b)
-end
+# #Controlla se due colori sono vicini per ogni componente
+# function is_colors_close(c1::Color, c2:: Color)
+#     return is_close(c1.r, c2.r) && is_close(c1.g, c2.g) && is_close(c1.b, c2.b)
+# end
 
-###COLOR TESTS!!!
+#######################################################################################################
 
-###IMAGE STRUCT!!!
+###IMAGE STRUCT!
 
 struct HdrImage
     width::Int
@@ -75,14 +79,15 @@ function print_image(img::HdrImage)
     end
 end
 
-###IMAGE TESTS!!!
-
 #Controlla che un pixel stia nell'immagine
 function valid_pixel(img::HdrImage, column::Int, line::Int)
     return line >= 1 && line <= img.height && column >= 1 && column <= img.width
 end
 
-###PFM FUNCTIONS & TESTS!!!
+########################################################################################################
+
+
+###PFM FUNCTIONS
 
 #Legge numeri 32bit Floating point
 function _read_float(io::IO, endianness::Int)
@@ -147,5 +152,7 @@ function read_pfm(filename)
         return pixel_data, width, height, format
     end
 end
+
+#######################################################################################################
 
 end
