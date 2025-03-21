@@ -2,7 +2,7 @@ module myRayTracing
 import Colors
 import ColorTypes: ColorTypes, RGB
 
-export RGB, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, InvalidPfmFileFormat, _read_float, _read_line, _parse_endianness,_parse_img_size #Esporta le classi e le funzioni per poterle leggere nel main
+export RGB, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, InvalidPfmFileFormat, _read_float, _read_line, _parse_endianness,_parse_img_size, _read_pfm #Esporta le classi e le funzioni per poterle leggere nel main
 
 
 ########################################################################################################
@@ -94,13 +94,18 @@ struct InvalidPfmFileFormat <: Exception
 end
 
 #Legge numeri 32bit Floating point
-function _read_float(io::IO, endianness::Int)
-    raw = read(io, UInt32)  #Legge 4 byte come UInt32 (default legge in little-endian)
-    if endianness > 0
-        raw = bswap(raw)  #Se big-endian, inverte i byte
+function _read_float(io::IO, endianness::Float32)
+    try
+        raw = read(io, UInt32)  #Legge 4 byte come UInt32
+        if endianness > 0
+            raw = bswap(raw)  #Se big-endian, inverte i byte
+        end
+        return reinterpret(Float32, raw)  #Converte il valore a Float32
+    catch
+        throw(InvalidPfmFileFormat("Invalid float number"))
     end
-    return reinterpret(Float32, raw)  #Converte il valore a Float32
 end
+
 
 #Legge una riga di un file PFM
 function _read_line(io::IO)
@@ -108,6 +113,9 @@ function _read_line(io::IO)
     while !eof(io)  #Continua fino alla fine del file
         cur_byte = read(io, UInt8)  #Legge un singolo byte
         if cur_byte == 0x0A  #Controlla se è il carattere '\n'
+            if length(result) == 1 #Se la linea è nulla, cioè contiene solo l'"a capo" avvisa
+                Println("Nulle line of lenght 1")
+            end
             return String(result)  #Converte i byte in stringa e restituisce
         end
         push!(result, cur_byte)  #Aggiunge il byte alla lista
@@ -137,30 +145,28 @@ end
 function _parse_endianness(endian::String)
 
     value = try
-        parse(Int32,endian) #Prova a leggere l'endianness come intero
+        parse(Float32, endian) #Prova a leggere l'endianness come float
     catch
         throw(InvalidPfmFileFormat("Unable to read endianness")) #Stampa l'errore in lettura pfm
     end
 
-    if value==0
+    if value==0.0
         throw(InvalidPfmFileFormat("Endiannes = 0")) #Stampa errore se endianness è uguale a 0
     end
 
     return value
 end
 
-function read_pfm(filename)
+function _read_pfm(filename)
     open(filename, "r") do io
-        format = _read_line(io)  # "Pf" o "PF"
-        width, height = parse.(Int, split(_read_line(io)))  # Larghezza e altezza
-        scale = parse(Float32, _read_line(io))  # Legge il valore di scala
+        format = _read_line(io)  #"Pf" o "PF"
+        width, height = _parse_img_size(_read_line(io))  #Larghezza e altezza
+        endianness = _parse_endianness(_read_line(io))  #Legge il valore di scala
         
-        endianness = scale < 0 ? 1 : 0  # Se negativo → Big-endian, altrimenti Little-endian
-
         # Legge i dati pixel
         pixel_data = [ _read_float(io, endianness) for _ in 1:(width * height) ]
 
-        return pixel_data, width, height, format
+        return format, width, height, endianness, pixel_data
     end
 end
 

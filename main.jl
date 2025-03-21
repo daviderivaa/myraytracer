@@ -2,16 +2,6 @@ using Pkg
 Pkg.activate("myRayTracing")
 using myRayTracing #Fino a qua non toccare che serve a importare classi e librerie correttamente
 
-# Crea un'immagine 2x3
-img = HdrImage(2, 3)
-rosso = RGB(1.0, 0.0, 0.0)
-verde = RGB(0.0, 1.0, 0.0)
+format, width, height, endianness, pixel_data = _read_pfm("/home/davide/Fotorealistiche/reference_le.pfm")
 
-@assert valid_pixel(img, 2, 3) #Provo in un verso e nell'altro la funzione valid_pixel
-@assert !valid_pixel(img, 2, 4)
-
-# Colora il secondo pixel (posizione (1,2)) con un colore specifico somma di rosso e verde
-img.pixels[1,2] = rosso
-
-# Stampa i colori dei pixel dell'immagine
-print_image(img)
+println(format, "\n", width, "\n", height, "\n", endianness)
