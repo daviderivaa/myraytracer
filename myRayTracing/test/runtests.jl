@@ -20,3 +20,12 @@ end
     #@test_throws InvalidPfmFileFormat _parse_endianness("-1")
 
 end
+
+@testset "Check _read_line" begin
+    
+    @test _read_line(IOBuffer([0x70, 0x69, 0x70, 0x70, 0x6F, 0x0A]))=="pippo"
+    @test _read_line(IOBuffer([0x70, 0x69, 0x70, 0x70, 0x6F]))=="pippo"
+
+    @test_throws InvalidPfmFileFormat _read_line(IOBuffer([0x0A]))
+
+end
