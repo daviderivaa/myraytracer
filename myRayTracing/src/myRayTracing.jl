@@ -113,8 +113,8 @@ function _read_line(io::IO)
     while !eof(io)  #Continua fino alla fine del file
         cur_byte = read(io, UInt8)  #Legge un singolo byte
         if cur_byte == 0x0A  #Controlla se è il carattere '\n'
-            if length(result) == 1 #Se la linea è nulla, cioè contiene solo l'"a capo" avvisa
-                Println("Nulle line of lenght 1")
+            if length(result) == 0 #Se la linea è nulla, cioè contiene solo l'"a capo" avvisa
+                throw(InvalidPfmFileFormat("Empty line"))
             end
             return String(result)  #Converte i byte in stringa e restituisce
         end
