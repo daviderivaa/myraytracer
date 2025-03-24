@@ -93,8 +93,8 @@ struct InvalidPfmFileFormat <: Exception
     msg::String
 end
 
-#Legge numeri 32bit Floating point
-function _read_float(io::IO, endianness::Float32)
+#Legge numeri 64bit Floating point
+function _read_float(io::IO, endianness::Float64)
     try
         raw = read(io, UInt32)  #Legge 4 byte come UInt32
         if endianness > 0
@@ -145,7 +145,7 @@ end
 function _parse_endianness(endian::String)
 
     value = try
-        parse(Float32, endian) #Prova a leggere l'endianness come float
+        parse(Float64, endian) #Prova a leggere l'endianness come float
     catch
         throw(InvalidPfmFileFormat("Unable to read endianness")) #Stampa l'errore in lettura pfm
     end
