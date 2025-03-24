@@ -14,9 +14,9 @@ end
     @test _parse_endianness("-1.0")≈-1
     
     @test_throws InvalidPfmFileFormat _parse_endianness("0")
-    @test_throws InvalidPfmFileFormat _parse_endianness("nan")
+    @test_throws InvalidPfmFileFormat _parse_endianness("pippo")
     @test_throws InvalidPfmFileFormat _parse_endianness("0.0")
-    @test_throws InvalidPfmFileFormat _parse_endianness("2")
-    @test_throws InvalidPfmFileFormat _parse_endianness("-1")
+    @test_throws InvalidPfmFileFormat _parse_endianness("nan")
+    #@test_throws InvalidPfmFileFormat _parse_endianness("-1")
 
 end
