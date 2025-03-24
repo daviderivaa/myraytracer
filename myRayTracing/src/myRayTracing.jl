@@ -154,10 +154,6 @@ function _parse_endianness(endian::String)
         throw(InvalidPfmFileFormat("Endiannes = 0 or NaN")) #Stampa errore se endianness è uguale a 0 o NaN
     end
 
-    if value!=1.0 && value!=-1.0
-        throw(InvalidPfmFileFormat("Incompatible endianness value")) #Stampa errore se endianness è diverso da 1 o -1
-    end
-
     return value
 end
 
