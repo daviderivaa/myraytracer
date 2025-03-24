@@ -154,6 +154,10 @@ function _parse_endianness(endian::String)
         throw(InvalidPfmFileFormat("Endiannes = 0")) #Stampa errore se endianness è uguale a 0
     end
 
+    if value!=1.0 && value!=-1.0
+        throw(InvalidPfmFileFormat("Incompatible endianness value")) #Stampa errore se endianness è diverso da 1 o -1
+    end
+
     return value
 end
 
@@ -165,7 +169,7 @@ function _read_pfm(filename)
         
         # Legge i dati pixel
         pixel_data = [ _read_float(io, endianness) for _ in 1:(width * height) ]
-
+       
         return format, width, height, endianness, pixel_data
     end
 end
