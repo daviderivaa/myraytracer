@@ -10,13 +10,13 @@ end
 
 @testset "Check _parse_endianness" begin
 
-    @test _parse_endianness("1")≈1
-    @test _parse_endianness("-1")≈-1
+    @test _parse_endianness("1.0")≈1
+    @test _parse_endianness("-1.0")≈-1
     
     @test_throws InvalidPfmFileFormat _parse_endianness("0")
     @test_throws InvalidPfmFileFormat _parse_endianness("nan")
     @test_throws InvalidPfmFileFormat _parse_endianness("0.0")
     @test_throws InvalidPfmFileFormat _parse_endianness("2.0")
-    @test_throws InvalidPfmFileFormat _parse_endianness("-1.0")
+    @test_throws InvalidPfmFileFormat _parse_endianness("-1")
 
 end
