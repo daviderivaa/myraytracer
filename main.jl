@@ -4,4 +4,4 @@ using myRayTracing #Fino a qua non toccare che serve a importare classi e librer
 
 format, width, height, endianness, pixel_data = _read_pfm("/home/davide/Fotorealistiche/reference_le.pfm")
 
-println(format, "\n", width, "\n", height, "\n", endianness)
+println(format, "\n", width, "\n", height, "\n", endianness, "\n", pixel_data)

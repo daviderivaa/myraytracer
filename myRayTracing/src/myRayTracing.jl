@@ -8,7 +8,7 @@ export RGB, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, InvalidPfm
 ########################################################################################################
 
 #NOT USING PERSONAL COLOR STRUCT: left as comment
-###COLOR STRUCT
+#COLOR STRUCT
 
 # struct Color
 #     r::Float64
@@ -22,7 +22,7 @@ export RGB, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, InvalidPfm
         
 # end
 
-# ###COLOR FUNCTIONS!!!
+# #COLOR FUNCTIONS!!!
 
 # #Somma due colori
 # function add(c1::Color, c2::Color)
@@ -57,7 +57,7 @@ export RGB, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, InvalidPfm
 
 #######################################################################################################
 
-###IMAGE STRUCT!
+#IMAGE STRUCT!
 
 struct HdrImage
     width::Int
@@ -70,7 +70,7 @@ struct HdrImage
     end
 end
 
-###IMAGE FUNCTIONS!!!
+#IMAGE FUNCTIONS!!!
 
 #Stampa un'immagine 
 function print_image(img::HdrImage)
@@ -86,7 +86,7 @@ end
 ########################################################################################################
 
 
-###PFM FUNCTIONS
+#PFM FUNCTIONS
 
 #Stampa una stringa specificata nell'input quando gli passo un formato PFM invalido
 struct InvalidPfmFileFormat <: Exception
@@ -163,8 +163,8 @@ function _read_pfm(filename)
         width, height = _parse_img_size(_read_line(io))  #Larghezza e altezza
         endianness = _parse_endianness(_read_line(io))  #Legge il valore di scala
         
-        # Legge i dati pixel
-        pixel_data = [ _read_float(io, endianness) for _ in 1:(width * height) ]
+        #Legge i dati pixel
+        pixel_data = [ _read_float(io, endianness) for _ in 1:(3 * width * height) ]
 
         return format, width, height, endianness, pixel_data
     end
