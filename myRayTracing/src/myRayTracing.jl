@@ -64,8 +64,23 @@ struct HdrImage
     height::Int
     pixels::Matrix{RGB}
 
-    function HdrImage(width::Int=0, height::Int=0) #Costruttore personalizzato con valori di default nulli
+    function HdrImage(width, height)  # Costruttore senza dati
         pixels = Matrix{RGB}(undef, height, width)
+        new(width, height, pixels)
+    end
+
+    function HdrImage(pixel_data, width, height)  # Costruttore con dati
+        if length(pixel_data) != width * height * 3
+            throw(ArgumentError("Il numero di elementi in pixel_data non corrisponde a width * height * 3"))
+        end
+
+        pixels = Matrix{RGB}(undef, height, width)
+        for i in 1:height
+            for j in 1:width
+                index = ((i-1) * width + (j-1)) * 3 + 1
+                pixels[i, j] = RGB(pixel_data[index], pixel_data[index+1], pixel_data[index+2])
+            end
+        end
         new(width, height, pixels)
     end
 end
@@ -79,7 +94,7 @@ function print_image(img::HdrImage)
 end
 
 #Controlla che un pixel stia nell'immagine
-function valid_pixel(img::HdrImage, column::Int, line::Int)
+function valid_pixel(img::HdrImage, column, line)
     return line >= 1 && line <= img.height && column >= 1 && column <= img.width
 end
 
@@ -94,7 +109,7 @@ struct InvalidPfmFileFormat <: Exception
 end
 
 #Legge numeri 64bit Floating point
-function _read_float(io::IO, endianness::Float64)
+function _read_float(io::IO, endianness)
     try
         raw = read(io, UInt32)  #Legge 4 byte come UInt32
         if endianness > 0
@@ -124,7 +139,7 @@ function _read_line(io::IO)
 end
 
 #Legge le dimensioni dell'immagine
-function _parse_img_size(line::String)
+function _parse_img_size(line)
     elements = split(line, " ")  #Divide la stringa in parti
     if length(elements) != 2
         throw(InvalidPfmFileFormat("Invalid image size specification"))
@@ -142,7 +157,7 @@ function _parse_img_size(line::String)
 end
 
 #Legge l'endianness del binario
-function _parse_endianness(endian::String)
+function _parse_endianness(endian)
 
     value = try
         parse(Float64, endian) #Prova a leggere l'endianness come float
