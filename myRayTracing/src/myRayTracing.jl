@@ -55,6 +55,42 @@ export RGB, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, InvalidPfm
 #     println(img.pixels[column, line])
 # end
 
+
+#######################################################################################
+
+###TONE MAPPING!
+
+function luminosity(color::RGB)
+    return (max(color.r, color.g, color.b) + min(color.r, color.g, color.b))/2
+end
+
+function average_luminosity(img::HdrImage, delta=1e-10)
+    cumsum = 0.0
+    for pix in img.pixels
+        cumsum += log10(delta + luminosity(pix))
+    end
+    return 10^(cumsum / length(img.pixels))
+end
+
+function normalize_image(img::HdrImage, alpha, lum=nothing)
+    lum = isnothing(lum) ? average_luminosity(img) : lum
+    scale = alpha / lum
+
+    return [RGB(p.r * scale, p.g * scale, p.b * scale) for p in img.pixels]
+end
+
+function _clamp(x)
+    return x / (1+x)
+end
+
+function clamp_image(img::HdrImage)
+    return [RGB(_clamp(p.r), _clamp(p.g), _clamp(p.b)) for p in img.pixels]
+end
+
+function write_ldr_image(img::HdrImage, gamma=1.0)
+    
+end
+
 #######################################################################################################
 
 ###IMAGE STRUCT!
