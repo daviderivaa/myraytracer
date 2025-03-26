@@ -78,7 +78,7 @@ struct HdrImage
         for i in 1:height
             for j in 1:width
                 index = ((i-1) * width + (j-1)) * 3 + 1
-                pixels[i, j] = RGB(pixel_data[index], pixel_data[index+1], pixel_data[index+2])
+                pixels[height-i+1, j] = RGB(pixel_data[index], pixel_data[index+1], pixel_data[index+2]) #Inverto la lettura dei pixel sulle righe per tenere conto che il file PFM è bottom-top
             end
         end
         new(width, height, pixels)
