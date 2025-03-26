@@ -164,7 +164,7 @@ function _read_pfm(filename)
         endianness = _parse_endianness(_read_line(io))  #Legge il valore di scala
         
         # Legge i dati pixel
-        pixel_data = [ _read_float(io, endianness) for _ in 1:(width * height) ]
+        pixel_data = [ _read_float(io, endianness) for _ in 1:(3 * width * height) ]
        
         return format, width, height, endianness, pixel_data
     end
