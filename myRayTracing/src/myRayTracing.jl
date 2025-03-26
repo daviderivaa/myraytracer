@@ -105,10 +105,12 @@ end
 
 ###TONE MAPPING!
 
+#uno dei possibili modi di valutare la luminosità di un pixel
 function luminosity(color::RGB)
     return (max(color.r, color.g, color.b) + min(color.r, color.g, color.b))/2
 end
 
+#calcola la luminosità logaritmica media dell'immagine
 function average_luminosity(img::HdrImage, delta=1e-10)
     cumsum = 0.0
     for pix in img.pixels
@@ -117,6 +119,7 @@ function average_luminosity(img::HdrImage, delta=1e-10)
     return 10^(cumsum / length(img.pixels))
 end
 
+#normalizza la luminosità dell'immagine
 function normalize_image(img::HdrImage, alpha, lum=nothing)
     lum = isnothing(lum) ? average_luminosity(img) : lum
     scale = alpha / lum
@@ -128,21 +131,25 @@ function _clamp(x)
     return x / (1+x)
 end
 
+#correzione per punti troppo luminosi
 function clamp_image(img::HdrImage)
     return [RGB(_clamp(p.r), _clamp(p.g), _clamp(p.b)) for p in img.pixels]
 end
 
+#effettua tutte le operazioni per il tone mapping
 function tone_mapping(img::HdrImage, alpha, lum=nothing)
     img.pixels = normalize_image(img, alpha, lum)
     img.pixels = clamp_image(img)
 end
 
+#applica la gamma correction
 function write_ldr_image(img::HdrImage, gamma=1.0)
     return [RGB(p.r^(1/gamma),
                 p.g^(1/gamma),
                 p.b^(1/gamma)) for p in img.pixels]
 end
 
+#prende in ingresso da terminale alpha e gamma
 function user_alpha_and_gamma()
     while true
         print("Inserire il valore di alpha: ")
@@ -164,6 +171,7 @@ function user_alpha_and_gamma()
 
 end
 
+#prende in ingresso da terminale il nome di un file .png
 function user_png_output()
     while true
         print("Inserire il nome del file .png in output: ")
@@ -179,6 +187,7 @@ function user_png_output()
 
 end
 
+#composizione delle due funzioni sopra
 function read_user_imput()
     alpha, gamma = user_alpha_and_gamma()
     file_name = user_png_output()
