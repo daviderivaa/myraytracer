@@ -2,7 +2,10 @@ module myRayTracing
 import Colors
 import ColorTypes: ColorTypes, RGB
 
-export RGB, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, InvalidPfmFileFormat, _read_float, _read_line, _parse_endianness,_parse_img_size, _read_pfm #Esporta le classi e le funzioni per poterle leggere nel main
+#Esporta le classi e le funzioni per poterle leggere nel main
+export RGB, HdrImage, set_pixel, get_pixel, print_image, valid_pixel
+export luminosity, average_luminosity, normalize_image, _clamp, clamp_image, tone_mapping, write_ldr_image, user_alpha_and_gamma, user_png_output, read_user_imput
+export InvalidPfmFileFormat, _read_float, _read_line, _parse_endianness,_parse_img_size, _read_pfm
 
 
 ########################################################################################################
@@ -55,47 +58,11 @@ export RGB, HdrImage, set_pixel, get_pixel, print_image, valid_pixel, InvalidPfm
 #     println(img.pixels[column, line])
 # end
 
-
-#######################################################################################
-
-###TONE MAPPING!
-
-function luminosity(color::RGB)
-    return (max(color.r, color.g, color.b) + min(color.r, color.g, color.b))/2
-end
-
-function average_luminosity(img::HdrImage, delta=1e-10)
-    cumsum = 0.0
-    for pix in img.pixels
-        cumsum += log10(delta + luminosity(pix))
-    end
-    return 10^(cumsum / length(img.pixels))
-end
-
-function normalize_image(img::HdrImage, alpha, lum=nothing)
-    lum = isnothing(lum) ? average_luminosity(img) : lum
-    scale = alpha / lum
-
-    return [RGB(p.r * scale, p.g * scale, p.b * scale) for p in img.pixels]
-end
-
-function _clamp(x)
-    return x / (1+x)
-end
-
-function clamp_image(img::HdrImage)
-    return [RGB(_clamp(p.r), _clamp(p.g), _clamp(p.b)) for p in img.pixels]
-end
-
-function write_ldr_image(img::HdrImage, gamma=1.0)
-    
-end
-
 #######################################################################################################
 
 ###IMAGE STRUCT!
 
-struct HdrImage
+mutable struct HdrImage
     width::Int
     height::Int
     pixels::Matrix{RGB}
@@ -132,6 +99,90 @@ end
 #Controlla che un pixel stia nell'immagine
 function valid_pixel(img::HdrImage, column, line)
     return line >= 1 && line <= img.height && column >= 1 && column <= img.width
+end
+
+#######################################################################################
+
+###TONE MAPPING!
+
+function luminosity(color::RGB)
+    return (max(color.r, color.g, color.b) + min(color.r, color.g, color.b))/2
+end
+
+function average_luminosity(img::HdrImage, delta=1e-10)
+    cumsum = 0.0
+    for pix in img.pixels
+        cumsum += log10(delta + luminosity(pix))
+    end
+    return 10^(cumsum / length(img.pixels))
+end
+
+function normalize_image(img::HdrImage, alpha, lum=nothing)
+    lum = isnothing(lum) ? average_luminosity(img) : lum
+    scale = alpha / lum
+
+    return [RGB(p.r * scale, p.g * scale, p.b * scale) for p in img.pixels]
+end
+
+function _clamp(x)
+    return x / (1+x)
+end
+
+function clamp_image(img::HdrImage)
+    return [RGB(_clamp(p.r), _clamp(p.g), _clamp(p.b)) for p in img.pixels]
+end
+
+function tone_mapping(img::HdrImage, alpha, lum=nothing)
+    img.pixels = normalize_image(img, alpha, lum)
+    img.pixels = clamp_image(img)
+end
+
+function write_ldr_image(img::HdrImage, gamma=1.0)
+    return [RGB(p.r^(1/gamma),
+                p.g^(1/gamma),
+                p.b^(1/gamma)) for p in img.pixels]
+end
+
+function user_alpha_and_gamma()
+    while true
+        print("Inserire il valore di alpha: ")
+        a_str = readline()
+        print("Inserire il valore di gamma: ")
+        g_str = readline()
+        a = 0
+        g = 0
+
+        try
+            a = parse(Float64, a_str)
+            g = parse(Float64, g_str)
+            return a, g
+        catch
+            println("Errore, fornire valori corretti di alpha e gamma")
+        end
+
+    end
+
+end
+
+function user_png_output()
+    while true
+        print("Inserire il nome del file .png in output: ")
+        file_name = readline()
+
+        if endswith(file_name, ".png")
+            return file_name
+        else
+            println("Errore: il nome del file deve terminare con '.png'. Riprova.")
+        end
+
+    end
+
+end
+
+function read_user_imput()
+    alpha, gamma = user_alpha_and_gamma()
+    file_name = user_png_output()
+    return alpha, gamma, file_name
 end
 
 ########################################################################################################
