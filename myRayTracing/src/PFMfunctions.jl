@@ -68,7 +68,7 @@ function _parse_endianness(endian)
     return value
 end
 
-function _read_pfm(filename)
+function read_pfm(filename)
     open(filename, "r") do io
         format = _read_line(io)  #"Pf" o "PF"
         width, height = _parse_img_size(_read_line(io))  #Larghezza e altezza
