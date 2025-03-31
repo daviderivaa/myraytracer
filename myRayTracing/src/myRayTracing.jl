@@ -162,25 +162,29 @@ function user_alpha_and_gamma()
         try
             a = parse(Float64, a_str)
             g = parse(Float64, g_str)
-            return a, g
+            if a>0 && g>0
+                return a, g
+            else
+                println("Errore, fornire valori positivi dei alpha e gamma")
+            end
         catch
-            println("Errore, fornire valori corretti di alpha e gamma")
+            println("Errore, fornire valori accettabili di alpha e gamma")
         end
 
     end
 
 end
 
-#prende in ingresso da terminale il nome di un file .png
+#prende in ingresso da terminale il nome di un file .png o .jpg
 function user_png_output()
     while true
-        print("Inserire il nome del file .png in output: ")
+        print("Inserire il nome del file .png o .jpg in output: ")
         file_name = readline()
 
-        if endswith(file_name, ".png")
+        if endswith(file_name, ".png") || endswith(file_name, ".jpg")
             return file_name
         else
-            println("Errore: il nome del file deve terminare con '.png'. Riprova.")
+            println("Errore: il nome del file deve terminare con '.png' o '.jpg'. Riprova.")
         end
 
     end
