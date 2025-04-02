@@ -45,7 +45,7 @@ function gamma_correction!(img::HdrImage, gamma=1.0)
 end
 
 #prende in ingresso da terminale alpha e gamma
-function user_alpha_and_gamma()
+function _user_alpha_and_gamma()
     while true
         print("Inserire il valore di alpha: ")
         a_str = readline()
@@ -60,7 +60,7 @@ function user_alpha_and_gamma()
             if a>0 && g>0
                 return a, g
             else
-                println("Errore, fornire valori positivi dei alpha e gamma")
+                println("Errore, fornire valori positivi di alpha e gamma")
             end
         catch
             println("Errore, fornire valori accettabili di alpha e gamma")
@@ -70,16 +70,32 @@ function user_alpha_and_gamma()
 
 end
 
-#prende in ingresso da terminale il nome di un file .png o .jpg
-function user_png_output()
+#prende in ingresso da terminale il nome del file di output
+function _user_output_filename()
     while true
-        print("Inserire il nome del file .png o .jpg in output: ")
+        print("Come si desidera chiamare il file di output? ")
         file_name = readline()
 
-        if endswith(file_name, ".png") || endswith(file_name, ".jpg")
+        if !isempty(strip(file_name))
             return file_name
         else
-            println("Errore: il nome del file deve terminare con '.png' o '.jpg'. Riprova.")
+            println("Errore: inserire il nome del file.")
+        end
+
+    end
+
+end
+
+#prende in ingresso da terminale il nome del formato del file in output (png o jpg)
+function _user_output_format()
+    while true
+        print("Si desidera produrre un file png o jpg? ")
+        file_format = readline()
+
+        if file_format == "png" || file_format == "jpg"
+            return file_format
+        else
+            println("Errore: digitare 'png' o 'jpg'. Riprova.")
         end
 
     end
@@ -88,7 +104,8 @@ end
 
 #composizione delle due funzioni sopra
 function read_user_input()
-    alpha, gamma = user_alpha_and_gamma()
-    file_name = user_png_output()
-    return alpha, gamma, file_name
+    alpha, gamma = _user_alpha_and_gamma()
+    file_name = _user_output_filename()
+    file_format = _user_output_format()
+    return alpha, gamma, file_name, file_format
 end
