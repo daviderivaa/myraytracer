@@ -1,0 +1,10 @@
+# DEFINING VEC POINT AND MATRIX STRUCTS AND DEFINING TRANSFORMATIONS AND OPERATIONS
+
+struct point
+    x::Float32
+    y::Float32
+    z::Float32
+    w::Int32
+
+end
+
