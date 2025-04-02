@@ -1,25 +1,25 @@
 ###TONE MAPPING & LDR IMAGE!
 
 #uno dei possibili modi di valutare la luminosità di un pixel
-function luminosity(color::RGB)
+function _luminosity(color::RGB)
     return (max(color.r, color.g, color.b) + min(color.r, color.g, color.b))/2
 end
 
 #calcola la luminosità logaritmica media dell'immagine
-function average_luminosity(img::HdrImage, delta=1e-10)
+function _average_luminosity(img::HdrImage, delta=1e-10)
     cumsum = 0.0
     for pix in img.pixels
-        cumsum += log10(delta + luminosity(pix))
+        cumsum += log10(delta + _luminosity(pix))
     end
     return 10^(cumsum / length(img.pixels))
 end
 
 #normalizza la luminosità dell'immagine
-function normalize_image(img::HdrImage, alpha, lum=nothing)
-    lum = isnothing(lum) ? average_luminosity(img) : lum
+function _normalize_image!(img::HdrImage, alpha, lum=nothing)
+    lum = isnothing(lum) ? _average_luminosity(img) : lum
     scale = alpha / lum
 
-    return [RGB(p.r * scale, p.g * scale, p.b * scale) for p in img.pixels]
+    img.pixels = [RGB(p.r * scale, p.g * scale, p.b * scale) for p in img.pixels]
 end
 
 function _clamp(x)
@@ -27,21 +27,21 @@ function _clamp(x)
 end
 
 #correzione per punti troppo luminosi
-function clamp_image(img::HdrImage)
-    return [RGB(_clamp(p.r), _clamp(p.g), _clamp(p.b)) for p in img.pixels]
+function _clamp_image!(img::HdrImage)
+    img.pixels = [RGB(_clamp(p.r), _clamp(p.g), _clamp(p.b)) for p in img.pixels]
 end
 
 #effettua tutte le operazioni per il tone mapping
-function tone_mapping(img::HdrImage, alpha, lum=nothing)
-    img.pixels = normalize_image(img, alpha, lum)
-    img.pixels = clamp_image(img)
+function tone_mapping!(img::HdrImage, alpha, lum=nothing)
+    _normalize_image!(img, alpha, lum)
+    _clamp_image!(img)
 end
 
 #applica la gamma correction
-function write_ldr_image(img::HdrImage, gamma=1.0)
-    return [RGB(p.r^(1/gamma),
-                p.g^(1/gamma),
-                p.b^(1/gamma)) for p in img.pixels]
+function gamma_correction!(img::HdrImage, gamma=1.0)
+    img.pixels = [RGB(p.r^(1.0/gamma),
+                p.g^(1.0/gamma),
+                p.b^(1.0/gamma)) for p in img.pixels]
 end
 
 #prende in ingresso da terminale alpha e gamma
@@ -87,7 +87,7 @@ function user_png_output()
 end
 
 #composizione delle due funzioni sopra
-function read_user_imput()
+function read_user_input()
     alpha, gamma = user_alpha_and_gamma()
     file_name = user_png_output()
     return alpha, gamma, file_name

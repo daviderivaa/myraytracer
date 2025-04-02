@@ -7,6 +7,6 @@ include("LdrImage.jl")
 #Esporta le classi e le funzioni per poterle leggere nel main
 export RGB, HdrImage, print_image
 export read_pfm
-export tone_mapping, write_ldr_image, read_user_imput
+export tone_mapping!, gamma_correction!, read_user_input
 
 end
