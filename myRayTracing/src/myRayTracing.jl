@@ -9,5 +9,6 @@ include("geometry.jl")
 export RGB, HdrImage, print_image
 export read_pfm
 export tone_mapping!, gamma_correction!, read_user_input
+export Vec, Point, Normal, add_xyz
 
 end
