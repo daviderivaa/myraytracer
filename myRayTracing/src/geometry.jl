@@ -84,6 +84,94 @@ function sub_xyz(a,b)
     end
 end
 
+
+#Multiplication by a scalar 
+function scalar_multip(lambda, a)
+
+    constructor=typeof(a)
+    
+    if typeof(a)!=Point
+        return constructor(lambda*a.x, lambda*a.y, lambda*a.z)
+    else
+        throw(Type_error("Multiplication by scalar ($lambda): variable is $(typeof(a)), expected Vec or Normal"))
+    end
+end
+
+#Negation function
+function neg(a)
+    return scalar_multip(-1., a)
+end
+
+
+#Dot product definition
+function _dot_prod(a, b)
+    return a.x*b.x + a.y*b.y + a.z*b.z
+end
+
+#Final dot product
+function dot(a, b)
+    if typeof(a) == Point || typeof(b) == Point
+        throw(Type_error("Trying to use dot product with a Point variable"))
+    else
+        return _dot_prod(a,b)
+    end
+end
+
+#Squared norm
+function squared_norm(a)
+    if typeof(a) != Point
+        return a.x^2 + a.y^2 + a.z^2
+    else
+        throw(Type_error("Trying to calculate norm of a Point variable"))
+    end
+end
+
+#norm
+function norm(a)
+    return sqrt(squared_norm(a))
+end
+
+#normalize function
+function normalize(a)
+    return scalar_multip(1. /norm(a), a)
+end
+
+
+#Converting Vec into Normal and viceversa
+function Vec_to_Normal_and_v(a)
+    if typeof(a) == Vec
+        return Normal(a.x, a.y, a.z)
+    elseif typeof(a) == Normal
+        return Vec(a.x, a.y, a.z)
+    else
+        throw(Type_error("Trying to convert a $(typeof(a)) into a Normal or Vec, expected Vec or Normal"))
+    end
+end
+
+
+#Cross product
+function cross(a, b)
+
+    if typeof(a) != Point && typeof(b) != Point
+        return Vec(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x) #always returning a Vec ??
+
+    else
+        throw(Type_error("Trying to do cross product with Point, expected Vec or Normal"))
+    end
+end
+
+
+#Point to Vec
+function Point_to_Vec(a)
+
+    if typeof(a) == Point
+        return Vec(a.x, a.y, a.z)
+    else
+        throw(Type_error("Trying to convert $(typeof(a)) into a Vec, expected Point"))
+    end
+    
+end
+
 ############################################################################
 
 struct Vec
