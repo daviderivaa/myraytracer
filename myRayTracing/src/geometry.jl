@@ -13,6 +13,15 @@ function _are_xyz_close(a::T, b::T, epsilon=1e-6) where T #Check if a and b are 
     return a.x - b.x <= epsilon && a.y - b.y <= epsilon && a.z - b.z <= epsilon #Return True if the two variables are similiar, False otherwise
 end
 
+#Print function
+function print_element(a)
+    try
+        println("$(typeof(a))($(a.x), $(a.y), $(a.z))")
+    catch
+        throw(Type_error("Invalid variable type: $(typeof(a))")) #throw Type_error if a doesn't have 3 components
+    end
+end
+
 
 function _add_operation_type(a, b, constructor)
     return constructor(a.x + b.x, a.y + b.y, a.z + b.z)
@@ -20,11 +29,9 @@ end
 
 #Add two variables if they are of the same type and return the same type
 function _add_xyz_same(a::T, b::T) where T
-
-    type=typeof(a)
     
-    if type!=Point
-        return _add_operation_type(a, b, type)
+    if typeof(a)!=Point
+        return _add_operation_type(a, b, typeof(a))
     else
         throw(Type_error("Trying summing two Point variables")) #if trying summing two Point variables raise a Type_error
     end
@@ -33,7 +40,7 @@ end
 #Final adding function
 function add_xyz(a, b)
 
-    if typeof(a)==typeof(b) #executing a double check
+    if typeof(a) == typeof(b) #executing a double check
         return _add_xyz_same(a, b)
 
     elseif (typeof(a) == Vec && typeof(b) == Point) || (typeof(a) == Point && typeof(b) == Vec)
@@ -47,9 +54,34 @@ function add_xyz(a, b)
 
 end
 
-
+#difference functions
 function _sub_operation_type(a, b, constructor)
     return constructor(a.x - b.x, a.y - b.y, a.z - b.z)
+end
+
+
+function _sub_xyz_same(a::T,b::T) where T
+
+    if typeof(a) == Point 
+        return _sub_operation_type(a, b, Vec) #Difference between two Points is a Vec
+    else
+        return _sub_operation_type(a, b, typeof(a))
+    end
+end
+
+#Final difference function
+function sub_xyz(a,b)
+
+    if typeof(a) == typeof(b)
+        return _sub_xyz_same(a, b)
+
+    elseif (typeof(a) == Vec && typeof(b) == Point) || (typeof(a) == Point && typeof(b) == Vec)
+        return _sub_operation_type(a, b, Point)
+    
+    else
+        throw(Type_error("Trying calculating the difference between a $(typeof(a)) and a $(typeof(b)) "))
+
+    end
 end
 
 ############################################################################
