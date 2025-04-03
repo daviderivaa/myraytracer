@@ -20,15 +20,21 @@ end
 
 #Add two variables if they are of the same type and return the same type
 function _add_xyz_same(a::T, b::T) where T
+
     type=typeof(a)
-    return _add_operation_type(a, b, type)
+    
+    if type!=Point
+        return _add_operation_type(a, b, type)
+    else
+        throw(Type_error("Trying summing two Point variables")) #if trying summing two Point variables raise a Type_error
+    end
 end
 
-
+#Final adding function
 function add_xyz(a, b)
 
-    if typeof(a)==typeof(b)
-        return _add_xyz_same(a, b) #execute a double check
+    if typeof(a)==typeof(b) #executing a double check
+        return _add_xyz_same(a, b)
 
     elseif (typeof(a) == Vec && typeof(b) == Point) || (typeof(a) == Point && typeof(b) == Vec)
         return _add_operation_type(a, b, Point)
