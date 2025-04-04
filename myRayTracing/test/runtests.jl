@@ -29,3 +29,18 @@ end
     @test_throws InvalidPfmFileFormat _read_line(IOBuffer([0x0A]))
 
 end
+
+
+@testset "Check geometry functions" begin
+
+    a = Vec(0.8, -0.5, 1.4)
+    b = Vec(-1.6, 0.5, -0.7)
+    A = Point(0.8, -0.5, 1.4)
+    B = Point(-1.6, 0.5, -0.7)
+    na = Normal(0.8, -0.5, 1.4)
+    nb = Normal(-1.6, 0.5, -0.7)
+    lambda = 2.0
+    
+    @test scalar_multip(lambda, a) == Vec(1.6, -1.0, 2.8)
+
+end
