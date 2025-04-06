@@ -2,7 +2,7 @@
 
 ############################################################################
 
-#Stampa una stringa specificata nell'input quando gli passo un due variabili di tipo invalido
+#Print a specific string by input when two invalid type variables are given
 struct Type_error <: Exception
     msg::String
 end
@@ -22,14 +22,12 @@ function print_element(a)
     end
 end
 
-
 function _add_operation_type(a, b, constructor)
     return constructor(a.x + b.x, a.y + b.y, a.z + b.z)
 end
 
 #Add two variables if they are of the same type and return the same type
 function _add_xyz_same(a::T, b::T) where T
-    
     if typeof(a)!=Point
         return _add_operation_type(a, b, typeof(a))
     else
@@ -42,19 +40,17 @@ function add_xyz(a, b)
 
     if typeof(a) == typeof(b) #executing a double check
         return _add_xyz_same(a, b)
-
     elseif (typeof(a) == Vec && typeof(b) == Point) || (typeof(a) == Point && typeof(b) == Vec)
         return _add_operation_type(a, b, Point)
-    
     else
         throw(Type_error("Trying summing a $(typeof(a)) with a $(typeof(b)) "))
-
     end
 
 
 end
 
-#difference functions
+#Difference functions
+
 function _sub_operation_type(a, b, constructor)
     return constructor(a.x - b.x, a.y - b.y, a.z - b.z)
 end
@@ -63,7 +59,7 @@ end
 function _sub_xyz_same(a::T,b::T) where T
 
     if typeof(a) == Point 
-        return _sub_operation_type(a, b, Vec) #Difference between two Points is a Vec
+        return _sub_operation_type(a, b, Vec) #difference between two Points is a Vec
     else
         return _sub_operation_type(a, b, typeof(a))
     end
@@ -126,12 +122,12 @@ function squared_norm(a)
     end
 end
 
-#norm
+#Norm
 function norm(a)
     return sqrt(squared_norm(a))
 end
 
-#normalize function
+#Normalize function
 function normalize(a)
     return scalar_multip(1. /norm(a), a)
 end
@@ -154,7 +150,6 @@ function cross(a, b)
 
     if typeof(a) != Point && typeof(b) != Point
         return Vec(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x) #always returning a Vec ??
-
     else
         throw(Type_error("Trying to do cross product with Point, expected Vec or Normal"))
     end
