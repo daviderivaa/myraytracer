@@ -39,8 +39,15 @@ end
     B = Point(-1.6, 0.5, -0.7)
     na = Normal(0.8, -0.5, 1.4)
     nb = Normal(-1.6, 0.5, -0.7)
+    m = [1.0 0.0 0.0 10.0;
+     0.0 1.0 0.0 5.0;
+     0.0 0.0 1.0 3.0;
+     0.0 0.0 0.0 1.0]  #Traslation
+    Ta = Transformation(m)
+    
     lambda = 2.0
     
     @test scalar_multip(lambda, a) == Vec(1.6, -1.0, 2.8)
+    @test is_consistent(Ta)
 
 end
