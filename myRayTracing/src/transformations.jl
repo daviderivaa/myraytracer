@@ -1,7 +1,7 @@
 
 #DEFINING TRANSFORMATION STRUCT AND OPERATIONS
 using LinearAlgebra
-
+include("geometry.jl")
 
 #########################################################################################
 
@@ -11,13 +11,13 @@ struct Transformation
     m::Matrix{Float64}
     invm::Matrix{Float64}
 
-    function Transformation(m::Matrix{Float64}=IDENTITY_MATR4x4, invm::Matrix{Float64}=IDENTITY_MATR4x4)
-        new(m, invm)
+    function Transformation(M::Matrix{Float64}=IDENTITY_MATR4x4, invM::Matrix{Float64}=IDENTITY_MATR4x4)
+        new(M, invM)
     end
 
-    function Transformation(m::Matrix{Float64})
-        invm = inv(m)
-        new(m, invm)
+    function Transformation(M::Matrix{Float64})
+        invM = inv(M)
+        new(M, invM)
     end
 end
 
@@ -33,4 +33,84 @@ end
 function is_consistent(T::Transformation)
     prod = T.m*T.invm
     return _are_matr_close(prod, IDENTITY_MATR4x4)
+end
+
+#Initialize a Translation for a given vector
+function traslation(v)
+    m = [1.0 0.0 0.0 v.x;
+         0.0 1.0 0.0 v.y;
+         0.0 0.0 1.0 v.z;
+         0.0 0.0 0.0 1.0]
+    T = Transformation(m)
+    return T
+end
+
+#Scaling by a single factor or three factors, one for each axis
+function scaling(a, b=nothing, c=nothing)
+    b === nothing && (b = a)
+    c === nothing && (c = a)
+    m = [a 0.0 0.0 0.0;
+         0.0 b 0.0 0.0;
+         0.0 0.0 c 0.0;
+         0.0 0.0 0.0 1.0]
+    T = Transformation(m)
+    return T
+end
+
+#Initialize a Rotation around a given axis
+function rotation(axis, angle)
+    if axis == "x"
+        m = [1.0 0.0 0.0 0.0;
+             0.0 cos(angle) -sin(angle) 0.0;
+             0.0 sin(angle) cos(angle) 0.0;
+             0.0 0.0 0.0 1.0]
+        T = Transformation(m)
+        return T
+    elseif axis == "y"
+        m = [cos(angle) 0.0 sin(angle) 0.0;
+             0.0 1.0 0.0 0.0;
+             -sin(angle) 0.0 cos(angle) 0.0;
+             0.0 0.0 0.0 1.0]
+        T = Transformation(m)
+        return T
+    elseif axis == "z"
+        m = [cos(angle) -sin(angle) 0.0 0.0;
+             sin(angle) cos(angle) 0.0 0.0;
+             0.0 0.0 1.0 0.0;
+             0.0 0.0 0.0 1.0]
+        T = Transformation(m)
+        return T
+    else 
+        println("Axis $axis not defined")
+    end  
+end
+
+function apply_transf(T, a)
+    if typeof(a) == Point
+        if ((a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3] + T.m[4,4]) == 1.0)
+            return Point((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3] + T.m[1,4]), 
+                         (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3] + T.m[2,4]), 
+                         (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3] + T.m[3,4]))
+        else 
+            println("Point type not preserved in transformation")
+        end
+    elseif typeof(a) == Vec
+        if ((a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3]) == 0.0)
+            return Vec((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3]), 
+                       (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3]), 
+                       (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3]))
+        else
+            println("Vector type not preserved in transformation")
+        end
+    elseif typeof(a) == Normal
+        if ((a.x*T.m[1,4] + a.y*T.m[2,4] + a.z*T.m[3,4]) == 0.0)
+            return Normal((a.x*T.m[1,1] + a.y*T.m[2,1] + a.z*T.m[3,1]), 
+                          (a.x*T.m[1,2] + a.y*T.m[2,2] + a.z*T.m[3,2]), 
+                          (a.x*T.m[1,3] + a.y*T.m[2,3] + a.z*T.m[3,3]))
+        else
+            println("Normal type not preserved in transformation")
+        end
+    else
+        println("Inalid object type for the transformation")
+    end
 end

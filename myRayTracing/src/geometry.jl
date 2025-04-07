@@ -9,7 +9,7 @@ end
 #SHARED FUNCTIONS 
 
 function _are_xyz_close(a::T, b::T, epsilon=1e-6) where T #Check if a and b are the same type, if not raise MethodError
-    return a.x - b.x <= epsilon && a.y - b.y <= epsilon && a.z - b.z <= epsilon #Return True if the two variables are similiar, False otherwise
+    return abs(a.x - b.x) <= epsilon && abs(a.y - b.y) <= epsilon && abs(a.z - b.z) <= epsilon #Return True if the two variables are similiar, False otherwise
 end
 
 #Print function
