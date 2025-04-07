@@ -46,7 +46,7 @@ end
 
 end
 
-@testset "Check Tranformation functions" begin
+@testset "Check Transformation functions" begin
 
     p = Point(1.0, 2.0, 3.0)
     v = Vec(1.0, 2.0, 3.0)
