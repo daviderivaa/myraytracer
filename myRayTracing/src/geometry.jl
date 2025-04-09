@@ -1,3 +1,5 @@
+import LinearAlgebra: cross
+
 # DEFINING VEC POINT AND NORMAL STRUCTS AND CORRESPONDING OPERATIONS
 ############################################################################
 
@@ -55,7 +57,7 @@ function _sub_operation_type(a, b, constructor)
 end
 
 
-function _sub_xyz_same(a::T,b::T) where T
+function Base.(-)(a::T,b::T) where T
 
     if typeof(a) == Point 
         return _sub_operation_type(a, b, Vec) #difference between two Points is a Vec
@@ -145,13 +147,8 @@ end
 
 
 #Cross product
-function cross(a, b)
-
-    if typeof(a) != Point && typeof(b) != Point
-        return Vec(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x) #always returning a Vec ??
-    else
-        throw(Type_error("Trying to do cross product with Point, expected Vec or Normal"))
-    end
+function LinearAlgebra.(cross)(a::Union{Vec,Normal}, b::Union{Vec,Normal})
+    return Vec(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x) #always returning a Vec 
 end
 
 
