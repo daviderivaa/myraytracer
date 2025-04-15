@@ -1,16 +1,23 @@
 module myRayTracing
 
-include("Color_and_HdrImage.jl")
-include("PFMfunctions.jl")
-include("LdrImage.jl")
-include("geometry.jl")
-include("transformations.jl")
+#including libraries and export methods
 
-#Esporta le classi e le funzioni per poterle leggere nel main
+include("Color_and_HdrImage.jl")
 export RGB, HdrImage, print_image, _read_float, _parse_endianness, _read_line, InvalidPfmFileFormat
+
+include("PFMfunctions.jl")
 export read_pfm
+
+include("LdrImage.jl")
 export tone_mapping!, gamma_correction!, read_user_input
+
+include("geometry.jl")
 export Vec, Point, Normal, print_element, _are_xyz_close, neg, dot, squared_norm, norm, normalize, cross, Point_to_Vec
+
+include("transformations.jl")
 export Transformation, is_consistent, traslation, scaling, rotation, apply_transf
+
+include("ray.jl")
+export Ray, at, is_close, transform_ray
 
 end

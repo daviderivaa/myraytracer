@@ -17,7 +17,6 @@ end
     @test_throws InvalidPfmFileFormat _parse_endianness("pippo")
     @test_throws InvalidPfmFileFormat _parse_endianness("0.0")
     @test_throws InvalidPfmFileFormat _parse_endianness("nan")
-    #@test_throws InvalidPfmFileFormat _parse_endianness("-1")
 
 end
 
@@ -72,5 +71,22 @@ end
     @test _are_xyz_close(apply_transf(s, v), Vec(2.0, 4.0, 6.0))
     @test _are_xyz_close(apply_transf(s2, p), Point(2.0, 6.0, 12.0))
     @test _are_xyz_close(apply_transf(s2, v), Vec(2.0, 6.0, 12.0))
+
+end
+
+@testset "Check ray methods" begin
+
+    p = Point(1.0, 2.0, 3.0)
+    v = Vec(1.0, 2.0, 3.0)
+    r = Ray(p,v)
+    r_2 = Ray(Point(3.0, 6.0, 9.0),v)
+
+    rz = rotation("z", pi/2)
+    transformed_ray = Ray(Point(-2.0, 1.0, 3.0),Vec(-2.0, 1.0, 3.0))
+
+    @test _are_xyz_close(at(r,2.0), Point(3.0, 6.0, 9.0))
+    @test is_close(Ray(at(r, 2.0),v), r_2)
+    @test is_close(transform_ray(r,rz), transformed_ray)
+
 
 end
