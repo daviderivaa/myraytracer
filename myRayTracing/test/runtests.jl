@@ -42,7 +42,8 @@ end
     
     lambda = 2.0
     
-    @test scalar_multip(lambda, a) == Vec(1.6, -1.0, 2.8)
+    @test _are_xyz_close(lambda * a, Vec(1.6, -1.0, 2.8))
+    @test _are_xyz_close(cross(a,b), Vec(-0.35,-1.68,-0.4))
 
 end
 
