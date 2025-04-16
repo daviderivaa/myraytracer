@@ -6,9 +6,19 @@ on:
   pull_request:
     branches: [main]
 
+  workflow_dispatch:
+
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Julia ${{matrix.julia-version}} on ${{matrix.os}}
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        julia-version:
+          - '1.11'
+        os:
+          - ubuntu-latest
+
 
     steps:
       - name: Checkout repository
@@ -17,7 +27,7 @@ jobs:
       - name: Set up Julia
         uses: julia-actions/setup-julia@v2
         with:
-          version: '1.10'
+          version: ${{matrix.julia-version}}
 
       - name: Build package
         uses: julia-actions/julia-buildpkg@v1
