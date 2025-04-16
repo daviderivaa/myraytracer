@@ -29,6 +29,12 @@ jobs:
         with:
           version: ${{matrix.julia-version}}
 
+      - name: Cache Julia packages
+        uses: julia-actions/cache@v1
+        with:
+          # Specifica la directory del progetto
+          path: myRayTracing
+
       - name: Install dependencies
         run: julia --project=./myRayTracing -e 'using Pkg; Pkg.instantiate()'
 
