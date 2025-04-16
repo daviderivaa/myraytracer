@@ -102,37 +102,40 @@ function rotation(axis, angle)
 end
 
 
-#Tranformation for Point
-function apply_transf(T::Transformation, a::Point)
+#Transformation for Point
+function Base.:*(T::Transformation, a::Point)
     if ((a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3] + T.m[4,4]) == 1.0)
         return Point((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3] + T.m[1,4]), 
-                        (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3] + T.m[2,4]), 
-                        (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3] + T.m[3,4]))
+                     (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3] + T.m[2,4]), 
+                     (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3] + T.m[3,4]))
     else 
         throw(Transformation_error("Point type not preserved in transformation"))
     end
 end
 
 
-#Tranformation for Vec
-function apply_transf(T::Transformation, a::Vec)
+#Transformation for Vec
+function Base.:*(T::Transformation, a::Vec)
     if ((a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3]) == 0.0)
         return Vec((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3]), 
-                    (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3]), 
-                    (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3]))
+                   (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3]), 
+                   (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3]))
     else
         throw(Transformation_error("Vector type not preserved in transformation"))
     end
 end
 
 
-#Tranformation for Normal
-function apply_transf(T::Transformation, a::Normal)
-    if ((a.x*T.m[1,4] + a.y*T.m[2,4] + a.z*T.m[3,4]) == 0.0)
-        return Normal((a.x*T.m[1,1] + a.y*T.m[2,1] + a.z*T.m[3,1]), 
-                        (a.x*T.m[1,2] + a.y*T.m[2,2] + a.z*T.m[3,2]), 
-                        (a.x*T.m[1,3] + a.y*T.m[2,3] + a.z*T.m[3,3]))
+#Transformation for Normal
+function Base.:*(T::Transformation, a::Normal)
+    if ((a.x*T.invm[1,4] + a.y*T.invm[2,4] + a.z*T.invm[3,4]) == 0.0)
+        return Normal((a.x*T.invm[1,1] + a.y*T.invm[2,1] + a.z*T.invm[3,1]), 
+                      (a.x*T.invm[1,2] + a.y*T.invm[2,2] + a.z*T.invm[3,2]), 
+                      (a.x*T.invm[1,3] + a.y*T.invm[2,3] + a.z*T.invm[3,3]))
     else
         throw(Transformation_error("Normal type not preserved in transformation"))
     end
 end
+
+#Transformation composition
+#to do
