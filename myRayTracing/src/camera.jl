@@ -1,15 +1,18 @@
 #Camera struct
 
 #Defining an abstarct type with two substructs
+"""Abstarct struct for cameras"""
 abstract type Camera
 end
 
+"""Abstarct method for fire_ray"""
 function fire_ray(cam::Camera, u, v)
     error("Metodo fire_ray non implementato per $(typeof(cam))")
 end
 
 #Defining substructs
 #Orthogonal Camera
+"""Creates a Orthogonal Camera with its own aspect ratio and transformation"""
 struct OrthogonalCamera <: Camera
 
     aspect_ratio::Float64
@@ -21,6 +24,8 @@ struct OrthogonalCamera <: Camera
 
 end
 
+"""Shoot a ray through the camera screen
+    u and v are the coordinates un the screen. (u,v)=(0,0) is the bottom left corner, (u,v)=(1,1) is the top right one"""
 function fire_ray(cam::OrthogonalCamera, u, v)
 
     origin = Point(-1.0, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1)
@@ -30,6 +35,7 @@ function fire_ray(cam::OrthogonalCamera, u, v)
 end
 
 #Perspective Camera
+"""Creates a Perspective Camera with its own origin, aspect ratio and transformation"""
 struct PerspectiveCamera <: Camera
 
     distance::Float64
@@ -42,6 +48,8 @@ struct PerspectiveCamera <: Camera
 
 end
 
+"""Shoot a ray through the camera screen
+    u and v are the coordinates un the screen. (u,v)=(0,0) is the bottom left corner, (u,v)=(1,1) is the top right one"""
 function fire_ray(cam::PerspectiveCamera, u, v)
     
     origin = Point(-cam.distance, 0.0, 0.0)
@@ -50,11 +58,9 @@ function fire_ray(cam::PerspectiveCamera, u, v)
 
 end
 
-function aperture_deg(cam::PerspectiveCamera)
-
-    """Compute the aperture of the camera in degrees
+"""Compute the aperture of the camera in degrees
 
     The aperture is the angle of the field-of-view along the horizontal direction (Y axis)"""
+function aperture_deg(cam::PerspectiveCamera)
     return 2.0 * math.atan(cam.distance / cam.aspect_ratio) * 180.0 / 3.14159265359
-
 end

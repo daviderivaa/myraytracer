@@ -20,4 +20,7 @@ export Transformation, is_consistent, traslation, scaling, rotation, apply_trans
 include("ray.jl")
 export Ray, at, is_close, transform_ray
 
+include("camera.jl")
+export Camera, fire_ray, OrthogonalCamera, PerspectiveCamera, aperture_deg
+
 end
