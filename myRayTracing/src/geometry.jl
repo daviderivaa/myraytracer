@@ -134,12 +134,6 @@ function cross(a::Union{Vec,Normal}, b::Union{Vec,Normal})
 end
 
 #Point to Vec
-function Point_to_Vec(a)
-
-    if typeof(a) == Point
-        return Vec(a.x, a.y, a.z)
-    else
-        throw(Type_error("Trying to convert $(typeof(a)) into a Vec, expected Point"))
-    end
-    
+function Point_to_Vec(a::Point)
+    return Vec(a.x, a.y, a.z)    
 end
