@@ -30,7 +30,7 @@ jobs:
           version: ${{matrix.julia-version}}
 
       - name: Install dependencies
-        run: julia --project -e 'using Pkg; Pkg.instantiate("./myRayTracing")'
+        run: julia --project=./myRayTracing -e 'using Pkg; Pkg.instantiate()'
 
       - name: Run tests
-        run: julia --project -e 'using Pkg; Pkg.test("./myRayTracing")'
+        run: julia --project=./myRayTracing -e 'using Pkg; Pkg.test()'
