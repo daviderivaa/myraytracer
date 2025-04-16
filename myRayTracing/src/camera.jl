@@ -7,7 +7,7 @@ end
 
 """Abstarct method for fire_ray"""
 function fire_ray(cam::Camera, u, v)
-    error("Metodo fire_ray non implementato per $(typeof(cam))")
+    throw(Type_error("fire_ray method not implemented for $(typeof(cam))"))
 end
 
 #Defining substructs
