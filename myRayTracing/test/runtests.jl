@@ -94,15 +94,16 @@ end
 
     vec = Vec(0.0, 0.0, 0.0)
     t = traslation(vec)
-    OC = OrthogonalCamera(16.0/9.0, t)
-    PC = PerspectiveCamera(1.0, 16.0/9.0, t)
-    OCorigin = Point(-1.0, 1.0 * (16.0/9.0), -1.0)
+    OC = OrthogonalCamera((16.0/9.0), t)
+    PC = PerspectiveCamera(1.0, (16.0/9.0), t)
+    OCorigin = Point(-1.0, (16.0/9.0), -1.0)
     OCdirection = Vec(1.0, 0.0, 0.0)
-    OCray = Ray(origin, direction)
+    OCray = Ray(OCorigin, OCdirection)
     PCorigin = Point(-1.0, 0.0, 0.0)
-    PCdirection = Vec(1.0, 0.0, 0.0)
-    PCray = Ray(origin, direction)
+    PCdirection = Vec(1.0, (16.0/9.0), -1.0)
+    PCray = Ray(PCorigin, PCdirection)
 
-    #@test fire_ray(OC, 0.0, 0.0) == OCray
+    @test is_close(fire_ray(OC, 0.0, 0.0), OCray)
+    @test is_close(fire_ray(PC, 0.0, 0.0), PCray)
 
 end

@@ -28,9 +28,10 @@ end
     u and v are the coordinates un the screen. (u,v)=(0,0) is the bottom left corner, (u,v)=(1,1) is the top right one"""
 function fire_ray(cam::OrthogonalCamera, u, v)
 
-    origin = Point(-1.0, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1)
+    origin = Point(-1.0, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0)
     direction = Vec(1.0, 0.0, 0.0)
-    return cam.transformation*Ray(origin=origin, dir=direction)
+    #return cam.transformation*Ray(origin=origin, dir=direction)
+    return Ray(origin, direction)
 
 end
 
@@ -40,10 +41,10 @@ struct PerspectiveCamera <: Camera
 
     distance::Float64
     aspect_ratio::Float64
-    transfromation::Transformation
+    transformation::Transformation
 
-    function PerspectiveCamera(distance, aspect_ratio, transfromation::Transformation)
-        new(distance, aspect_ratio, transfromation)
+    function PerspectiveCamera(distance, aspect_ratio, transformation::Transformation)
+        new(distance, aspect_ratio, transformation)
     end
 
 end
@@ -53,8 +54,8 @@ end
 function fire_ray(cam::PerspectiveCamera, u, v)
     
     origin = Point(-cam.distance, 0.0, 0.0)
-    direction = Vec(cam.distance, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1)
-    return cam.transformation*Ray(origin=origin, dir=direction)
+    direction = Vec(cam.distance, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0)
+    return cam.transformation*Ray(origin, direction)
 
 end
 
