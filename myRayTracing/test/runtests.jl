@@ -17,7 +17,6 @@ end
     @test_throws InvalidPfmFileFormat _parse_endianness("pippo")
     @test_throws InvalidPfmFileFormat _parse_endianness("0.0")
     @test_throws InvalidPfmFileFormat _parse_endianness("nan")
-    #@test_throws InvalidPfmFileFormat _parse_endianness("-1")
 
 end
 
@@ -60,17 +59,51 @@ end
     s = scaling(2.0)
     s2 = scaling(2.0, 3.0, 4.0)
 
-    @test _are_xyz_close(apply_transf(t, p), Point(10.0, 10.0, 10.0))
-    @test _are_xyz_close(apply_transf(t, v), v)
-    @test _are_xyz_close(apply_transf(rx, p), Point(1.0, -3.0, 2.0))
-    @test _are_xyz_close(apply_transf(ry, p), Point(3.0, 2.0, -1.0))
-    @test _are_xyz_close(apply_transf(rz, p), Point(-2.0, 1.0, 3.0))
-    @test _are_xyz_close(apply_transf(rx, v), Vec(1.0, -3.0, 2.0))
-    @test _are_xyz_close(apply_transf(ry, v), Vec(3.0, 2.0, -1.0))
-    @test _are_xyz_close(apply_transf(rz, v), Vec(-2.0, 1.0, 3.0))
-    @test _are_xyz_close(apply_transf(s, p), Point(2.0, 4.0, 6.0))
-    @test _are_xyz_close(apply_transf(s, v), Vec(2.0, 4.0, 6.0))
-    @test _are_xyz_close(apply_transf(s2, p), Point(2.0, 6.0, 12.0))
-    @test _are_xyz_close(apply_transf(s2, v), Vec(2.0, 6.0, 12.0))
+    @test _are_xyz_close((t*p), Point(10.0, 10.0, 10.0))
+    @test _are_xyz_close((t*v), v)
+    @test _are_xyz_close((rx*p), Point(1.0, -3.0, 2.0))
+    @test _are_xyz_close((ry*p), Point(3.0, 2.0, -1.0))
+    @test _are_xyz_close((rz*p), Point(-2.0, 1.0, 3.0))
+    @test _are_xyz_close((rx*v), Vec(1.0, -3.0, 2.0))
+    @test _are_xyz_close((ry*v), Vec(3.0, 2.0, -1.0))
+    @test _are_xyz_close((rz*v), Vec(-2.0, 1.0, 3.0))
+    @test _are_xyz_close((s*p), Point(2.0, 4.0, 6.0))
+    @test _are_xyz_close((s*v), Vec(2.0, 4.0, 6.0))
+    @test _are_xyz_close((s2*p), Point(2.0, 6.0, 12.0))
+    @test _are_xyz_close((s2*v), Vec(2.0, 6.0, 12.0))
+
+end
+
+@testset "Check ray methods" begin
+
+    p = Point(1.0, 2.0, 3.0)
+    v = Vec(1.0, 2.0, 3.0)
+    r = Ray(p,v)
+    r_2 = Ray(Point(3.0, 6.0, 9.0),v)
+
+    rz = rotation("z", pi/2)
+    transformed_ray = Ray(Point(-2.0, 1.0, 3.0),Vec(-2.0, 1.0, 3.0))
+
+    @test _are_xyz_close(at(r,2.0), Point(3.0, 6.0, 9.0))
+    @test is_close(Ray(at(r, 2.0),v), r_2)
+    @test is_close((rz*r), transformed_ray)
+
+end
+
+@testset "Check camera methods" begin
+
+    vec = Vec(0.0, 0.0, 0.0)
+    t = traslation(vec)
+    OC = OrthogonalCamera((16.0/9.0), t)
+    PC = PerspectiveCamera(1.0, (16.0/9.0), t)
+    OCorigin = Point(-1.0, (16.0/9.0), -1.0)
+    OCdirection = Vec(1.0, 0.0, 0.0)
+    OCray = Ray(OCorigin, OCdirection)
+    PCorigin = Point(-1.0, 0.0, 0.0)
+    PCdirection = Vec(1.0, (16.0/9.0), -1.0)
+    PCray = Ray(PCorigin, PCdirection)
+
+    @test is_close(fire_ray(OC, 0.0, 0.0), OCray)
+    @test is_close(fire_ray(PC, 0.0, 0.0), PCray)
 
 end
