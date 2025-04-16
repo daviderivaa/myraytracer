@@ -2,13 +2,23 @@ name: CI
 
 on:
   push:
-    branches: [ITracer]
-  pull_request:
     branches: [main]
+  #pull_request:
+    #branches: [main]
+
+  workflow_dispatch:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Julia ${{matrix.julia-version}} on ${{matrix.os}}
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        julia-version:
+          - '1.11'
+        os:
+          - ubuntu-latest
+
 
     steps:
       - name: Checkout repository
@@ -17,10 +27,16 @@ jobs:
       - name: Set up Julia
         uses: julia-actions/setup-julia@v2
         with:
-          version: '1.10'
+          version: ${{matrix.julia-version}}
 
-      - name: Build package
-        uses: julia-actions/julia-buildpkg@v1
+      - name: Cache Julia packages
+        uses: julia-actions/cache@v1
+        with:
+          # Specifica la directory del progetto
+          path: myRayTracing
+
+      - name: Install dependencies
+        run: julia --project=./myRayTracing -e 'using Pkg; Pkg.instantiate()'
 
       - name: Run tests
-        uses: julia-actions/julia-runtest@v1
+        run: julia --project=./myRayTracing -e 'using Pkg; Pkg.test()'
