@@ -14,7 +14,6 @@ Defining Tranformation struct and methods:
     - invm::Matrix{Float64} ---> inverse of m (useful in order to apply the transformation to Normal)
 
 """ 
-
 struct Transformation
     m::Matrix{Float64}
     invm::Matrix{Float64}
@@ -44,7 +43,7 @@ end
 
 """
 function is_consistent(T)
-    check if T.invm is truly the inverse of T.m 
+    checks if T.invm is truly the inverse of T.m 
 """
 function is_consistent(T::Transformation)
     prod = T.m*T.invm
