@@ -59,18 +59,18 @@ end
     s = scaling(2.0)
     s2 = scaling(2.0, 3.0, 4.0)
 
-    @test _are_xyz_close(apply_transf(t, p), Point(10.0, 10.0, 10.0))
-    @test _are_xyz_close(apply_transf(t, v), v)
-    @test _are_xyz_close(apply_transf(rx, p), Point(1.0, -3.0, 2.0))
-    @test _are_xyz_close(apply_transf(ry, p), Point(3.0, 2.0, -1.0))
-    @test _are_xyz_close(apply_transf(rz, p), Point(-2.0, 1.0, 3.0))
-    @test _are_xyz_close(apply_transf(rx, v), Vec(1.0, -3.0, 2.0))
-    @test _are_xyz_close(apply_transf(ry, v), Vec(3.0, 2.0, -1.0))
-    @test _are_xyz_close(apply_transf(rz, v), Vec(-2.0, 1.0, 3.0))
-    @test _are_xyz_close(apply_transf(s, p), Point(2.0, 4.0, 6.0))
-    @test _are_xyz_close(apply_transf(s, v), Vec(2.0, 4.0, 6.0))
-    @test _are_xyz_close(apply_transf(s2, p), Point(2.0, 6.0, 12.0))
-    @test _are_xyz_close(apply_transf(s2, v), Vec(2.0, 6.0, 12.0))
+    @test _are_xyz_close((t*p), Point(10.0, 10.0, 10.0))
+    @test _are_xyz_close((t*v), v)
+    @test _are_xyz_close((rx*p), Point(1.0, -3.0, 2.0))
+    @test _are_xyz_close((ry*p), Point(3.0, 2.0, -1.0))
+    @test _are_xyz_close((rz*p), Point(-2.0, 1.0, 3.0))
+    @test _are_xyz_close((rx*v), Vec(1.0, -3.0, 2.0))
+    @test _are_xyz_close((ry*v), Vec(3.0, 2.0, -1.0))
+    @test _are_xyz_close((rz*v), Vec(-2.0, 1.0, 3.0))
+    @test _are_xyz_close((s*p), Point(2.0, 4.0, 6.0))
+    @test _are_xyz_close((s*v), Vec(2.0, 4.0, 6.0))
+    @test _are_xyz_close((s2*p), Point(2.0, 6.0, 12.0))
+    @test _are_xyz_close((s2*v), Vec(2.0, 6.0, 12.0))
 
 end
 
@@ -86,7 +86,7 @@ end
 
     @test _are_xyz_close(at(r,2.0), Point(3.0, 6.0, 9.0))
     @test is_close(Ray(at(r, 2.0),v), r_2)
-    @test is_close(transform_ray(r,rz), transformed_ray)
+    @test is_close((rz*r), transformed_ray)
 
 
 end
