@@ -88,5 +88,21 @@ end
     @test is_close(Ray(at(r, 2.0),v), r_2)
     @test is_close(transform_ray(r,rz), transformed_ray)
 
+end
+
+@testset "Check camera methods" begin
+
+    vec = Vec(0.0, 0.0, 0.0)
+    t = traslation(vec)
+    OC = OrthogonalCamera(16.0/9.0, t)
+    PC = PerspectiveCamera(1.0, 16.0/9.0, t)
+    OCorigin = Point(-1.0, 1.0 * (16.0/9.0), -1.0)
+    OCdirection = Vec(1.0, 0.0, 0.0)
+    OCray = Ray(origin, direction)
+    PCorigin = Point(-1.0, 0.0, 0.0)
+    PCdirection = Vec(1.0, 0.0, 0.0)
+    PCray = Ray(origin, direction)
+
+    #@test fire_ray(OC, 0.0, 0.0) == OCray
 
 end
