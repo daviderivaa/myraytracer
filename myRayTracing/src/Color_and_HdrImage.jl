@@ -4,19 +4,28 @@ import ColorTypes: ColorTypes, RGB
 
 ###IMAGE STRUCT!
 
+"""
+mutable struct HdrImage:
+
+    width, height (Int, Int) --> image dimensions
+    pixels --> 2D image matrix, represented as 1D array. Each entry has 3 values: Red, Green, Blue
+
+    Mutable struct allows to use inplace methods
+
+"""
 mutable struct HdrImage
     width::Int
     height::Int
     pixels::Matrix{RGB}
 
-    function HdrImage(width, height)  # Costruttore senza dati
+    function HdrImage(width, height)  # defaul constructor
         pixels = Matrix{RGB}(undef, height, width)
         new(width, height, pixels)
     end
 
-    function HdrImage(pixel_data, width, height)  # Costruttore con dati
+    function HdrImage(pixel_data, width, height)  # Constructor with data
         if length(pixel_data) != width * height * 3
-            throw(ArgumentError("Il numero di elementi in pixel_data non corrisponde a width * height * 3"))
+            throw(ArgumentError("Number of elements of pixel_data doesn't match width * height * 3"))
         end
 
         pixels = Matrix{RGB}(undef, height, width)
@@ -32,13 +41,19 @@ end
 
 ###IMAGE FUNCTIONS!!!
 
-#Stampa un'immagine 
+"""
 function print_image(img::HdrImage)
-    println("Colore dei pixel dell'immagine $(img.height)x$(img.width):")
+    print image dimensions and pixels in RGB representation
+""" 
+function print_image(img::HdrImage)
+    println("Image pixels $(img.height)x$(img.width):")
     println(img)
 end
 
-#Controlla che un pixel stia nell'immagine
+"""
+function valid_pixel(img::HdrImage, column, line)
+    checks if pixels[column, line] exists
+"""
 function valid_pixel(img::HdrImage, column, line)
     return line >= 1 && line <= img.height && column >= 1 && column <= img.width
 end
