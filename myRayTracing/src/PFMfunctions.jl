@@ -1,6 +1,6 @@
 ###PFM FUNCTIONS
 
-#Stampa una stringa specificata nell'input quando gli passo un formato PFM invalido
+#Error definition
 struct InvalidPfmFileFormat <: Exception
     msg::String
 end
@@ -47,7 +47,7 @@ function _parse_img_size(line)
     reads image dimensions, checking if they are two positive integers
 """
 function _parse_img_size(line)
-    elements = split(line, " ")  #Divide la stringa in parti
+    elements = split(line, " ")  #Split string
     if length(elements) != 2
         throw(InvalidPfmFileFormat("Invalid image size specification"))
     end
