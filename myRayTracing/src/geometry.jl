@@ -174,27 +174,58 @@ function Base.:*(a::Union{Vec,Normal}, b::Union{Vec,Normal})
     return a.x*b.x + a.y*b.y + a.z*b.z
 end
 
-"""function squared_norm(a)"""
+"""
+function squared_norm(a)
+    returns the squared norm of a Voc or Normal    
+"""
 function squared_norm(a::Union{Vec,Normal})
         return a.x^2 + a.y^2 + a.z^2
 end
 
-#Norm
+"""
+function norm(a)
+    returns the norm of a Vec or Normal
+"""
 function norm(a::Union{Vec,Normal})
     return sqrt(squared_norm(a))
 end
 
-#Converting Vec into Normal
+"""
+function normalize(a)
+    given a Vec, it returns the same vector after normalization (returns Normal)
+"""
 function normalize(a::Vec)
     return Normal(a.x/norm(a), a.y/norm(a), a.z/norm(a))
 end
 
-#Cross product
+"""
+function cross(a, b)
+    cross product between two Vec or Normal)
+"""
 function cross(a::Union{Vec,Normal}, b::Union{Vec,Normal})
     return Vec(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x) #always returning a Vec 
 end
 
-#Point to Vec
+"""
+function Point_to_Vec(a)
+    converts a Point into a Vec with same (x,y,z)
+"""
 function Point_to_Vec(a::Point)
+    return Vec(a.x, a.y, a.z)    
+end
+
+"""
+function Vec_to_Point(a)
+    converts a Vec into a Point with same (x,y,z)
+"""
+function Vec_to_Point(a::Vec)
+    return Point(a.x, a.y, a.z)    
+end
+
+"""
+function Norm_to_Vec(a)
+    converts a Normal into a Vec with same (x,y,z)
+"""
+function Norm_to_Vec(a::Normal)
     return Vec(a.x, a.y, a.z)    
 end
