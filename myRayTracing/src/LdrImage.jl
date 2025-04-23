@@ -1,11 +1,17 @@
 ###TONE MAPPING & LDR IMAGE!
 
-#uno dei possibili modi di valutare la luminosità di un pixel
+"""
+function _luminosity(color::RGB)
+    compute luminosity as (max{R, G, B}+min{R, G, B}) / 2
+"""
 function _luminosity(color::RGB)
     return (max(color.r, color.g, color.b) + min(color.r, color.g, color.b))/2
 end
 
-#calcola la luminosità logaritmica media dell'immagine
+"""
+function _average_luminosity(img::HdrImage, delta)
+    compute average luminosity using logaritmic formula: 
+"""
 function _average_luminosity(img::HdrImage, delta=1e-10)
     cumsum = 0.0
     for pix in img.pixels
