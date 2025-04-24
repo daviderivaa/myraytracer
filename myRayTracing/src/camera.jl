@@ -12,7 +12,13 @@ end
 
 #Defining substructs
 #Orthogonal Camera
-"""Creates a Orthogonal Camera with its own aspect ratio and transformation"""
+"""
+struct OrthogonalCamera <: Camera
+    Creates a Orthogonal Camera with its own aspect ratio and transformation
+
+    aspect_ratio::Float64 --> aspect ratio of the screen
+    transformation::Transformation --> transformation that leads to the point of view
+"""
 struct OrthogonalCamera <: Camera
 
     aspect_ratio::Float64
