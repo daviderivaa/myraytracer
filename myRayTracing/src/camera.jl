@@ -86,5 +86,5 @@ function aperture_deg(cam::PerspectiveCamera)
     Compute the aperture of the camera in degrees. The aperture is the angle of the field-of-view along the horizontal direction (Y axis).
 """
 function aperture_deg(cam::PerspectiveCamera)
-    return 2.0 * math.atan(cam.distance / cam.aspect_ratio) * 180.0 / 3.14159265359
+    return 2.0 * atan(cam.distance / cam.aspect_ratio) * 180.0 / π
 end

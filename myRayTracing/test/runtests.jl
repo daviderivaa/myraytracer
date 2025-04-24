@@ -105,5 +105,6 @@ end
 
     @test is_close(fire_ray(OC, 0.0, 0.0), OCray)
     @test is_close(fire_ray(PC, 0.0, 0.0), PCray)
+    @test aperture_deg(PC) == 2.0 * atan(9.0/16.0) * 180.0 / π
 
 end
