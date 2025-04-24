@@ -22,27 +22,37 @@ struct OrthogonalCamera <: Camera
 struct OrthogonalCamera <: Camera
 
     aspect_ratio::Float64
-    transfromation::Transformation
+    transformation::Transformation
 
-    function OrthogonalCamera(aspect_ratio, transfromation::Transformation)
-        new(aspect_ratio, transfromation)
+    function OrthogonalCamera(aspect_ratio, transformation::Transformation)
+        new(aspect_ratio, transformation)
     end
 
 end
 
-"""Shoot a ray through the camera screen
-    u and v are the coordinates un the screen. (u,v)=(0,0) is the bottom left corner, (u,v)=(1,1) is the top right one"""
+"""
+function fire_ray(cam::OrthogonalCamera, u, v)
+    Shoot a ray through the camera screen, u and v are the coordinates un the screen. (u,v)=(0,0) is the bottom left corner, (u,v)=(1,1) is the top right one.
+
+    origin = Point(-1.0, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0)c
+"""
 function fire_ray(cam::OrthogonalCamera, u, v)
 
     origin = Point(-1.0, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0)
     direction = Vec(1.0, 0.0, 0.0)
-    #return cam.transformation*Ray(origin=origin, dir=direction)
-    return Ray(origin, direction)
+    return cam.transformation*Ray(origin, direction)
 
 end
 
 #Perspective Camera
-"""Creates a Perspective Camera with its own origin, aspect ratio and transformation"""
+"""
+struct PerspectiveCamera <: Camera
+    Creates a Perspective Camera with its own origin, aspect ratio and transformation.
+
+    distance::Float64 --> in the perspective camera you also have to specify the distance from the screen
+    aspect_ratio::Float64 --> aspect ratio of the screen    
+    transformation::Transformation --> transformation that leads to the point of view
+"""
 struct PerspectiveCamera <: Camera
 
     distance::Float64
@@ -55,8 +65,14 @@ struct PerspectiveCamera <: Camera
 
 end
 
-"""Shoot a ray through the camera screen
-    u and v are the coordinates un the screen. (u,v)=(0,0) is the bottom left corner, (u,v)=(1,1) is the top right one"""
+"""
+function fire_ray(cam::PerspectiveCamera, u, v)
+    Shoot a ray through the camera screen, u and v are the coordinates un the screen. (u,v)=(0,0) is the bottom left corner, (u,v)=(1,1) is the top right one.
+
+    origin = Point(-cam.distance, 0.0, 0.0) --> set the origin on the projection of the given point with x coordinate=1.0
+    direction = Vec(cam.distance, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0) --> the direction in OrthogonalCamera is always the x axis
+    return cam.transformation*Ray(origin, direction) --> the camera transformationis applied and the fired Ray is returned
+"""
 function fire_ray(cam::PerspectiveCamera, u, v)
     
     origin = Point(-cam.distance, 0.0, 0.0)
@@ -65,9 +81,10 @@ function fire_ray(cam::PerspectiveCamera, u, v)
 
 end
 
-"""Compute the aperture of the camera in degrees
-
-    The aperture is the angle of the field-of-view along the horizontal direction (Y axis)"""
+"""
+function aperture_deg(cam::PerspectiveCamera)
+    Compute the aperture of the camera in degrees. The aperture is the angle of the field-of-view along the horizontal direction (Y axis).
+"""
 function aperture_deg(cam::PerspectiveCamera)
     return 2.0 * math.atan(cam.distance / cam.aspect_ratio) * 180.0 / 3.14159265359
 end
