@@ -11,6 +11,11 @@ end
 """
 function _average_luminosity(img::HdrImage, delta)
     compute average luminosity using logaritmic formula: 
+    cumsum = 0.0
+    for pix in img.pixels
+        cumsum += log10(delta + _luminosity(pix))
+    end
+    return 10^(cumsum / length(img.pixels))
 """
 function _average_luminosity(img::HdrImage, delta=1e-10)
     cumsum = 0.0
@@ -20,7 +25,12 @@ function _average_luminosity(img::HdrImage, delta=1e-10)
     return 10^(cumsum / length(img.pixels))
 end
 
-#normalizza la luminosità dell'immagine
+"""
+function _normalize_image!(img::HdrImage, alpha, lum=nothing)
+    inplace method that normalizes RGB pixels of an Hdr image by scaling product with alpha/luminosity
+    using lum as a nullable type
+
+"""
 function _normalize_image!(img::HdrImage, alpha, lum=nothing)
     lum = isnothing(lum) ? _average_luminosity(img) : lum
     scale = alpha / lum
@@ -28,16 +38,29 @@ function _normalize_image!(img::HdrImage, alpha, lum=nothing)
     img.pixels = [RGB(p.r * scale, p.g * scale, p.b * scale) for p in img.pixels]
 end
 
+"""
+function _clamp(x)
+    return x/(1+x)
+"""
 function _clamp(x)
     return x / (1+x)
 end
 
-#correzione per punti troppo luminosi
+"""
+function _clamp_image!(img::HdrImage)
+    inplace method that uses _clamp function on RGB pixels
+"""
 function _clamp_image!(img::HdrImage)
     img.pixels = [RGB(_clamp(p.r), _clamp(p.g), _clamp(p.b)) for p in img.pixels]
 end
 
-#effettua tutte le operazioni per il tone mapping
+"""
+function tone_mapping!(img::HdrImage, alpha, lum=nothing)
+    inplace method that executes tone mapping on an HdrImage:
+    
+    _normalize_image(img, alpha, lum)
+    _clamp_image(img)
+"""
 function tone_mapping!(img::HdrImage, alpha, lum=nothing)
     _normalize_image!(img, alpha, lum)
     _clamp_image!(img)
