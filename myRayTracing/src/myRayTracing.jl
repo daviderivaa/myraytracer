@@ -23,4 +23,7 @@ export Ray, at, is_close, transform_ray
 include("camera.jl")
 export Camera, fire_ray, OrthogonalCamera, PerspectiveCamera, aperture_deg
 
+include("ImageTracer.jl")
+export ImageTracer, fire_ray, fire_all_rays
+
 end #module myRayTracing
