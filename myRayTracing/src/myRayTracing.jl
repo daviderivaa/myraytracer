@@ -12,13 +12,13 @@ include("LdrImage.jl")
 export tone_mapping!, gamma_correction!, read_user_input
 
 include("geometry.jl")
-export Vec, Point, Normal, print_element, _are_xyz_close, neg, dot, squared_norm, norm, normalize, cross, Point_to_Vec, Vec_to_Point, Norm_to_Vec
+export Vec, Point, Normal, print_element, _are_xyz_close, neg, squared_norm, norm, normalize, cross, Point_to_Vec, Vec_to_Point, Norm_to_Vec
 
 include("transformations.jl")
-export Transformation, is_consistent, traslation, scaling, rotation, apply_transf
+export Transformation, is_consistent, traslation, scaling, rotation
 
 include("ray.jl")
-export Ray, at, is_close, transform_ray
+export Ray, at, is_close
 
 include("camera.jl")
 export Camera, fire_ray, OrthogonalCamera, PerspectiveCamera, aperture_deg

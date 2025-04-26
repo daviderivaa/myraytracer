@@ -45,9 +45,9 @@ function is_close(r_1::Ray, r_2::Ray, epsilon=1e-5)
 end
 
 """
-function Base.:*(ray_in, transformation)
+function (transformation::Transformation)(ray_in::Ray)
     returns a new ray appling a transformation to origin and direction of ray_in
 """
-function Base.:*(transformation::Transformation, ray_in::Ray)
-    return Ray((transformation*ray_in.origin), (transformation*ray_in.dir), ray_in.tmin, ray_in.tmax, ray_in.depth)
+function (transformation::Transformation)(ray_in::Ray)
+    return Ray((transformation(ray_in.origin)), (transformation(ray_in.dir)), ray_in.tmin, ray_in.tmax, ray_in.depth)
 end

@@ -128,10 +128,10 @@ function rotation(axis, angle)
 end
 
 """
-function Base.:*(T, a)
-    allows to apply the transformation on a point by using " T*a "
+function (T::Tranformation)(a::Point)
+    allows to apply the transformation on a point by using " T(a) "
 """
-function Base.:*(T::Transformation, a::Point)
+function (T::Transformation)(a::Point)
     if ((a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3] + T.m[4,4]) == 1.0)
         return Point((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3] + T.m[1,4]), 
                      (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3] + T.m[2,4]), 
@@ -142,10 +142,10 @@ function Base.:*(T::Transformation, a::Point)
 end
 
 """
-function Base.:*(T, a)
-    allows to apply the transformation on a vector by using " T*a "
+function (T::Transformation)(a::Vec)
+    allows to apply the transformation on a vector by using " T(a) "
 """
-function Base.:*(T::Transformation, a::Vec)
+function (T::Transformation)(a::Vec)
     if ((a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3]) == 0.0)
         return Vec((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3]), 
                    (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3]), 
@@ -156,10 +156,10 @@ function Base.:*(T::Transformation, a::Vec)
 end
 
 """
-function Base.:*(T, a)
-    allows to apply the transformation on a normal by using " T*a "
+function (T::Transformation)(a::Normal)
+    allows to apply the transformation on a normal by using " T(a) "
 """
-function Base.:*(T::Transformation, a::Normal)
+function (T::Transformation)(a::Normal)
     if ((a.x*T.invm[1,4] + a.y*T.invm[2,4] + a.z*T.invm[3,4]) == 0.0)
         return Normal((a.x*T.invm[1,1] + a.y*T.invm[2,1] + a.z*T.invm[3,1]), 
                       (a.x*T.invm[1,2] + a.y*T.invm[2,2] + a.z*T.invm[3,2]), 
@@ -170,9 +170,9 @@ function Base.:*(T::Transformation, a::Normal)
 end
 
 """
-function Base.:*(A, B)
-    allows to compose two transformations by using " A*B " 
+function (A::Transformation)(B::Transformation)
+    allows to compose two transformations by using " A(B) " 
 """
-function Base.:*(A::Transformation, B::Transformation)
+function (A::Transformation)(B::Transformation)
     return Transformation(A.m*B.m)
 end

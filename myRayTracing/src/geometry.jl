@@ -200,7 +200,7 @@ end
 
 """
 function cross(a, b)
-    cross product between two Vec or Normal)
+    cross product between two Vec or Normal variables
 """
 function cross(a::Union{Vec,Normal}, b::Union{Vec,Normal})
     return Vec(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x) #always returning a Vec 

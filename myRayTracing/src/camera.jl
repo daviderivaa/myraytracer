@@ -40,7 +40,7 @@ function fire_ray(cam::OrthogonalCamera, u, v)
 
     origin = Point(-1.0, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0)
     direction = Vec(1.0, 0.0, 0.0)
-    return cam.transformation*Ray(origin, direction)
+    return cam.transformation(Ray(origin, direction))
 
 end
 
@@ -77,7 +77,7 @@ function fire_ray(cam::PerspectiveCamera, u, v)
     
     origin = Point(-cam.distance, 0.0, 0.0)
     direction = Vec(cam.distance, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0)
-    return cam.transformation*Ray(origin, direction)
+    return cam.transformation(Ray(origin, direction))
 
 end
 
