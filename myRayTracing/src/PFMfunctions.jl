@@ -1,6 +1,9 @@
 ###PFM FUNCTIONS
 
 #Error definition
+"""
+throws a message if PFM file reading is incorrect
+"""
 struct InvalidPfmFileFormat <: Exception
     msg::String
 end
