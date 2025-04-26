@@ -34,6 +34,7 @@ end
 
     a = Vec(0.8, -0.5, 1.4)
     b = Vec(-1.6, 0.5, -0.7)
+    c = Vec(3.0, 4.0, 0.0)
     A = Point(0.8, -0.5, 1.4)
     B = Point(-1.6, 0.5, -0.7)
     na = Normal(0.8, -0.5, 1.4)
@@ -41,13 +42,30 @@ end
     
     lambda = 2.0
     
+    @test_throws Type_error print_element(lambda)
+    @test _are_xyz_close(a+b, Vec(-0.8, 0.0, 0.7))
+    @test _are_xyz_close(a-b, Vec(2.4, -1.0, 2.1))
+    @test typeof(A+a)==Point
+    @test typeof(A-a)==Point
+    @test _are_xyz_close(A+a, Point(1.6, -1.0, 2.8))
+    @test _are_xyz_close(A+a, a+A)
+    @test _are_xyz_close(A-a, Point(0.0, 0.0, 0.0))
     @test _are_xyz_close(lambda * a, Vec(1.6, -1.0, 2.8))
+    @test _are_xyz_close(lambda * a, a * lambda)
+    @test _are_xyz_close(neg(na), Normal(-0.8, 0.5, -1.4))
+    @test abs(a*b + 2.51) <= 1e-6 
+    @test abs(squared_norm(a) - 2.85) <= 1e-6
+    @test abs(norm(a) - 1.6881943016) <= 1e-6
+    @test _are_xyz_close(normalize(c), Normal(0.6, 0.8, 0.0))
     @test _are_xyz_close(cross(a,b), Vec(-0.35,-1.68,-0.4))
+    @test typeof(Vec_to_Point(a))==Point
+    @test typeof(Point_to_Vec(A))==Vec
 
 end
 
 @testset "Check Transformation functions" begin
 
+    o = Point(0.0, 0.0, 0.0)
     p = Point(1.0, 2.0, 3.0)
     v = Vec(1.0, 2.0, 3.0)
     n = Normal(0.0, 0.0, 1.0)
@@ -71,6 +89,9 @@ end
     @test _are_xyz_close(s(v), Vec(2.0, 4.0, 6.0))
     @test _are_xyz_close(s2(p), Point(2.0, 6.0, 12.0))
     @test _are_xyz_close(s2(v), Vec(2.0, 6.0, 12.0))
+    @test _are_xyz_close(t(o), Vec_to_Point(u))
+    @test _are_xyz_close(t(rz(o)), Vec_to_Point(u))
+    @test _are_xyz_close(rz(t(o)), Point(-8.0, 9.0, 7.0))
 
 end
 

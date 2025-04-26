@@ -136,7 +136,7 @@ end
 
 """
 function Base.:-(a, b)
-    difference between two Point and Vec (returns Point)
+    difference between Point and Vec (returns Point)
 """
 function Base.:-(a::Point, b::Vec)
     return Point(a.x - b.x, a.y - b.y, a.z - b.z)
@@ -176,7 +176,7 @@ end
 
 """
 function squared_norm(a)
-    returns the squared norm of a Voc or Normal    
+    returns the squared norm of a Vec or Normal    
 """
 function squared_norm(a::Union{Vec,Normal})
         return a.x^2 + a.y^2 + a.z^2
