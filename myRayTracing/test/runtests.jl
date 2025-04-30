@@ -138,8 +138,8 @@ end
     PCdirection = Vec(1.0, (16.0/9.0), -1.0)
     PCray = Ray(PCorigin, PCdirection)
 
-    @test is_close(fire_ray(OC, 0.0, 0.0), OCray)
-    @test is_close(fire_ray(PC, 0.0, 0.0), PCray)
+    @test is_close(fire_single_ray(OC, 0.0, 0.0), OCray)
+    @test is_close(fire_single_ray(PC, 0.0, 0.0), PCray)
     @test aperture_deg(PC) == 2.0 * atan(9.0/16.0) * 180.0 / π
 
 end
@@ -152,7 +152,25 @@ end
     PC = PerspectiveCamera(1.0, (16.0/9.0), t)
     image = HdrImage(2,3)
 
-    Itracer = ImageTracer(image, PC)
-    Itracer2 = ImageTracer(image, PC)
+    OItracer = ImageTracer(image, OC)
+    PItracer = ImageTracer(image, PC)
+
+    ray1 = fire_ray(PItracer, 0, 0, 2.5, 1.5)
+    ray2 = fire_ray(PItracer, 2, 1)
+    @test is_close(ray1, ray2)
+
+    fire_all_rays!(PItracer, RGB(1.0, 2.0, 3.0))
+    for row in 1:PItracer.image.height
+        for col in 1:PItracer.image.width
+            @test PItracer.image.pixels[row, col] ≈ RGB(1.0, 2.0, 3.0)
+        end
+    end
+
+    fire_all_rays!(OItracer, RGB(1.0, 2.0, 3.0))
+    for row in 1:OItracer.image.height
+        for col in 1:OItracer.image.width
+            @test OItracer.image.pixels[row, col] ≈ RGB(1.0, 2.0, 3.0)
+        end
+    end
 
 end

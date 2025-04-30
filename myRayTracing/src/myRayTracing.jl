@@ -21,9 +21,9 @@ include("ray.jl")
 export Ray, at, is_close
 
 include("camera.jl")
-export Camera, fire_ray, OrthogonalCamera, PerspectiveCamera, aperture_deg
+export Camera, fire_single_ray, OrthogonalCamera, PerspectiveCamera, aperture_deg
 
 include("ImageTracer.jl")
-export ImageTracer, fire_ray, fire_all_rays
+export ImageTracer, fire_ray, fire_all_rays!
 
 end #module myRayTracing
