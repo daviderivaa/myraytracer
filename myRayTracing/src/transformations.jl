@@ -6,6 +6,14 @@ using LinearAlgebra
 
 const IDENTITY_MATR4x4 = Matrix{Float64}(I(4))
 
+
+"""
+Defining Tranformation struct and methods:
+
+    - m::Matrix{Float64} ---> matrix associated to the transformation
+    - invm::Matrix{Float64} ---> inverse of m (useful in order to apply the transformation to Normal)
+
+""" 
 struct Transformation
     m::Matrix{Float64}
     invm::Matrix{Float64}
@@ -18,30 +26,50 @@ end
 
 ########################################################################################
 
+"""
+Exeption defined in order to check if the transformations are created correctly and work properly on different types of objects
+"""
 struct Transformation_error <: Exception
     msg::String
 end
 
-#Tranformation functions
-
+"""
+function _are_matr_close(m1, m2, epsilon=1e-6)
+    checks if two matrix are similar
+"""
 function _are_matr_close(m1::Matrix{Float64}, m2::Matrix{Float64}, epsilon=1e-6)
     return all(abs.(m1 .- m2) .< epsilon)
 end
 
-#Check if a Transformation matrix is consistent with its inverse
+"""
+function is_consistent(T)
+    checks if T.invm is truly the inverse of T.m 
+"""
 function is_consistent(T::Transformation)
     prod = T.m*T.invm
     return _are_matr_close(prod, IDENTITY_MATR4x4)
 end
 
-#Initialize a Translation for a given vector
+"""
+function inverse(T)
+    returns the inverse of the transformation T (T.m and T.invm swapped)
+"""
+function inverse(T::Transformation)
+    A = Transformation(T.invm)
+    return A
+end
+
+"""
+function traslation(v)
+    creates the transformation in case of translation by a given vector v
+"""
 function traslation(v)
     try
 
         m = [1.0 0.0 0.0 v.x;
-         0.0 1.0 0.0 v.y;
-         0.0 0.0 1.0 v.z;
-         0.0 0.0 0.0 1.0]
+             0.0 1.0 0.0 v.y;
+             0.0 0.0 1.0 v.z;
+             0.0 0.0 0.0 1.0]
 
         T = Transformation(m)
 
@@ -52,7 +80,11 @@ function traslation(v)
     end
 end
 
-#Scaling by a single factor or three factors, one for each axis
+"""
+function scaling(a, b=nothing, c=nothing)
+    creates the transformation in case of scaling by three given factors (a,b,c), one for each axis
+    if only "a" is given, it is used on all axes
+"""
 function scaling(a, b=nothing, c=nothing)
     try
 
@@ -60,9 +92,9 @@ function scaling(a, b=nothing, c=nothing)
         c === nothing && (c = a)
 
         m = [a 0.0 0.0 0.0;
-            0.0 b 0.0 0.0;
-            0.0 0.0 c 0.0;
-            0.0 0.0 0.0 1.0]
+             0.0 b 0.0 0.0;
+             0.0 0.0 c 0.0;
+             0.0 0.0 0.0 1.0]
 
         T = Transformation(m)
 
@@ -73,7 +105,10 @@ function scaling(a, b=nothing, c=nothing)
     end
 end
 
-#Initialize a Rotation around a given axis
+"""
+function rotation(axis, angle)
+    creates the transformation in case of a rotation around a given axis by a given angle (radiant)
+"""
 function rotation(axis, angle)
     if axis == "x"
         m = [1.0 0.0 0.0 0.0;
@@ -101,38 +136,52 @@ function rotation(axis, angle)
     end  
 end
 
-
-#Tranformation for Point
-function apply_transf(T::Transformation, a::Point)
+"""
+function (T::Tranformation)(a::Point)
+    allows to apply the transformation on a point by using " T(a) "
+"""
+function (T::Transformation)(a::Point)
     if ((a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3] + T.m[4,4]) == 1.0)
         return Point((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3] + T.m[1,4]), 
-                        (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3] + T.m[2,4]), 
-                        (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3] + T.m[3,4]))
+                     (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3] + T.m[2,4]), 
+                     (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3] + T.m[3,4]))
     else 
         throw(Transformation_error("Point type not preserved in transformation"))
     end
 end
 
-
-#Tranformation for Vec
-function apply_transf(T::Transformation, a::Vec)
+"""
+function (T::Transformation)(a::Vec)
+    allows to apply the transformation on a vector by using " T(a) "
+"""
+function (T::Transformation)(a::Vec)
     if ((a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3]) == 0.0)
         return Vec((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3]), 
-                    (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3]), 
-                    (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3]))
+                   (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3]), 
+                   (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3]))
     else
         throw(Transformation_error("Vector type not preserved in transformation"))
     end
 end
 
-
-#Tranformation for Normal
-function apply_transf(T::Transformation, a::Normal)
-    if ((a.x*T.m[1,4] + a.y*T.m[2,4] + a.z*T.m[3,4]) == 0.0)
-        return Normal((a.x*T.m[1,1] + a.y*T.m[2,1] + a.z*T.m[3,1]), 
-                        (a.x*T.m[1,2] + a.y*T.m[2,2] + a.z*T.m[3,2]), 
-                        (a.x*T.m[1,3] + a.y*T.m[2,3] + a.z*T.m[3,3]))
+"""
+function (T::Transformation)(a::Normal)
+    allows to apply the transformation on a normal by using " T(a) "
+"""
+function (T::Transformation)(a::Normal)
+    if ((a.x*T.invm[1,4] + a.y*T.invm[2,4] + a.z*T.invm[3,4]) == 0.0)
+        return Normal((a.x*T.invm[1,1] + a.y*T.invm[2,1] + a.z*T.invm[3,1]), 
+                      (a.x*T.invm[1,2] + a.y*T.invm[2,2] + a.z*T.invm[3,2]), 
+                      (a.x*T.invm[1,3] + a.y*T.invm[2,3] + a.z*T.invm[3,3]))
     else
         throw(Transformation_error("Normal type not preserved in transformation"))
     end
+end
+
+"""
+function (A::Transformation)(B::Transformation)
+    allows to compose two transformations by using " A(B) " 
+"""
+function (A::Transformation)(B::Transformation)
+    return Transformation(A.m*B.m)
 end
