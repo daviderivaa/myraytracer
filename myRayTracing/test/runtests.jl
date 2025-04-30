@@ -153,5 +153,6 @@ end
     image = HdrImage(2,3)
 
     Itracer = ImageTracer(image, PC)
+    Itracer2 = ImageTracer(image, PC)
 
 end
