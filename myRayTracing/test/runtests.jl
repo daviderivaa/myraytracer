@@ -47,9 +47,11 @@ end
     @test _are_xyz_close(a-b, Vec(2.4, -1.0, 2.1))
     @test typeof(A+a)==Point
     @test typeof(A-a)==Point
+    @test typeof(A-B)==Vec
     @test _are_xyz_close(A+a, Point(1.6, -1.0, 2.8))
     @test _are_xyz_close(A+a, a+A)
     @test _are_xyz_close(A-a, Point(0.0, 0.0, 0.0))
+    @test _are_xyz_close(A-B, Vec(2.4, -1.0, 2.1))
     @test _are_xyz_close(lambda * a, Vec(1.6, -1.0, 2.8))
     @test _are_xyz_close(lambda * a, a * lambda)
     @test _are_xyz_close(neg(na), Normal(-0.8, 0.5, -1.4))
@@ -76,7 +78,13 @@ end
     rz = rotation("z", pi/2)
     s = scaling(2.0)
     s2 = scaling(2.0, 3.0, 4.0)
+    inv_t = inverse(t)
+    inv_rx = inverse(rx)
+    inv_s2 = inverse(s2)
 
+    @test is_consistent(t)
+    @test is_consistent(ry)
+    @test is_consistent(s2)
     @test _are_xyz_close(t(p), Point(10.0, 10.0, 10.0))
     @test _are_xyz_close(t(v), v)
     @test _are_xyz_close(rx(p), Point(1.0, -3.0, 2.0))
@@ -92,6 +100,12 @@ end
     @test _are_xyz_close(t(o), Vec_to_Point(u))
     @test _are_xyz_close(t(rz(o)), Vec_to_Point(u))
     @test _are_xyz_close(rz(t(o)), Point(-8.0, 9.0, 7.0))
+    @test is_consistent(inv_t)
+    @test is_consistent(inv_rx)
+    @test is_consistent(inv_s2)
+    @test _are_xyz_close(inv_t(t(p)), p)
+    @test _are_xyz_close(inv_rx(rx(p)), p)
+    @test _are_xyz_close(inv_s2(s2(p)), p)
 
 end
 

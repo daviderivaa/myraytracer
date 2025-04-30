@@ -15,7 +15,7 @@ include("geometry.jl")
 export Vec, Point, Normal, Type_error, print_element, _are_xyz_close, neg, squared_norm, norm, normalize, cross, Point_to_Vec, Vec_to_Point, Norm_to_Vec
 
 include("transformations.jl")
-export Transformation, is_consistent, traslation, scaling, rotation
+export Transformation, is_consistent, inverse, traslation, scaling, rotation
 
 include("ray.jl")
 export Ray, at, is_close

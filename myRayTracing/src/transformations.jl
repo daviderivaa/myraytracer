@@ -51,6 +51,15 @@ function is_consistent(T::Transformation)
 end
 
 """
+function inverse(T)
+    returns the inverse of the transformation T (T.m and T.invm swapped)
+"""
+function inverse(T::Transformation)
+    A = Transformation(T.invm)
+    return A
+end
+
+"""
 function traslation(v)
     creates the transformation in case of translation by a given vector v
 """

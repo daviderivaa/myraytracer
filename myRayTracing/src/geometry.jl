@@ -136,6 +136,14 @@ end
 
 """
 function Base.:-(a, b)
+    difference between two Point (returns Vec)
+"""
+function Base.:-(a::Point, b::Point)
+    return Vec(a.x - b.x, a.y - b.y, a.z - b.z)
+end
+
+"""
+function Base.:-(a, b)
     difference between Point and Vec (returns Point)
 """
 function Base.:-(a::Point, b::Vec)
