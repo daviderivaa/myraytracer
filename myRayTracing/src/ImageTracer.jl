@@ -28,8 +28,8 @@ function fire_ray(IT::ImageTracer, col, row, u_pixel=0.5, v_pixel=0.5)
 function fire_ray(IT::ImageTracer, col, row, u_pixel=0.5, v_pixel=0.5)
 
     try
-        u = (col + u_pixel) / (IT.img.width-1)
-        v = (row + v_pixel) / (IT.img.height-1)
+        u = (col + u_pixel) / IT.img.width
+        v = 1.0 - (row + v_pixel) / IT.img.height
         return fire_single_ray(IT.cam, u, v)
     catch
         throw(Type_error("col and row are incorrect (either type or value out of range)"))
