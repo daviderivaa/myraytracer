@@ -28,9 +28,9 @@ function fire_ray(IT::ImageTracer, col, row, u_pixel=0.5, v_pixel=0.5)
 function fire_ray(IT::ImageTracer, col, row, u_pixel=0.5, v_pixel=0.5)
 
     try
-        u = (col + u_pixel) / (IT.img.width-1)
-        v = (row + v_pixel) / (IT.img.height-1)
-        return fire_ray(IT.cam, u, v)
+        u = (col + u_pixel) / IT.img.width
+        v = 1.0 - (row + v_pixel) / IT.img.height
+        return fire_single_ray(IT.cam, u, v)
     catch
         throw(Type_error("col and row are incorrect (either type or value out of range)"))
     end
@@ -38,8 +38,8 @@ function fire_ray(IT::ImageTracer, col, row, u_pixel=0.5, v_pixel=0.5)
 end
 
 """
-function fire_all_rays(IT::ImageTracer, func)
-    fires all rays on the screen
+function fire_all_rays!(IT::ImageTracer, func)
+    inplace method that fires all rays on the screen
 
     for row in 1:IT.img.height --> cicles on heigth and width
         for col in 1:IT.img.width
@@ -49,7 +49,7 @@ function fire_all_rays(IT::ImageTracer, func)
         end
     end
 """
-function fire_all_rays(IT::ImageTracer, func)
+function fire_all_rays!(IT::ImageTracer, func)
 
     try 
         for row in 1:IT.img.height
@@ -60,7 +60,7 @@ function fire_all_rays(IT::ImageTracer, func)
             end
         end
     catch
-        throw(Type_error("fire_all_rays method not implemented for $(typeof(IT))"))
+        throw(Type_error("fire_all_rays! method not implemented for $(typeof(IT))"))
     end
 
 end

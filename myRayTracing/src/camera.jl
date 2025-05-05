@@ -5,9 +5,9 @@
 abstract type Camera
 end
 
-"""Abstarct method for fire_ray"""
-function fire_ray(cam::Camera, u, v)
-    throw(Type_error("fire_ray method not implemented for $(typeof(cam))"))
+"""Abstarct method for fire_single_ray"""
+function fire_single_ray(cam::Camera, u, v)
+    throw(Type_error("fire_single_ray method not implemented for $(typeof(cam))"))
 end
 
 #Defining substructs
@@ -31,12 +31,12 @@ struct OrthogonalCamera <: Camera
 end
 
 """
-function fire_ray(cam::OrthogonalCamera, u, v)
+function fire_single_ray(cam::OrthogonalCamera, u, v)
     Shoot a ray through the camera screen, u and v are the coordinates un the screen. (u,v)=(0,0) is the bottom left corner, (u,v)=(1,1) is the top right one.
 
     origin = Point(-1.0, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0)c
 """
-function fire_ray(cam::OrthogonalCamera, u, v)
+function fire_single_ray(cam::OrthogonalCamera, u, v)
 
     origin = Point(-1.0, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0)
     direction = Vec(1.0, 0.0, 0.0)
@@ -66,14 +66,14 @@ struct PerspectiveCamera <: Camera
 end
 
 """
-function fire_ray(cam::PerspectiveCamera, u, v)
+function fire_single_ray(cam::PerspectiveCamera, u, v)
     Shoot a ray through the camera screen, u and v are the coordinates un the screen. (u,v)=(0,0) is the bottom left corner, (u,v)=(1,1) is the top right one.
 
     origin = Point(-cam.distance, 0.0, 0.0) --> set the origin on the projection of the given point with x coordinate=1.0
     direction = Vec(cam.distance, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0) --> the direction in OrthogonalCamera is always the x axis
     return cam.transformation*Ray(origin, direction) --> the camera transformationis applied and the fired Ray is returned
 """
-function fire_ray(cam::PerspectiveCamera, u, v)
+function fire_single_ray(cam::PerspectiveCamera, u, v)
     
     origin = Point(-cam.distance, 0.0, 0.0)
     direction = Vec(cam.distance, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0)
