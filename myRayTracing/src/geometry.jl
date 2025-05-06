@@ -28,6 +28,28 @@ end
 ###########################################################################
 
 """
+Defining Vec2d struct and methods, it represents a point on a surface:
+
+    - u::Float64 ---> first component of the vector
+    - v::Float64 ---> second component of the vector
+
+""" 
+struct Vec2d
+
+    #Class for 3D vector
+    u::Float64
+    v::Float64
+
+    #Constructor with (0,0) as default values
+    function Vec2d(u=0, v=0)
+        new(u, v)
+    end
+
+end
+
+###########################################################################
+
+"""
 Defining Point struct and methods:
 
     - x::Float64 ---> x position of the point
@@ -83,11 +105,19 @@ struct Type_error <: Exception
 end
 
 """
-function _are_xyz_close(a, b, epsilon=1e-6)
+function is_close(a, b, epsilon=1e-6)
     checks if two object of the same type (Vec, Point or Normal) are similar
 """
-function _are_xyz_close(a::T, b::T, epsilon=1e-6) where T #Check if a and b are the same type, if not raise MethodError
+function is_close(a::T, b::T, epsilon=1e-6) where T #Check if a and b are the same type, if not raise MethodError
     return abs(a.x - b.x) <= epsilon && abs(a.y - b.y) <= epsilon && abs(a.z - b.z) <= epsilon #Return True if the two variables are similiar, False otherwise
+end
+
+"""
+function is_close(a, b, epsilon=1e-6)
+    checks if two Vec2d are similar
+"""
+function is_close(a::Vec2d, b::Vec2d, epsilon=1e-6)
+    return abs(a.u - b.u) <= epsilon && abs(a.v - b.v) <= epsilon #Return True if the two variables are similiar, False otherwise
 end
 
 """
@@ -112,6 +142,14 @@ end
 
 """
 function Base.:+(a, b)
+    addition between two Vec2d (returns Vec2d)
+"""
+function Base.:+(a::Vec2d, b::Vec2d)
+    return Vec2d(a.u + b.u, a.v + b.v)
+end
+
+"""
+function Base.:+(a, b)
     addition between Point and Vec (returns Point)
 """
 function Base.:+(a::Point, b::Vec)
@@ -132,6 +170,14 @@ function Base.:-(a, b)
 """
 function Base.:-(a::Vec, b::Vec)
     return Vec(a.x - b.x, a.y - b.y, a.z - b.z)
+end
+
+"""
+function Base.:-(a, b)
+    difference between two Vec2d (returns Vec2d)
+"""
+function Base.:-(a::Vec2d, b::Vec2d)
+    return Vec2d(a.u - b.u, a.v - b.v)
 end
 
 """

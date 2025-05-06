@@ -19,3 +19,14 @@ struct HitRecord
     ray::Ray
 
 end
+
+function is_close(HR1::HitRecord, HR2::HitRecord, epsilon=1e-5)
+
+    """Check whether two `HitRecord` represent the same hit event or not"""
+    return ( is_close(HR1.world_point, HR2.world_point, epsilon) &&
+    is_close(HR1.normal, HR2.normal, epsilon) &&
+    is_close(HR1.surface_point, HR2.surface_point, epsilon) &&
+    abs(HR1.t - HR2.t) < epsilon &&
+    is_close(HR1.ray, HR2.ray, epsilon))
+
+end
