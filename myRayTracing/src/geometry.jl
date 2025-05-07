@@ -246,11 +246,19 @@ end
 
 
 """
-function normalize(a)
-    given a Vec (or Normal), it returns the same vector after normalization
+function normalize(a::Vec)
+    given a Vec, it returns the same vector after normalization
 """
-function normalize(a::T) where T
-    return T(a.x/norm(a), a.y/norm(a), a.z/norm(a))
+function normalize(a::Vec)
+    return Vec(a.x/norm(a), a.y/norm(a), a.z/norm(a))
+end
+
+"""
+function normalize(a::Normal)
+    given a Normal, it returns the same vector after normalization
+"""
+function normalize(a::Normal)
+    return Normal(a.x/norm(a), a.y/norm(a), a.z/norm(a))
 end
 
 """
