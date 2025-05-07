@@ -38,8 +38,47 @@ end
 #Compute ray ray_intersection
 """
 function ray_intersection(w::World, r::Ray)
-    searches for ray intersection with shapes and return an HitRecord variable that stores the nearest intersection to the origin
+    Returns Nothing if the Ray doesn't intersect any shape or a HitRecord with the closest one
 """
 function ray_intersection(w::World, r::Ray)
-    error("missing function in ray_intersection()") #Temporary error, waiting for implementation
+
+    closest::Union{HitRecord, Nothing} = nothing
+
+    for shape in w._shapes
+        intersection = ray_intersection(shape, r)
+
+        if intersection === nothing
+            continue
+        end
+
+        if closest === nothing || intersection.t < closest.t
+            closest = intersection
+        end
+    end
+
+    if closest !== nothing
+        closest.normal = normalize(closest.normal)
+    end
+
+    return closest
+
+end
+
+"""
+function is_point_visible(w::World, p::Point, observer_pos::Point)
+    Returns True if a point is visible from a certain observer
+"""
+function is_point_visible(w::World, p::Point, observer_pos::Point)
+
+        direction = p - observer_pos
+        dir_norm = norm(direction)
+
+        ray = Ray(observer_pos, direction, (1e-2 / dir_norm), 1.0)
+        for shape in w._shapes
+            if quick_ray_intersection(shape, ray)
+                return False
+            end
+        end
+        return True
+        
 end
