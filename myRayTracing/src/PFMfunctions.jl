@@ -117,7 +117,7 @@ function write_pfm_image(io::IO, img::HdrImage, endianness::Bool=true)
 """
 function write_pfm(io::IO, img::HdrImage, endianness::Bool=true)
     endian_str = endianness ? "-1.0" : "1.0"
-    header = string("PF\n", img.w, " ", img.h, "\n", endian_str, "\n")
+    header = string("PF\n", img.width, " ", img.height, "\n", endian_str, "\n")
 
     try
         write(io, header)

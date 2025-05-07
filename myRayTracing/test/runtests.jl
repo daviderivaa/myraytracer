@@ -165,14 +165,18 @@ end
     ray2 = fire_ray(PItracer, 2, 1)
     @test is_close(ray1, ray2)
 
-    fire_all_rays!(PItracer, RGB(1.0, 2.0, 3.0))
+    function func(ray::Ray)
+        return RGB(1.0, 2.0, 3.0)
+    end
+
+    fire_all_rays!(PItracer, func)
     for row in 1:PItracer.img.height
         for col in 1:PItracer.img.width
             @test PItracer.img.pixels[row, col] ≈ RGB(1.0, 2.0, 3.0)
         end
     end
 
-    fire_all_rays!(OItracer, RGB(1.0, 2.0, 3.0))
+    fire_all_rays!(OItracer, func)
     for row in 1:OItracer.img.height
         for col in 1:OItracer.img.width
             @test OItracer.img.pixels[row, col] ≈ RGB(1.0, 2.0, 3.0)

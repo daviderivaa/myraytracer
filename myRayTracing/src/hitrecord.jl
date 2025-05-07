@@ -9,7 +9,7 @@ Defining HitRecord struct and methods
     t::Float64 --> parameter associated with the intersection
     ray::Ray --> light ray that caused the intersection
 """
-struct HitRecord
+mutable struct HitRecord
 
     world_point::Point
     normal::Normal

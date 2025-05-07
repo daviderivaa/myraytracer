@@ -44,7 +44,7 @@ function ray_intersection(w::World, r::Ray)
 
     closest::Union{HitRecord, Nothing} = nothing
 
-    for shape in w._shapes
+    for shape in get_shapes(w)
         intersection = ray_intersection(shape, r)
 
         if intersection === nothing
@@ -74,7 +74,7 @@ function is_point_visible(w::World, p::Point, observer_pos::Point)
         dir_norm = norm(direction)
 
         ray = Ray(observer_pos, direction, (1e-2 / dir_norm), 1.0)
-        for shape in w._shapes
+        for shape in get_shapes(w)
             if quick_ray_intersection(shape, ray)
                 return False
             end

@@ -92,8 +92,8 @@ function ray_intersection(shape::Sphere, r::Ray)
 
     point_hit = at(inv_r, t_hit)
 
-    return HitRecord( (shape.T)(point_hit), #hitted point in the world
-                      (shape.T)(_sphere_normal(point_hit, inv_r)), #normal at the surface in the world
+    return HitRecord( shape.T(point_hit), #hitted point in the world
+                      shape.T(_sphere_normal(point_hit, inv_r)), #normal at the surface in the world
                       (_xyz_to_uv(point_hit)), #(u,v) vec hitted on the surface
                       t_hit, #t
                       r #ray
