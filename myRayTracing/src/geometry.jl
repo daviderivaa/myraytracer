@@ -292,3 +292,11 @@ function Norm_to_Vec(a)
 function Norm_to_Vec(a::Normal)
     return Vec(a.x, a.y, a.z)    
 end
+
+"""
+function Vec_to_Normal(a)
+    converts a Vec into a Normal with same (x,y,z)
+"""
+function Vec_to_Normal(a::Vec)
+    return Normal(a.x, a.y, a.z)    
+end

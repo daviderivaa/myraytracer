@@ -28,10 +28,10 @@ function get_shapes(w::World)
     return w._shapes
 end
 """
-function get_single_shape(w::World, i::int64)
+function get_single_shape(w::World, i::Int64)
     returns the i-th _shapes vector element
 """
-function get_single_shape(w::World, i::int64)
+function get_single_shape(w::World, i::Int64)
     return w._shapes[i]
 end
 

@@ -63,7 +63,8 @@ end
     @test abs(a*b + 2.51) <= 1e-6 
     @test abs(squared_norm(a) - 2.85) <= 1e-6
     @test abs(norm(a) - 1.6881943016) <= 1e-6
-    @test is_close(normalize(c), Normal(0.6, 0.8, 0.0))
+    @test is_close(normalize(c), Vec(0.6, 0.8, 0.0))
+    @test is_close(normalize(Vec_to_Normal(c)), Normal(0.6, 0.8, 0.0))
     @test is_close(cross(a,b), Vec(-0.35,-1.68,-0.4))
     @test typeof(Vec_to_Point(a))==Point
     @test typeof(Point_to_Vec(A))==Vec
