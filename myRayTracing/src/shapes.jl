@@ -54,7 +54,7 @@ function _xyz_to _uv(p)
     given a point on the sphere, in returns its (u,v) 2D form
 """
 function _xyz_to_uv(p::Point)
-    u = atan2(p.y, p.x) / (2π)
+    u = atan(p.y, p.x) / (2π)
     v = acos(p.z) / π
     u = u >= 0.0 ? u : u + 1.0
     return Vec2d(u,v)
@@ -97,6 +97,35 @@ function ray_intersection(shape::Sphere, r::Ray)
                       (_xyz_to_uv(point_hit)), #(u,v) vec hitted on the surface
                       t_hit, #t
                       r #ray
-    )
+                    )
 
+end
+
+"""
+function quick_ray_intersection(shape, r)
+    given a sphere and a ray, it returns true/false if there is/isn't intersection
+"""
+function quick_ray_intersection(shape::Sphere, r::Ray)
+    inv_r = inverse(shape.T)(r)
+    o_vec = Point_to_Vec(inv_r.origin)
+
+    a = squared_norm(inv_r.dir)
+    b = o_vec * inv_r.dir #tecnically is b/2, but we will use delta/4
+    c = squared_norm(o_vec) - 1
+    delta = b*b - a*c #it's delta/4
+
+    if delta <= 0
+        return false
+    end
+ 
+    sqrt_delta = √(delta)
+
+    t_1 = ( -b - sqrt_delta ) / a
+    t_2 = ( -b + sqrt_delta ) / a
+
+    if (t_1 > inv_r.tmin) && (t_1 < inv_r.tmax) || (t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)
+        return true
+    else
+        return false
+    end
 end

@@ -30,6 +30,6 @@ include("hitrecord.jl")
 export HitRecord, is_close
 
 include("shapes.jl")
-export Shape, Sphere, ray_intersection
+export Shape, Sphere, ray_intersection, quick_ray_intersection
 
 end #module myRayTracing

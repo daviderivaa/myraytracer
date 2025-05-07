@@ -1,5 +1,6 @@
 using myRayTracing
 using Test
+using LinearAlgebra
 
 @testset "Check _read_float" begin
     
@@ -189,5 +190,71 @@ end
 end
 
 @testset "Check shapes methods" begin
-    
+
+    id = Matrix{Float64}(I(4))
+    null_transform = Transformation(id)
+    sph_1 = Sphere(null_transform)
+
+    ray_1 = Ray(Point(0.0, 0.0, 2.0), Vec(0.0, 0.0, -1.0))
+    ray_2 = Ray(Point(3.0, 0.0, 0.0), Vec(-1.0, 0.0, 0.0))
+    ray_3 = Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
+    p_1 = Point(0.0, 0.0, 1.0)
+    p_2 = Point(1.0, 0.0, 0.0)
+    n_1 = Normal(0.0, 0.0, 1.0)
+    n_2 = Normal(1.0, 0.0, 0.0)
+    n_3 = Normal(-1.0, 0.0, 0.0)
+
+    @test quick_ray_intersection(sph_1, ray_1) == true
+    @test quick_ray_intersection(sph_1, ray_2) == true
+    @test quick_ray_intersection(sph_1, ray_3) == true
+
+    hr_1 = ray_intersection(sph_1, ray_1)
+    hr_2 = ray_intersection(sph_1, ray_2) 
+    hr_3 = ray_intersection(sph_1, ray_3)
+
+    HRtest_1 = HitRecord(p_1, n_1, Vec2d(0.0, 0.0), 1.0, ray_1)
+    HRtest_2 = HitRecord(p_2, n_2, Vec2d(0.0, 0.5), 2.0, ray_2)
+    HRtest_3 = HitRecord(p_2, n_3, Vec2d(0.0, 0.5), 1.0, ray_3)
+
+    @test is_close(hr_1, HRtest_1)
+    @test is_close(hr_2, HRtest_2)
+    @test is_close(hr_3, HRtest_3)
+
+    v = Vec(10.0, 0.0, 0.0)
+    tr = traslation(v)
+    sph_2 = Sphere(tr)
+
+    ray_4 = Ray(Point(10.0, 0.0, 2.0), Vec(0.0, 0.0, -1.0))
+    ray_5 = Ray(Point(13.0, 0.0, 0.0), Vec(-1.0, 0.0, 0.0))
+    p_4 = Point(10.0, 0.0, 1.0)
+    p_5 = Point(11.0, 0.0, 0.0)
+
+    @test quick_ray_intersection(sph_2, ray_4) == true
+    @test quick_ray_intersection(sph_2, ray_5) == true
+
+    hr_4 = ray_intersection(sph_2, ray_4)
+    hr_5 = ray_intersection(sph_2, ray_5)
+
+    HRtest_4 = HitRecord(p_4, n_1, Vec2d(0.0, 0.0), 1.0, ray_4)
+    HRtest_5 = HitRecord(p_5, n_2, Vec2d(0.0, 0.5), 2.0, ray_5)
+
+    @test is_close(hr_4, HRtest_4)
+    @test is_close(hr_5, HRtest_5)
+
+    ray_6 = Ray(Point(0.0, 0.0, 2.0), Vec(0.0, 0.0, 1.0))
+    ray_7 = Ray(Point(-15.0, 0.0, 0.0), Vec(0.0, 0.0, -1.0))
+    ray_8 = Ray(Point(5.0, 0.0, 0.0), Vec(-1.0, 0.0, 0.0))
+
+    @test quick_ray_intersection(sph_1, ray_6) == false
+    @test quick_ray_intersection(sph_1, ray_7) == false
+    @test quick_ray_intersection(sph_2, ray_8) == false
+
+    hr_6 = ray_intersection(sph_1, ray_6)
+    hr_7 = ray_intersection(sph_1, ray_7)
+    hr_8 = ray_intersection(sph_2, ray_8)
+
+    @test hr_6 === nothing
+    @test hr_7 === nothing
+    @test hr_8 === nothing
+
 end
