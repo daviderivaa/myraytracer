@@ -1,8 +1,7 @@
 #HIT RECORD STRUCT
 
 """
-struct HitRecord
-    Creates a 3D unit sphere centered in the origin of the axes. A transfromation can be passed to translate and transform it into an ellipsoid
+Defining HitRecord struct and methods
 
     world_point::Point --> 3D point where the intersection occurred
     normal::Normal --> surface normal vector
@@ -17,6 +16,10 @@ struct HitRecord
     surface_point::Vec2d
     t::Float64
     ray::Ray
+
+    function HitRecord(p::Point, n::Normal, surf_p::Vec2d, t, r::Ray)
+        new(p, n, surf_p, t, r)
+    end
 
 end
 

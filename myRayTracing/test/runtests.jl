@@ -187,3 +187,7 @@ end
     @test is_close(HR1, HR2)
 
 end
+
+@testset "Check shapes methods" begin
+    
+end

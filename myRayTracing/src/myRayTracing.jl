@@ -29,4 +29,7 @@ export ImageTracer, fire_ray, fire_all_rays!
 include("hitrecord.jl")
 export HitRecord, is_close
 
+include("shapes.jl")
+export Shape, Sphere, ray_intersection
+
 end #module myRayTracing
