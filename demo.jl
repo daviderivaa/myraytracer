@@ -6,6 +6,8 @@ using Images
 using Colors
 using myRayTracing
 
+include("pfm2png.jl")
+
 w = World()
 
 coords = [-0.5,0.5]
@@ -22,8 +24,8 @@ s2 = Sphere(trasl2(scaling(0.1)))
 add_shape!(w,s1)
 add_shape!(w,s2)
 
-PC = PerspectiveCamera(-1.0, 16.0/9.0, traslation(Vec(-1.0, 0.0, 0.0)))
-img = HdrImage(160,90)
+PC = PerspectiveCamera(-1.0, 16.0/9.0, traslation(Vec(1.0, 0.0, 0.0)))
+img = HdrImage(1600,900)
 ITC = ImageTracer(img, PC)
 
 function func(ray)
@@ -40,4 +42,15 @@ open("./demo_perspective.pfm", "w") do io
     write_pfm(io, ITC.img)
 end
 
-#convert_pfm_to_png("./demo_perspective.pfm","demo_perspective")
+convert_pfm_to_png("./demo_perspective.pfm","demo_perspective")
+
+#format, width, height, endianness, pixel_data = read_pfm("./demo_perspective.pfm")
+#alpha, gamma, output_file_name, output_file_format = read_user_input()
+
+#image = HdrImage(pixel_data, width, height)
+
+#tone_mapping!(image, alpha)
+#gamma_correction!(image, gamma)
+
+#complete_output_file_name = "$(output_file_name)_g$(gamma)a$(alpha).$(output_file_format)"
+#save("./" * complete_output_file_name, image.pixels)

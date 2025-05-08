@@ -125,14 +125,15 @@ function write_pfm(io::IO, img::HdrImage, endianness::Bool=true)
         throw(InvalidPfmFileFormat("Invalid output file"))
     end
 
-    for row_pixel in (img.height-1):-1:0
-        for col_pixel in 0:(img.width-1)
-            color = img[col_pixel, row_pixel]
+    for row_pixel in img.height:-1:1  # bottom-to-top
+        for col_pixel in 1:img.width  # left-to-right
+            color = img.pixels[row_pixel, col_pixel]
             _write_float!(io, color.r, endianness)
             _write_float!(io, color.g, endianness)
             _write_float!(io, color.b, endianness)
         end
     end
+    
 end
 
 """

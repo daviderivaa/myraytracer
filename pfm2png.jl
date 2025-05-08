@@ -3,7 +3,7 @@ Pkg.activate("myRayTracing")
 using Images
 using myRayTracing
 
-function convert_pfm_to_png(pfm_file::String, alpha::Float64 = 0.3, gamma::Float64 = 1.0, output_file_name::String, output_file_format::String="png")
+function convert_pfm_to_png(pfm_file::String, output_file_name::String, alpha::Float64 = 0.3, gamma::Float64 = 1.0, output_file_format::String="png")
     format, width, height, endianness, pixel_data = read_pfm(pfm_file)
     image = HdrImage(pixel_data, width, height)
     tone_mapping!(image, alpha)
