@@ -167,12 +167,12 @@ end
 """
 function (T::Transformation)(a::Normal)
     allows to apply the transformation on a normal by using " T(a) "
-"""
+""" 
 function (T::Transformation)(a::Normal)
-    if ((a.x*T.invm[1,4] + a.y*T.invm[2,4] + a.z*T.invm[3,4]) == 0.0)
-        return Normal((a.x*T.invm[1,1] + a.y*T.invm[2,1] + a.z*T.invm[3,1]), 
-                      (a.x*T.invm[1,2] + a.y*T.invm[2,2] + a.z*T.invm[3,2]), 
-                      (a.x*T.invm[1,3] + a.y*T.invm[2,3] + a.z*T.invm[3,3]))
+    if ((a.x*T.invm[4,1] + a.y*T.invm[4,2] + a.z*T.invm[4,3]) == 0.0)
+        return Normal((a.x*T.invm[1,1] + a.y*T.invm[1,2] + a.z*T.invm[1,3]), 
+                      (a.x*T.invm[2,1] + a.y*T.invm[2,2] + a.z*T.invm[2,3]), 
+                      (a.x*T.invm[3,1] + a.y*T.invm[3,2] + a.z*T.invm[3,3]))
     else
         throw(Transformation_error("Normal type not preserved in transformation"))
     end

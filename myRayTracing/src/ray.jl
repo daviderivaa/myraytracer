@@ -41,7 +41,7 @@ function is_close(ray1, ray2, epsilon=1e-5)
     checks if two rays have similar origins and directions
 """
 function is_close(r_1::Ray, r_2::Ray, epsilon=1e-5)
-    return (_are_xyz_close(r_1.origin, r_2.origin, epsilon) && _are_xyz_close(r_1.dir, r_2.dir, epsilon))
+    return (is_close(r_1.origin, r_2.origin, epsilon) && is_close(r_1.dir, r_2.dir, epsilon))
 end
 
 """

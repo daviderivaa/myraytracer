@@ -115,13 +115,13 @@ function _user_output_filename()
 """
 function _user_output_filename()
     while true
-        print("Write output file name")
+        print("Write output file name: ")
         file_name = readline()
 
         if !isempty(strip(file_name))
             return file_name
         else
-            throw(Type_error("Error: please insert file name"))
+            throw(Type_error("Error: please insert file name!"))
         end
 
     end
@@ -134,7 +134,7 @@ function _user_output_format()
 """
 function _user_output_format()
     while true
-        print("Choose either png or jpg file format")
+        print("Choose either png or jpg file format: ")
         file_format = readline()
 
         if file_format == "png" || file_format == "jpg"
