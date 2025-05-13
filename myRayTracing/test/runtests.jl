@@ -263,3 +263,64 @@ end
     @test hr_8 === nothing
 
 end
+
+@testset "Check world methods" begin
+    
+    w = World()
+
+    coords = [-0.5,0.5]
+    for x in coords, y in coords, z in coords
+        trasl = traslation(Vec(x,y,z)) #put sphere in the correct position
+        s = Sphere(trasl(scaling(0.1))) #creates a sphere with radius = 0.1
+        add_shape!(w, s)
+    end
+
+    trasl1 = traslation(Vec(0.0, 0.0, -0.5))
+    trasl2 = traslation(Vec(0.0, 0.5, 0.0))
+    s1 = Sphere(trasl1(scaling(0.1)))
+    s2 = Sphere(trasl2(scaling(0.1)))
+    add_shape!(w,s1)
+    add_shape!(w,s2)
+
+    r1 = Ray(Point(0.0, 0.0, 0.0), Vec(0.0, 0.0, -1.0))
+    r2 = Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
+
+    inv_r = inverse(s1.T)(r1)
+    o_vec = Point_to_Vec(inv_r.origin)
+
+    a = squared_norm(inv_r.dir)
+    b = o_vec * inv_r.dir #tecnically is b/2, but we will use delta/4
+    c = squared_norm(o_vec) - 1
+    delta = b*b - a*c #it's delta/4
+ 
+    sqrt_delta = √(delta)
+
+    t_1 = ( -b - sqrt_delta ) / a
+    t_2 = ( -b + sqrt_delta ) / a
+
+    if (t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)
+        t_hit = t_1
+    elseif (t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)
+        t_hit = t_2
+    else
+        return nothing
+    end
+
+    point_hit = at(inv_r, t_hit)
+
+    #p = Point(0.0, 0.0, -0.4)
+    u = atan(point_hit.y, point_hit.x) / (2π)
+    v = acos(point_hit.z) / π
+    u = u >= 0.0 ? u : u + 1.0
+
+    @test is_close(ray_intersection(w, r1), HitRecord(Point(0.0, 0.0, -0.4), Normal(0.0, 0.0, 1.0), Vec2d(u,v), t_hit, r1))
+    @test ray_intersection(w, r2) === nothing
+
+    visible_point = Point(1.0, -2.0, 2.0)
+    invisible_point = Point(5.0, -0.5, 0.5)
+    observer_point = Point(0.0, -0.5, 0.5)
+
+    @test is_point_visible(w, visible_point, observer_point)
+    @test !is_point_visible(w, invisible_point, observer_point)
+
+end

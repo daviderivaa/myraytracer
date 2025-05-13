@@ -73,14 +73,3 @@ open(pfm_filename_and_path, "w") do io
 end
 
 convert_pfm_to_png(pfm_filename_and_path,filename)
-
-#format, width, height, endianness, pixel_data = read_pfm("./demo_perspective.pfm")
-#alpha, gamma, output_file_name, output_file_format = read_user_input()
-
-#image = HdrImage(pixel_data, width, height)
-
-#tone_mapping!(image, alpha)
-#gamma_correction!(image, gamma)
-
-#complete_output_file_name = "$(output_file_name)_g$(gamma)a$(alpha).$(output_file_format)"
-#save("./" * complete_output_file_name, image.pixels)

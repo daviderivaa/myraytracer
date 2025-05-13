@@ -76,9 +76,9 @@ function is_point_visible(w::World, p::Point, observer_pos::Point)
         ray = Ray(observer_pos, direction, (1e-2 / dir_norm), 1.0)
         for shape in get_shapes(w)
             if quick_ray_intersection(shape, ray)
-                return False
+                return false
             end
         end
-        return True
+        return true
         
 end
