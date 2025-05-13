@@ -65,6 +65,7 @@ function ray_intersection(shape, r)
     given a sphere and a ray, it returns the HitRecord for the first intersection between the ray and the sphere
 """
 function ray_intersection(shape::Sphere, r::Ray)
+
     inv_r = inverse(shape.T)(r)
     o_vec = Point_to_Vec(inv_r.origin)
 
@@ -135,6 +136,46 @@ end
 
 #CSG
 
+"""
+function _transform_hit(hit::HitRecord, T::Transformation)
+    Necessary function for the "composition" of the transformation in CSG
+"""
+function _transform_hit(hit::HitRecord, T::Transformation)
+    return HitRecord(
+        T(hit.point),
+        T(hit.normal),
+        hit.uv,
+        hit.t,
+        hit.ray
+    )
+end
+
+"""
+function _ray_interval(shape::Shape, r::Ray)
+    This function calculates the interval in which the ray stays in the shape, necessary because a ray can hit both shapes without hitting their intersections
+"""
+function _ray_interval(shape::Shape, r::Ray)
+
+    hit1 = ray_intersection(shape, r)
+    if hit1 === nothing
+        return nothing
+    end
+
+    # Trova anche l’uscita dalla shape
+    new_r = Ray(at(r, hit1.t + 1e-5), r.dir, 1e-5, r.tmax)
+    hit2 = ray_intersection(shape, new_r)
+
+    if hit2 === nothing
+        return nothing
+    end
+
+    t_enter = hit1.t
+    t_exit = hit2.t
+    return (min(t_enter, t_exit), max(t_enter, t_exit))
+
+end
+
+
 #UNION
 """
 new shape type for union in CSG:
@@ -151,94 +192,32 @@ struct union_shape <: Shape
     function union_shape(s1, s2, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
         new(s1, s2, T)
     end
+
 end
 
+"""
 function ray_intersection(u_shape::union_shape, r::Ray)
-    inv_r = inverse(u_shape.T)(r)
-    o_vec = Point_to_Vec(inv_r.origin)
+    given a union of shapes and a ray, it returns the HitRecord for the first intersection between the ray and the shapes's union
+"""
+function ray_intersection(u_shape::union_shape, r::Ray)
 
-    a = squared_norm(inv_r.dir)
-    b = o_vec * inv_r.dir #tecnically is b/2, but we will use delta/4
-    c = squared_norm(o_vec) - 1
-    delta = b*b - a*c #it's delta/4
+    hit1 = ray_intersection(u_shape.s1, r)
+    hit2 = ray_intersection(u_shape.s2, r)
 
-    if delta <= 0
+    if hit1 === nothing && hit2 === nothing
         return nothing
     end
 
-    #TO DO ...
-
-end
-
-#FUSION
-"""
-new shape type for fusion in CSG (similiar to union but without internal intersections)
-- s1::Shape --> first shape
-- s2::Shape --> second shape
-- T::Transformation --> applied transformation
-"""
-struct fusion_shape <: Shape
-
-    s1::Shape
-    s2::Shape
-    T::Transformation
-
-    function fusion_shape(s1, s2, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
-        new(s1, s2, T)
-    end
-end
-
-function ray_intersection(f_shape::fusion_shape, r::Ray)
-    inv_r = inverse(f_shape.T)(r)
-    o_vec = Point_to_Vec(inv_r.origin)
-
-    a = squared_norm(inv_r.dir)
-    b = o_vec * inv_r.dir #tecnically is b/2, but we will use delta/4
-    c = squared_norm(o_vec) - 1
-    delta = b*b - a*c #it's delta/4
-
-    if delta <= 0
-        return nothing
+    if hit1 === nothing
+        return _transform_hit(hit2, u_shape.T)
+    elseif hit2 === nothing
+        return _transform_hit(hit1, u_shape.T)
     end
 
-    #TO DO ...
+    closest_hit = hit1.t < hit2.t ? hit1 : hit2
+    return _transform_hit(closest_hit, u_shape.T)
 
 end
-
-#DIFFERENCE
-"""
-new shape type for difference in CSG:
-- s1::Shape --> first shape (in this case order counts)
-- s2::Shape --> second shape
-- T::Transformation --> applied transformation
-"""
-struct diff_shape <: Shape
-    s1::Shape
-    s2::Shape
-    T::Transformation
-
-    function diff_shape(s1::Shape, s2::Shape, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
-        new(s1, s2, T)
-    end
-end
-
-function ray_intersection(d_shape::diff_shape, r::Ray)
-    inv_r = inverse(d_shape.T)(r)
-    o_vec = Point_to_Vec(inv_r.origin)
-
-    a = squared_norm(inv_r.dir)
-    b = o_vec * inv_r.dir #tecnically is b/2, but we will use delta/4
-    c = squared_norm(o_vec) - 1
-    delta = b*b - a*c #it's delta/4
-
-    if delta <= 0
-        return nothing
-    end
-
-    #TO DO ...
-    
-end
-
 
 #INTERSECTION
 """
@@ -256,21 +235,73 @@ struct intersec_shape <: Shape
     function intersec_shape(s1, s2, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
         new(s1, s2, T)
     end
+
 end
 
+"""
 function ray_intersection(i_shape::intersec_shape, r::Ray)
+    given a n intersection of shapes and a ray, it returns the HitRecord for the first intersection between the ray and the shapes's intersection
+"""
+function ray_intersection(i_shape::intersec_shape, r::Ray)
+
     inv_r = inverse(i_shape.T)(r)
-    o_vec = Point_to_Vec(inv_r.origin)
 
-    a = squared_norm(inv_r.dir)
-    b = o_vec * inv_r.dir #tecnically is b/2, but we will use delta/4
-    c = squared_norm(o_vec) - 1
-    delta = b*b - a*c #it's delta/4
+    interval1 = _ray_interval(i_shape.s1, inv_r)
+    interval2 = _ray_interval(i_shape.s2, inv_r)
 
-    if delta <= 0
+    if interval1 === nothing || interval2 === nothing
         return nothing
     end
 
-    #TO DO ...
+    t_enter = max(interval1[1], interval2[1])
+    t_exit  = min(interval1[2], interval2[2])
+
+    if t_enter >= t_exit
+        return nothing
+    end
+
+    #If the code arrives here we know the ray hits the intersection
+
+    point_hit = at(inv_r, t_enter)
+    normal = _sphere_normal(point_hit, inv_r)
+
+    hit = HitRecord(
+        i_shape.T(point_hit),
+        i_shape.T(normal),
+        _xyz_to_uv(point_hit),
+        t_enter,
+        r
+    )
+
+    return hit
+
+end
+
+#DIFFERENCE
+"""
+new shape type for difference in CSG:
+- s1::Shape --> first shape (in this case order counts)
+- s2::Shape --> second shape
+- T::Transformation --> applied transformation
+"""
+struct diff_shape <: Shape
+
+    s1::Shape
+    s2::Shape
+    T::Transformation
+
+    function diff_shape(s1::Shape, s2::Shape, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+        new(s1, s2, T)
+    end
+
+end
+
+"""
+function ray_intersection(d_shape::diff_shape, r::Ray)
+    given a difference of shapes and a ray, it returns the HitRecord for the first intersection between the ray and the shapes's difference
+"""
+function ray_intersection(d_shape::diff_shape, r::Ray)
+
+    #TO DO...
 
 end
