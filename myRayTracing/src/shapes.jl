@@ -132,7 +132,87 @@ function quick_ray_intersection(shape::Sphere, r::Ray)
 end
 
 
-###############################################################################
+################################################################################
+
+#PLANE STRUCT
+"""
+struct Plane <: Shape
+    Creates a plane (if not transformed, it's the x-y plane). 
+
+    - T::Transformation --> The transformation applied to the plane to rotate it and translate it in the right location.
+
+"""
+struct Plane <: Shape
+
+    T::Transformation
+
+    function Plane(T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+        new(T)
+    end
+
+end
+
+"""
+function _plane_normal(p, r)
+    it returns the normal to the plane x-y, chosen in order to have the opposite direction of the incoming ray
+"""
+function _plane_normal(r::Ray)
+    if (r.dir.z) >= 0
+        return Normal(0.0, 0.0, -1.0)
+    else
+        return Normal(0.0, 0.0, 1.0)
+    end
+end
+
+"""
+function _xy_to _uv(p)
+    given a point on the x-y plane, in returns its (u,v) 2D form
+"""
+function _xy_to_uv(p::Point)
+    u = p.x - floor(p.x)
+    v = p.y - floor(p.y)
+    return Vec2d(u,v)
+end
+
+"""
+function ray_intersection(shape, r)
+    given a plane and a ray, it returns the HitRecord for the intersection between the ray and the sphere
+"""
+function ray_intersection(shape::Plane, r::Ray)
+
+    inv_r = inverse(shape.T)(r)
+
+    if inv_r.dir.z == 0
+        return nothing
+    end
+ 
+    t_hit = inv_r.origin.z / inv_r.dir.z
+    point_hit = at(inv_r, t_hit)
+
+    return HitRecord( shape.T(point_hit), #hitted point in the world
+                      shape.T(_plane_normal(inv_r)), #normal at the surface in the world
+                      (_xy_to_uv(point_hit)), #(u,v) vec hitted on the surface
+                      t_hit, #t
+                      r #ray
+                    )
+
+end
+
+"""
+function quick_ray_intersection(shape, r)
+    given a plane and a ray, it returns true/false if there is/isn't intersection
+"""
+function quick_ray_intersection(shape::Sphere, r::Ray)
+    inv_r = inverse(shape.T)(r)
+
+    if inv_r.dir.z == 0
+        return false
+    else 
+        return true
+    end
+end
+
+#################################################################################
 
 #CSG
 

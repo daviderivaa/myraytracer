@@ -30,7 +30,7 @@ include("hitrecord.jl")
 export HitRecord, is_close
 
 include("shapes.jl")
-export Shape, Sphere, ray_intersection, quick_ray_intersection
+export Shape, Sphere, Plane, ray_intersection, quick_ray_intersection
 
 include("world.jl")
 export World, add_shape!, get_shapes, get_single_shape, ray_intersection, is_point_visible
