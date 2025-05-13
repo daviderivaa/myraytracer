@@ -129,3 +129,148 @@ function quick_ray_intersection(shape::Sphere, r::Ray)
         return false
     end
 end
+
+
+###############################################################################
+
+#CSG
+
+#UNION
+"""
+new shape type for union in CSG:
+- s1::Shape --> first shape
+- s2::Shape --> second shape
+- T::Transformation --> applied transformation
+"""
+struct union_shape <: Shape
+
+    s1::Shape
+    s2::Shape
+    T::Transformation
+
+    function union_shape(s1, s2, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+        new(s1, s2, T)
+    end
+end
+
+function ray_intersection(u_shape::union_shape, r::Ray)
+    inv_r = inverse(u_shape.T)(r)
+    o_vec = Point_to_Vec(inv_r.origin)
+
+    a = squared_norm(inv_r.dir)
+    b = o_vec * inv_r.dir #tecnically is b/2, but we will use delta/4
+    c = squared_norm(o_vec) - 1
+    delta = b*b - a*c #it's delta/4
+
+    if delta <= 0
+        return nothing
+    end
+
+    #TO DO ...
+
+end
+
+#FUSION
+"""
+new shape type for fusion in CSG (similiar to union but without internal intersections)
+- s1::Shape --> first shape
+- s2::Shape --> second shape
+- T::Transformation --> applied transformation
+"""
+struct fusion_shape <: Shape
+
+    s1::Shape
+    s2::Shape
+    T::Transformation
+
+    function fusion_shape(s1, s2, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+        new(s1, s2, T)
+    end
+end
+
+function ray_intersection(f_shape::fusion_shape, r::Ray)
+    inv_r = inverse(f_shape.T)(r)
+    o_vec = Point_to_Vec(inv_r.origin)
+
+    a = squared_norm(inv_r.dir)
+    b = o_vec * inv_r.dir #tecnically is b/2, but we will use delta/4
+    c = squared_norm(o_vec) - 1
+    delta = b*b - a*c #it's delta/4
+
+    if delta <= 0
+        return nothing
+    end
+
+    #TO DO ...
+
+end
+
+#DIFFERENCE
+"""
+new shape type for difference in CSG:
+- s1::Shape --> first shape (in this case order counts)
+- s2::Shape --> second shape
+- T::Transformation --> applied transformation
+"""
+struct diff_shape <: Shape
+    s1::Shape
+    s2::Shape
+    T::Transformation
+
+    function diff_shape(s1::Shape, s2::Shape, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+        new(s1, s2, T)
+    end
+end
+
+function ray_intersection(d_shape::diff_shape, r::Ray)
+    inv_r = inverse(d_shape.T)(r)
+    o_vec = Point_to_Vec(inv_r.origin)
+
+    a = squared_norm(inv_r.dir)
+    b = o_vec * inv_r.dir #tecnically is b/2, but we will use delta/4
+    c = squared_norm(o_vec) - 1
+    delta = b*b - a*c #it's delta/4
+
+    if delta <= 0
+        return nothing
+    end
+
+    #TO DO ...
+    
+end
+
+
+#INTERSECTION
+"""
+new shape type for intersection in CSG:
+- s1::Shape --> first shape
+- s2::Shape --> second shape
+- T::Transformation --> applied transformation
+"""
+struct intersec_shape <: Shape
+
+    s1::Shape
+    s2::Shape
+    T::Transformation
+
+    function intersec_shape(s1, s2, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+        new(s1, s2, T)
+    end
+end
+
+function ray_intersection(i_shape::intersec_shape, r::Ray)
+    inv_r = inverse(i_shape.T)(r)
+    o_vec = Point_to_Vec(inv_r.origin)
+
+    a = squared_norm(inv_r.dir)
+    b = o_vec * inv_r.dir #tecnically is b/2, but we will use delta/4
+    c = squared_norm(o_vec) - 1
+    delta = b*b - a*c #it's delta/4
+
+    if delta <= 0
+        return nothing
+    end
+
+    #TO DO ...
+
+end
