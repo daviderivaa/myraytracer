@@ -36,6 +36,6 @@ include("world.jl")
 export World, add_shape!, get_shapes, get_single_shape, ray_intersection, is_point_visible
 
 include("pcg.jl")
-export PCG, PCG, random!
+export PCG, random!
 
 end #module myRayTracing

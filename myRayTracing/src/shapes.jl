@@ -161,7 +161,7 @@ end
 function _shape_normal(pl, r, p::Point = nothing)
     it returns the normal to the plane x-y, chosen in order to have the opposite direction of the incoming ray
 """
-function _shape_normal(pl::Plane, r::Ray, p::Point = nothing)
+function _shape_normal(pl::Plane, r::Ray, p::Point)
     if (r.dir.z) >= 0
         return Normal(0.0, 0.0, -1.0)
     else
@@ -176,7 +176,7 @@ function _xy_to _uv(p)
 function _xy_to_uv(p::Point)
     u = p.x - floor(p.x)
     v = p.y - floor(p.y)
-    return Vec2d(u,v)
+    return Vec2d(u, v)
 end
 
 """
@@ -195,7 +195,7 @@ function ray_intersection(shape::Plane, r::Ray)
     point_hit = at(inv_r, t_hit)
 
     return HitRecord( shape.T(point_hit), #hitted point in the world
-                      shape.T(_shape_normal(shape, inv_r)), #normal at the surface in the world
+                      shape.T(_shape_normal(shape, inv_r, point_hit)), #normal at the surface in the world
                       (_xy_to_uv(point_hit)), #(u,v) vec hitted on the surface
                       t_hit, #t
                       r #ray

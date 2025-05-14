@@ -194,7 +194,7 @@ end
 
 end
 
-@testset "Check shapes methods" begin
+@testset "Check sphere methods" begin
 
     id = Matrix{Float64}(I(4))
     null_transform = Transformation(id)
@@ -261,6 +261,50 @@ end
     @test hr_6 === nothing
     @test hr_7 === nothing
     @test hr_8 === nothing
+
+end
+
+@testset "Check plane methods" begin
+
+    id = Matrix{Float64}(I(4))
+    null_transform = Transformation(id)
+    pl_1 = Plane(null_transform)
+
+    v = Vec(10.0, 7.0, 5.0)
+    trasl = traslation(v)
+    pl_2 = Plane(trasl)
+
+    rot = rotation("x", π/4)
+    pl_3 = Plane(rot)
+
+    ray_1 = Ray(Point(1.0, 2.0, 10.0), Vec(0.0, 0.0, -1.0))
+    ray_2 = Ray(Point(0.0, 0.0, -3.0), Vec(1.0, 1.0, 1.0))
+    ray_3 = Ray(Point(0.0, 0.0, 1.0), Vec(1.0, 0.0, 0.0))
+    ray_4 = Ray(Point(0.0, 0.0, 1.0), Vec(0.0, 1.0, 0.0))
+
+    @test quick_ray_intersection(pl_1, ray_1) == true
+    @test quick_ray_intersection(pl_1, ray_2) == true
+    @test quick_ray_intersection(pl_1, ray_3) == false
+    @test quick_ray_intersection(pl_2, ray_1) == true
+    @test quick_ray_intersection(pl_2, ray_3) == false
+    @test quick_ray_intersection(pl_3, ray_1) == true
+    @test quick_ray_intersection(pl_3, ray_3) == false
+    @test quick_ray_intersection(pl_3, ray_4) == true
+
+    hr_11 = ray_intersection(pl_1, ray_1)
+    hr_12 = ray_intersection(pl_1, ray_2) 
+    hr_21 = ray_intersection(pl_2, ray_1)
+    hr_34 = ray_intersection(pl_3, ray_4)
+
+    HRtest_11 = HitRecord(Point(1.0, 2.0, 0.0), Normal(0.0, 0.0, 1.0), Vec2d(0.0, 0.0), 10.0, ray_1)
+    HRtest_12 = HitRecord(Point(3.0, 3.0, 0.0), Normal(0.0, 0.0, -1.0), Vec2d(0.0, 0.0), 3.0, ray_2)
+    HRtest_21 = HitRecord(Point(1.0, 2.0, 5.0), Normal(0.0, 0.0, 1.0), Vec2d(0.0, 0.0), 5.0, ray_1)
+    HRtest_34 = HitRecord(Point(0.0, 1.0, 1.0), Normal(0.0, -(√2)/2, (√2)/2), Vec2d(0.0, (√2)-1), 1.0, ray_4)
+
+    @test is_close(hr_11, HRtest_11)
+    @test is_close(hr_12, HRtest_12)
+    @test is_close(hr_21, HRtest_21)
+    @test is_close(hr_34, HRtest_34)
 
 end
 
