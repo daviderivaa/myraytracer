@@ -17,7 +17,7 @@ function quick_ray_intersection(shape::Shape, r::Ray)
 end
 
 """Abstract method for normals"""
-function _shape_normal(shape::Shape, p::Point, r::Ray)
+function _shape_normal(shape::Shape, r::Ray, p::Point)
     throw(Type_error("_shape_normal method not implemented for $(typeof(shape))"))
 end
 
@@ -45,7 +45,7 @@ end
 function _shape_normal(s, p, r)
     it returns the normal to the unit sphere surface in a given point, chosen in order to have the opposite direction of the incoming ray
 """
-function _shape_normal(s::Sphere, p::Point, r::Ray)
+function _shape_normal(s::Sphere, r::Ray, p::Point)
     n = Normal(p.x, p.y, p.z)
     if (n * r.dir) < 0
         return n
@@ -99,7 +99,7 @@ function ray_intersection(shape::Sphere, r::Ray)
     point_hit = at(inv_r, t_hit)
 
     return HitRecord( shape.T(point_hit), #hitted point in the world
-                      shape.T(_shape_normal(shape, point_hit, inv_r)), #normal at the surface in the world
+                      shape.T(_shape_normal(shape, inv_r, point_hit)), #normal at the surface in the world
                       (_xyz_to_uv(point_hit)), #(u,v) vec hitted on the surface
                       t_hit, #t
                       r #ray
@@ -158,10 +158,10 @@ struct Plane <: Shape
 end
 
 """
-function _shape_normal(pl, p, r)
+function _shape_normal(pl, r, p::Point = nothing)
     it returns the normal to the plane x-y, chosen in order to have the opposite direction of the incoming ray
 """
-function _shape_normal(pl::Plane, p::Point = nothing, r::Ray)
+function _shape_normal(pl::Plane, r::Ray, p::Point = nothing)
     if (r.dir.z) >= 0
         return Normal(0.0, 0.0, -1.0)
     else
@@ -347,7 +347,7 @@ function ray_intersection(u_shape::union_shape, r::Ray)
         point_hit = at(inv_r, t_enter)
     end
 
-    normal = _shape_normal(hit_shape, point_hit, inv_r)
+    normal = _shape_normal(hit_shape, inv_r, point_hit)
 
     return HitRecord(
         u_shape.T(point_hit),
@@ -356,6 +356,25 @@ function ray_intersection(u_shape::union_shape, r::Ray)
         t_enter,
         r
     )
+
+end
+
+#INTERSECTION
+"""
+new shape type for intersection in CSG:
+- s1::Shape --> first shape (in this case order counts)
+- s2::Shape --> second shape
+- T::Transformation --> applied transformation
+"""
+struct intersec_shape <: Shape
+
+    s1::Shape
+    s2::Shape
+    T::Transformation
+
+    function intersec_shape(s1::Shape, s2::Shape, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+        new(s1, s2, T)
+    end
 
 end
 
@@ -389,7 +408,7 @@ function ray_intersection(i_shape::intersec_shape, r::Ray)
     hit_shape = t_enter == t_enter1 ? i_shape.s1 : i_shape.s2
 
     point_hit = at(inv_r, t_enter)
-    normal = _shape_normal(hit_shape, point_hit, inv_r)
+    normal = _shape_normal(hit_shape, inv_r, point_hit)
 
     return HitRecord(
         i_shape.T(point_hit),
@@ -449,7 +468,7 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
     t_hit = intervals[1][1]
     point_hit = at(inv_r, t_hit)
 
-    normal = _shape_normal(d_shape.s1, point_hit, inv_r)
+    normal = _shape_normal(d_shape.s1, inv_r, point_hit)
 
     return HitRecord(
         d_shape.T(point_hit),
