@@ -17,21 +17,23 @@ struct InvalidARGS <: Exception
 end
 
 
-if length(ARGS) != 1
-    throw(InvalidARGS("Required julia demo.jl <camera_type>\nWrite perspective or orthogonal"))
+if length(ARGS) != 2
+    throw(InvalidARGS("Required julia demo.jl <camera_type> <angle (deg)>\nWrite perspective or orthogonal"))
 end
 
 
 if ARGS[1] == "perspective"
-    pfm_filename_and_path = "./demo/demo_perspective.pfm"
-    filename = "demo_perspective"
-    rot1 = rotation("z", π/6)
+    pfm_filename_and_path = "./demo/demo_perspective_" * ARGS[2] * ".pfm"
+    filename = "demo_perspective_" * ARGS[2]
+    ang = parse(Float64,ARGS[2])
+    rot1 = rotation("z", -ang*π/180.0)
     Cam = PerspectiveCamera(-1.0, 16.0/9.0, rot1(traslation(Vec(1.0, 0.0, 0.0))))
 
 elseif ARGS[1] == "orthogonal"
-    pfm_filename_and_path = "./demo/demo_orthogonal.pfm"
-    filename = "demo_orthogonal"
-    rot1 = rotation("z", -π/15)
+    pfm_filename_and_path = "./demo/demo_orthogonal_" * ARGS[2] * ".pfm"
+    filename = "demo_orthogonal_" * ARGS[2]
+    ang = parse(Float64,ARGS[2])
+    rot1 = rotation("z", -ang*π/180.0)
     rot2 = rotation("y", -π/18)
     Cam = OrthogonalCamera(16.0/9.0, rot1(rot2(traslation(Vec(-2.0, 0.0, 0.0)))))
 
