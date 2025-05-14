@@ -207,7 +207,7 @@ end
 function quick_ray_intersection(shape, r)
     given a plane and a ray, it returns true/false if there is/isn't intersection
 """
-function quick_ray_intersection(shape::Sphere, r::Ray)
+function quick_ray_intersection(shape::Plane, r::Ray)
     inv_r = inverse(shape.T)(r)
 
     if inv_r.dir.z == 0
