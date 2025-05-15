@@ -23,9 +23,11 @@ if length(ARGS) != 1
     throw(InvalidARGS("Required julia demo.jl <camera_type>\nWrite perspective or orthogonal"))
 end
 
+# rotate cube around z axis by 360 deg angle
 for angle in 0:359
     if ARGS[1] == "perspective"
         idx_angle = lpad(string(angle), 3, '0')
+        path = "./demo/"
         pfm_filename_and_path = "./demo/demo_perspective_" * idx_angle * ".pfm"
         filename = "demo_perspective_" * idx_angle
         rot1 = rotation("z", -angle*π/180.0)
@@ -33,6 +35,7 @@ for angle in 0:359
 
     elseif ARGS[1] == "orthogonal"
         idx_angle = lpad(string(angle), 3, '0')
+        path = "./demo/"
         pfm_filename_and_path = "./demo/demo_orthogonal_" * idx_angle * ".pfm"
         filename = "demo_orthogonal_" * (idx_angle)
         rot1 = rotation("z", -angle*π/180.0)
@@ -64,33 +67,34 @@ for angle in 0:359
 
     function func(ray)
         if ray_intersection(w, ray) !== nothing
-            return RGB(1.0, 1.0, 1.0)
+            return RGB(1.0, 1.0, 1.0) # White
         else
-            return RGB(0.0, 0.0, 0.0)
+            return RGB(0.0, 0.0, 0.0) # Black
         end
     end
 
-    fire_all_rays!(IT, func)
+    fire_all_rays!(IT, func) 
 
+    #write pfm file
     open(pfm_filename_and_path, "w") do io
         write_pfm(io, IT.img)
     end
 
-    convert_pfm_to_png(pfm_filename_and_path,filename)
+    convert_pfm_to_png(path,pfm_filename_and_path,filename)
 end
 
-# Ordina i file PNG
+# sort png files
 files = sort(filter(f -> endswith(f, ".png"), readdir("./demo/", join=true)))
 
 for (i, file) in enumerate(files)
-    # Genera il numero con padding a 3 cifre (es. "001", "042", "123")
-    idx_str = lpad(string(i - 1), 3, '0')  # Usa i-1 se i tuoi file iniziano da 0
+    # Add padding
+    idx_str = lpad(string(i - 1), 3, '0') 
     
-    # Rinomina il file PNG
+    # rename png file
     new_png_name = "./demo/img_$(idx_str).png"
     Base.rename(file, new_png_name)
     
-    # Rinomina il file PFM associato, se esiste
+    # rename pfm file
     pfm_file = replace(file, ".png" => ".pfm")
     new_pfm_name = "./demo/img_$(idx_str).pfm"
     if isfile(pfm_file)
@@ -102,16 +106,13 @@ end
 #GIF parameters
 cmd = `ffmpeg -framerate 36 -i './demo/img_%03d.png' -vf "fps=36,scale=640:-1:flags=lanczos" -loop 0 $(ARGS[1] * ".gif")`
 
-# Esegui il comando
-println("Eseguo comando: ", cmd)
+println("Executing: ", cmd)
 run(cmd)
 
 # Delete files
 for (i, _) in enumerate(files)
-    # Elimina il file PNG
     rm("./demo/img_$(i).png")
     
-    # Elimina il file PFM con lo stesso nome
     idx_str = lpad(string(i - 1), 3, '0')
     if ARGS[1] == "orthogonal"
         pfm_file = "./demo/demo_orthogonal_" * idx_str * ".pfm"
@@ -120,7 +121,7 @@ for (i, _) in enumerate(files)
     else
         throw(InvalidARGS("Error in ARGS: in <camera_type> write perspective or orthogonal"))
     end
-    if isfile(pfm_file)  # Verifica se il file .pfm esiste
+    if isfile(pfm_file) 
         rm(pfm_file)
     end
 end
