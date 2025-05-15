@@ -35,7 +35,7 @@ struct Sphere <: Shape
 
     T::Transformation
 
-    function Sphere(T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+    function Sphere(T::Transformation=Transformation(Matrix{Float64}(I(4))))
         new(T)
     end
 
@@ -60,7 +60,8 @@ function _xyz_to _uv(p)
 """
 function _xyz_to_uv(p::Point)
     u = atan(p.y, p.x) / (2π)
-    v = acos(p.z) / π
+    z_clamped = clamp(p.z, -1.0, 1.0)
+    v = acos(z_clamped) / π
     u = u >= 0.0 ? u : u + 1.0
     return Vec2d(u,v)
 end
@@ -151,7 +152,7 @@ struct Plane <: Shape
 
     T::Transformation
 
-    function Plane(T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+    function Plane(T::Transformation=Transformation(Matrix{Float64}(I(4))))
         new(T)
     end
 
@@ -300,7 +301,7 @@ struct union_shape <: Shape
     s2::Shape
     T::Transformation
 
-    function union_shape(s1, s2, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+    function union_shape(s1, s2, T::Transformation=Transformation(Matrix{Float64}(I(4))))
         new(s1, s2, T)
     end
 
@@ -372,7 +373,7 @@ struct intersec_shape <: Shape
     s2::Shape
     T::Transformation
 
-    function intersec_shape(s1::Shape, s2::Shape, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+    function intersec_shape(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
         new(s1, s2, T)
     end
 
@@ -433,7 +434,7 @@ struct diff_shape <: Shape
     s2::Shape
     T::Transformation
 
-    function diff_shape(s1::Shape, s2::Shape, T::Transformation=Tranformation(Matrix{Float64}(I(4))))
+    function diff_shape(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
         new(s1, s2, T)
     end
 
@@ -458,7 +459,7 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
     intervals = if intB === nothing
         [intA]
     else
-        _difference_intervals(intA, intB)
+        _difference_intervals(intB, intA)
     end
 
     if isempty(intervals)
@@ -479,3 +480,29 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
     )
 
 end
+
+#=
+"""
+function Base.:+(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
+    sums two shapes returning a union_shape
+"""
+function Base.:+(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
+    return union_shape(s1, s2, T)
+end
+
+"""
+function Base.:-(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
+    subtracts two shapes returning a diff_shape
+"""
+function Base.:-(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
+    return diff_shape(s1, s2, T)
+end
+
+"""
+function Base.:^(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
+    intersecates two shapes returning a intersec_shape
+"""
+function Base.:^(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
+    return intersec_shape(s1, s2, T)
+end
+=#

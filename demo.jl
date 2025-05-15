@@ -5,7 +5,6 @@ Pkg.activate("myRayTracing")
 using Images
 using Colors
 using myRayTracing
-#using ImageMagick, FileIO, Images
 
 include("pfm2png.jl")
 
@@ -43,6 +42,7 @@ end
 
 w = World()
 
+#=
 coords = [-0.5,0.5]
 for x in coords, y in coords, z in coords
     trasl = traslation(Vec(x,y,z)) #put sphere in the correct position
@@ -54,8 +54,20 @@ trasl1 = traslation(Vec(0.0, 0.0, -0.5))
 trasl2 = traslation(Vec(0.0, 0.5, 0.0))
 s1 = Sphere(trasl1(scaling(0.1)))
 s2 = Sphere(trasl2(scaling(0.1)))
-add_shape!(w,s1)
-add_shape!(w,s2)
+add_shape!(w, s1)
+add_shape!(w, s2)
+=#
+
+s1 = Sphere(traslation(Vec(0.5, 0.12, 0.0))(scaling(0.3))) #creates a sphere with radius = 0.1
+s2 = Sphere(traslation(Vec(0.5, -0.12, 0.0))(scaling(0.3)))
+
+U = union_shape(s1, s2, traslation(Vec(0.0, 1.0, 0.0)))
+I = intersec_shape(s1, s2)
+D = diff_shape(s1, s2, traslation(Vec(0.0, -1.0, 0.0)))
+
+add_shape!(w, U)
+add_shape!(w, I)
+add_shape!(w, D)
 
 img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
@@ -74,4 +86,4 @@ open(pfm_filename_and_path, "w") do io
     write_pfm(io, IT.img)
 end
 
-convert_pfm_to_png(pfm_filename_and_path,filename)
+convert_pfm_to_png(pfm_filename_and_path, filename)
