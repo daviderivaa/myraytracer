@@ -192,11 +192,11 @@ function ray_intersection(shape::Plane, r::Ray)
         return nothing
     end
  
-    t_hit = inv_r.origin.z / inv_r.dir.z
+    t_hit = - inv_r.origin.z / inv_r.dir.z
     point_hit = at(inv_r, t_hit)
 
-    return HitRecord( shape.T(point_hit), #hitted point in the world
-                      shape.T(_shape_normal(shape, inv_r, point_hit)), #normal at the surface in the world
+    return HitRecord( (shape.T)(point_hit), #hitted point in the world
+                      (shape.T)(_shape_normal(shape, inv_r, point_hit)), #normal at the surface in the world
                       (_xy_to_uv(point_hit)), #(u,v) vec hitted on the surface
                       t_hit, #t
                       r #ray
