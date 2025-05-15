@@ -9,11 +9,19 @@ Repository of "Tecniche Numeriche per la Generazione di Immagini Fotorealistiche
 </div>
 
 ## DEMO
-Before executing [demo.jl](./demo.jl), you need to install [ffmpeg](https://ffmpeg.org/):
-- Ubuntu / Debian bash:
+### DEMO
+Run:
 ```shell
-sudo apt install ffmpeg
+julia demo_gif.jl <camera_type> <angle>
 ```
+A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
+
+### DEMO GIF
+Before executing [demo_gif.jl](./demo_gif.jl), you need to install [ffmpeg](https://ffmpeg.org/):
+- Ubuntu / Debian bash:
+    ```shell 
+    sudo apt install ffmpeg
+    ```
 - Windows prompt:
 ```shell
 choco install ffmpeg
@@ -30,6 +38,6 @@ mkdir demo
 
 Now you can run:
 ```shell
-julia demo.jl <camera_type>
+julia demo_gif.jl <camera_type>
 ```
 A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
