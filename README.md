@@ -17,6 +17,9 @@ julia demo.jl <camera_type> <angle>
 In `myraytracer/demo/` creates a `pfm` file and the corresponding `png` image.
 
 ### DEMO GIF
+<img src="orthogonal.gif" alt="Orthogonal" width="500">
+
+
 Before executing [demo_gif.jl](./demo_gif.jl), you need to install [ffmpeg](https://ffmpeg.org/):
 - Ubuntu / Debian bash:
     ```shell 
