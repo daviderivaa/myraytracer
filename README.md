@@ -9,12 +9,12 @@ Repository of "Tecniche Numeriche per la Generazione di Immagini Fotorealistiche
 </div>
 
 ## DEMO
-### DEMO
+### DEMO SINGLE IMAGE
 Run:
 ```shell
-julia demo_gif.jl <camera_type> <angle>
+julia demo.jl <camera_type> <angle>
 ```
-A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
+In `myraytracer/demo/` creates a `pfm` file and the corresponding `png` image.
 
 ### DEMO GIF
 Before executing [demo_gif.jl](./demo_gif.jl), you need to install [ffmpeg](https://ffmpeg.org/):
@@ -23,13 +23,13 @@ Before executing [demo_gif.jl](./demo_gif.jl), you need to install [ffmpeg](http
     sudo apt install ffmpeg
     ```
 - Windows prompt:
-```shell
-choco install ffmpeg
-```
+    ```shell
+    choco install ffmpeg
+    ```
 - macOS bash:
-```shell
-brew install ffmpeg
-```
+    ```shell
+    brew install ffmpeg
+    ```
 
 Then in directory `myraytracer/` run:
 ```shell
