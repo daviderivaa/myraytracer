@@ -22,6 +22,7 @@ if length(ARGS) != 2
 end
 
 if ARGS[1] == "perspective"
+    path = "./demo/"
     pfm_filename_and_path = "./demo/demo_perspective_" * ARGS[2] * ".pfm"
     filename = "demo_perspective_" * ARGS[2]
     angle = parse(Float64, ARGS[2])
@@ -29,6 +30,7 @@ if ARGS[1] == "perspective"
     Cam = PerspectiveCamera(-1.0, 16.0/9.0, rot1(traslation(Vec(1.0, 0.0, 0.0))))
 
 elseif ARGS[1] == "orthogonal"
+    path = "./demo/"
     pfm_filename_and_path = "./demo/demo_orthogonal_" * ARGS[2] * ".pfm"
     filename = "demo_orthogonal_" * ARGS[2]
     angle = parse(Float64, ARGS[2])
@@ -42,7 +44,6 @@ end
 
 w = World()
 
-#=
 coords = [-0.5,0.5]
 for x in coords, y in coords, z in coords
     trasl = traslation(Vec(x,y,z)) #put sphere in the correct position
@@ -56,34 +57,23 @@ s1 = Sphere(trasl1(scaling(0.1)))
 s2 = Sphere(trasl2(scaling(0.1)))
 add_shape!(w, s1)
 add_shape!(w, s2)
-=#
-
-s1 = Sphere(traslation(Vec(0.5, 0.12, 0.0))(scaling(0.3))) #creates a sphere with radius = 0.1
-s2 = Sphere(traslation(Vec(0.5, -0.12, 0.0))(scaling(0.3)))
-
-U = union_shape(s1, s2, traslation(Vec(0.0, 1.0, 0.0)))
-I = intersec_shape(s1, s2)
-D = diff_shape(s1, s2, traslation(Vec(0.0, -1.0, 0.0)))
-
-add_shape!(w, U)
-add_shape!(w, I)
-add_shape!(w, D)
 
 img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
 
 function func(ray)
     if ray_intersection(w, ray) !== nothing
-        return RGB(1.0, 1.0, 1.0)
+        return RGB(1.0, 1.0, 1.0) # White
     else
-        return RGB(0.0, 0.0, 0.0)
+        return RGB(0.0, 0.0, 0.0) # Black
     end
 end
 
 fire_all_rays!(IT, func)
 
+# write pfm file
 open(pfm_filename_and_path, "w") do io
     write_pfm(io, IT.img)
 end
 
-convert_pfm_to_png(pfm_filename_and_path, filename)
+convert_pfm_to_png(path, pfm_filename_and_path, filename)

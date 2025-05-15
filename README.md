@@ -17,8 +17,9 @@ julia demo.jl <camera_type> <angle>
 In `myraytracer/demo/` creates a `pfm` file and the corresponding `png` image.
 
 ### DEMO GIF
-<img src="orthogonal.gif" alt="Orthogonal" width="500">
 
+<img src="orthogonal.gif" alt="GIF 1" width="500" style="display:inline-block; margin-right:10px;">
+<img src="perspective.gif" alt="GIF 2" width="500" style="display:inline-block;">
 
 Before executing [demo_gif.jl](./demo_gif.jl), you need to install [ffmpeg](https://ffmpeg.org/):
 - Ubuntu / Debian bash:
@@ -44,3 +45,11 @@ Now you can run:
 julia demo_gif.jl <camera_type>
 ```
 A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
+
+## CHECK CSG (*CONSTRUCTIVE SOLID GEOMETRY*)
+
+Run:
+```shell
+julia check_csg.jl <camera_type> <angle>
+```
+In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
