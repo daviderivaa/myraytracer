@@ -23,5 +23,13 @@ choco install ffmpeg
 brew install ffmpeg
 ```
 
-Then run:
-```shell``
+Then in directory `myraytracer/` run:
+```shell
+mkdir demo
+```
+
+Now you can run:
+```shell
+julia demo.jl <camera_type>
+```
+A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
