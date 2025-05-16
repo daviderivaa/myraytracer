@@ -1,4 +1,5 @@
 # HEAD
+## VERSION 0.3.0
 - Create demo images and demo GIF. demo: [PR #3](https://github.com/daviderivaa/myraytracer/pull/3)
 - Create [`check_csg.jl`](./check_csg.jl) that creates an image with 3 different operations on 2 spheres: Union, Intersection, Difference
 - Methods and strcut that creates shapes (sphere and plane) and CSG. Compute intersections with light rays. `Shape` (`Sphere` and `Plane`), `ray_intersection()`, `Union()`, `Difference()`, `Intersection()`.
