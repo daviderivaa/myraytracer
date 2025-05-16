@@ -28,7 +28,7 @@ struct UniformPigment <: Pigment
 
     color::RGB{Float64}
 
-    function UniformPigment(color::Colors=RGB(0.0, 0.0, 0.0))
+    function UniformPigment(color::RGB{Float64}=RGB(0.0, 0.0, 0.0))
         new(color)
     end
 
@@ -59,7 +59,7 @@ struct CheckeredPigment <: Pigment
     color1::RGB{Float64}
     color2::RGB{Float64}
 
-    function CheckeredPigment(color1::Colors=RGB(0.0, 0.0, 0.0), color2::Colors=RGB(1.0, 1.0, 1.0), steps=10)
+    function CheckeredPigment(color1::RGB{Float64}=RGB(0.0, 0.0, 0.0), color2::RGB{Float64}=RGB(1.0, 1.0, 1.0), steps=10)
         new(color1, color2, steps)
     end
 
@@ -102,7 +102,7 @@ function get_color(pigment::ImagePigment, uv::Vec2d)
     it returns the color on the surface in that precise point of the image
 end
 """
-function get_color(pigment::CheckeredPigment, uv::Vec2d)
+function get_color(pigment::ImagePigment, uv::Vec2d)
 
     col = floor(Int, uv.u * pigment.image.width)
     row = floor(Int, uv.v * pigment.image.height)
@@ -171,7 +171,7 @@ struct Material
     brdf::BRDF
     emitted_radiance::Pigment
 
-    function ImagMaterialPigment(brdf::BRDF=DiffuseBRDF(), emitted_radiance::Pigment=UniformPigment(RGB(0.0, 0.0, 0.0)))
+    function Material(brdf::BRDF=DiffuseBRDF(), emitted_radiance::Pigment=UniformPigment(RGB(0.0, 0.0, 0.0)))
         new(brdf, emitted_radiance)
     end
 

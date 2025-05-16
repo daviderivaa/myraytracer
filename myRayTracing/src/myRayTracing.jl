@@ -29,6 +29,9 @@ export ImageTracer, fire_ray, fire_all_rays!
 include("hitrecord.jl")
 export HitRecord, is_close
 
+include("materials.jl")
+export Pigment, UniformPigment, CheckeredPigment, ImagePigment, get_color, BRDF, DiffuseBRDF, eval, Material
+
 include("shapes.jl")
 export Shape, Sphere, Plane, ray_intersection, quick_ray_intersection, union_shape, intersec_shape, diff_shape
 
