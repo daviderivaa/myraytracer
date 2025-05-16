@@ -27,16 +27,18 @@ end
 struct Sphere <: Shape
     Creates a 3D unit sphere centered in the origin of the axes. 
 
-    - T::Transformation --> The transformation applied to the unit sphere in the origin to re-scale it 
+    T::Transformation --> The transformation applied to the unit sphere in the origin to re-scale it 
                             (eventually transforming it into an ellipsoid) and translate it in the right location
+    material::Material --> The material of the shape
 
 """
 struct Sphere <: Shape
 
     T::Transformation
+    material::Material
 
-    function Sphere(T::Transformation=Transformation(Matrix{Float64}(I(4))))
-        new(T)
+    function Sphere(T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+        new(T, material)
     end
 
 end
@@ -145,15 +147,17 @@ end
 struct Plane <: Shape
     Creates a plane (if not transformed, it's the x-y plane). 
 
-    - T::Transformation --> The transformation applied to the plane to rotate it and translate it in the right location.
+    T::Transformation --> The transformation applied to the plane to rotate it and translate it in the right location.
+    material::Material --> The material of the shape
 
 """
 struct Plane <: Shape
 
     T::Transformation
+    material::Material
 
-    function Plane(T::Transformation=Transformation(Matrix{Float64}(I(4))))
-        new(T)
+    function Plane(T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+        new(T, material)
     end
 
 end
@@ -480,29 +484,3 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
     )
 
 end
-
-#=
-"""
-function Base.:+(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    sums two shapes returning a union_shape
-"""
-function Base.:+(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    return union_shape(s1, s2, T)
-end
-
-"""
-function Base.:-(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    subtracts two shapes returning a diff_shape
-"""
-function Base.:-(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    return diff_shape(s1, s2, T)
-end
-
-"""
-function Base.:^(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    intersecates two shapes returning a intersec_shape
-"""
-function Base.:^(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    return intersec_shape(s1, s2, T)
-end
-=#
