@@ -101,3 +101,52 @@ function read_pfm(filename)
         return format, width, height, endianness, pixel_data
     end
 end
+
+#####################################################################
+
+# PFM WRITING
+
+"""
+function write_pfm_image(io::IO, img::HdrImage, endianness::Bool=true)
+
+    Write a PFM file from an HdrImage.
+
+    io::IO --> output buffer
+    img::HdrImage -->  HDR image that has to be converted in a PFM file
+    endianness::Bool --> endianness (default is little-endian)
+"""
+function write_pfm(io::IO, img::HdrImage, endianness::Bool=true)
+    endian_str = endianness ? "-1.0" : "1.0"
+    header = string("PF\n", img.width, " ", img.height, "\n", endian_str, "\n")
+
+    try
+        write(io, header)
+    catch e
+        throw(InvalidPfmFileFormat("Invalid output file"))
+    end
+
+    for row_pixel in img.height:-1:1  # bottom-to-top
+        for col_pixel in 1:img.width  # left-to-right
+            color = img.pixels[row_pixel, col_pixel]
+            _write_float!(io, color.r, endianness)
+            _write_float!(io, color.g, endianness)
+            _write_float!(io, color.b, endianness)
+        end
+    end
+    
+end
+
+"""
+function write_float!(io::IO, f, endianness::Bool=true)
+
+    inplace method that writes a Float32 in the buffer
+
+    io::IO --> output buffer
+    f --> float value to write
+    endianness::Bool --> endianness (default is little-endian)
+"""
+function _write_float!(io::IO, f, endianness::Bool=true)
+    data = reinterpret(UInt32, Float32(f))  # Assicura che sia Float32
+    data = endianness ? data : ntoh(data)   # Converte se necessario
+    write(io, data)
+end

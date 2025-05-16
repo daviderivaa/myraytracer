@@ -1,5 +1,6 @@
 using myRayTracing
 using Test
+using LinearAlgebra
 
 @testset "Check _read_float" begin
     
@@ -35,6 +36,8 @@ end
     a = Vec(0.8, -0.5, 1.4)
     b = Vec(-1.6, 0.5, -0.7)
     c = Vec(3.0, 4.0, 0.0)
+    d = Vec2d(1.5, 0.7)
+    e = Vec2d(-3.4, 5.1)
     A = Point(0.8, -0.5, 1.4)
     B = Point(-1.6, 0.5, -0.7)
     na = Normal(0.8, -0.5, 1.4)
@@ -43,23 +46,26 @@ end
     lambda = 2.0
     
     @test_throws Type_error print_element(lambda)
-    @test _are_xyz_close(a+b, Vec(-0.8, 0.0, 0.7))
-    @test _are_xyz_close(a-b, Vec(2.4, -1.0, 2.1))
+    @test is_close(a+b, Vec(-0.8, 0.0, 0.7))
+    @test is_close(a-b, Vec(2.4, -1.0, 2.1))
+    @test is_close(d+e, Vec2d(-1.9, 5.8))
+    @test is_close(d-e, Vec2d(4.9, -4.4))
     @test typeof(A+a)==Point
     @test typeof(A-a)==Point
     @test typeof(A-B)==Vec
-    @test _are_xyz_close(A+a, Point(1.6, -1.0, 2.8))
-    @test _are_xyz_close(A+a, a+A)
-    @test _are_xyz_close(A-a, Point(0.0, 0.0, 0.0))
-    @test _are_xyz_close(A-B, Vec(2.4, -1.0, 2.1))
-    @test _are_xyz_close(lambda * a, Vec(1.6, -1.0, 2.8))
-    @test _are_xyz_close(lambda * a, a * lambda)
-    @test _are_xyz_close(neg(na), Normal(-0.8, 0.5, -1.4))
+    @test is_close(A+a, Point(1.6, -1.0, 2.8))
+    @test is_close(A+a, a+A)
+    @test is_close(A-a, Point(0.0, 0.0, 0.0))
+    @test is_close(A-B, Vec(2.4, -1.0, 2.1))
+    @test is_close(lambda * a, Vec(1.6, -1.0, 2.8))
+    @test is_close(lambda * a, a * lambda)
+    @test is_close(neg(na), Normal(-0.8, 0.5, -1.4))
     @test abs(a*b + 2.51) <= 1e-6 
     @test abs(squared_norm(a) - 2.85) <= 1e-6
     @test abs(norm(a) - 1.6881943016) <= 1e-6
-    @test _are_xyz_close(normalize(c), Normal(0.6, 0.8, 0.0))
-    @test _are_xyz_close(cross(a,b), Vec(-0.35,-1.68,-0.4))
+    @test is_close(normalize(c), Vec(0.6, 0.8, 0.0))
+    @test is_close(normalize(Vec_to_Normal(c)), Normal(0.6, 0.8, 0.0))
+    @test is_close(cross(a,b), Vec(-0.35,-1.68,-0.4))
     @test typeof(Vec_to_Point(a))==Point
     @test typeof(Point_to_Vec(A))==Vec
 
@@ -85,27 +91,27 @@ end
     @test is_consistent(t)
     @test is_consistent(ry)
     @test is_consistent(s2)
-    @test _are_xyz_close(t(p), Point(10.0, 10.0, 10.0))
-    @test _are_xyz_close(t(v), v)
-    @test _are_xyz_close(rx(p), Point(1.0, -3.0, 2.0))
-    @test _are_xyz_close(ry(p), Point(3.0, 2.0, -1.0))
-    @test _are_xyz_close(rz(p), Point(-2.0, 1.0, 3.0))
-    @test _are_xyz_close(rx(v), Vec(1.0, -3.0, 2.0))
-    @test _are_xyz_close(ry(v), Vec(3.0, 2.0, -1.0))
-    @test _are_xyz_close(rz(v), Vec(-2.0, 1.0, 3.0))
-    @test _are_xyz_close(s(p), Point(2.0, 4.0, 6.0))
-    @test _are_xyz_close(s(v), Vec(2.0, 4.0, 6.0))
-    @test _are_xyz_close(s2(p), Point(2.0, 6.0, 12.0))
-    @test _are_xyz_close(s2(v), Vec(2.0, 6.0, 12.0))
-    @test _are_xyz_close(t(o), Vec_to_Point(u))
-    @test _are_xyz_close(t(rz(o)), Vec_to_Point(u))
-    @test _are_xyz_close(rz(t(o)), Point(-8.0, 9.0, 7.0))
+    @test is_close(t(p), Point(10.0, 10.0, 10.0))
+    @test is_close(t(v), v)
+    @test is_close(rx(p), Point(1.0, -3.0, 2.0))
+    @test is_close(ry(p), Point(3.0, 2.0, -1.0))
+    @test is_close(rz(p), Point(-2.0, 1.0, 3.0))
+    @test is_close(rx(v), Vec(1.0, -3.0, 2.0))
+    @test is_close(ry(v), Vec(3.0, 2.0, -1.0))
+    @test is_close(rz(v), Vec(-2.0, 1.0, 3.0))
+    @test is_close(s(p), Point(2.0, 4.0, 6.0))
+    @test is_close(s(v), Vec(2.0, 4.0, 6.0))
+    @test is_close(s2(p), Point(2.0, 6.0, 12.0))
+    @test is_close(s2(v), Vec(2.0, 6.0, 12.0))
+    @test is_close(t(o), Vec_to_Point(u))
+    @test is_close(t(rz(o)), Vec_to_Point(u))
+    @test is_close(rz(t(o)), Point(-8.0, 9.0, 7.0))
     @test is_consistent(inv_t)
     @test is_consistent(inv_rx)
     @test is_consistent(inv_s2)
-    @test _are_xyz_close(inv_t(t(p)), p)
-    @test _are_xyz_close(inv_rx(rx(p)), p)
-    @test _are_xyz_close(inv_s2(s2(p)), p)
+    @test is_close(inv_t(t(p)), p)
+    @test is_close(inv_rx(rx(p)), p)
+    @test is_close(inv_s2(s2(p)), p)
 
 end
 
@@ -119,7 +125,7 @@ end
     rz = rotation("z", pi/2)
     transformed_ray = Ray(Point(-2.0, 1.0, 3.0),Vec(-2.0, 1.0, 3.0))
 
-    @test _are_xyz_close(at(r,2.0), Point(3.0, 6.0, 9.0))
+    @test is_close(at(r,2.0), Point(3.0, 6.0, 9.0))
     @test is_close(Ray(at(r, 2.0),v), r_2)
     @test is_close(rz(r), transformed_ray)
 
@@ -159,18 +165,206 @@ end
     ray2 = fire_ray(PItracer, 2, 1)
     @test is_close(ray1, ray2)
 
-    fire_all_rays!(PItracer, RGB(1.0, 2.0, 3.0))
-    for row in 1:PItracer.image.height
-        for col in 1:PItracer.image.width
-            @test PItracer.image.pixels[row, col] ≈ RGB(1.0, 2.0, 3.0)
+    function func(ray::Ray)
+        return RGB(1.0, 2.0, 3.0)
+    end
+
+    fire_all_rays!(PItracer, func)
+    for row in 1:PItracer.img.height
+        for col in 1:PItracer.img.width
+            @test PItracer.img.pixels[row, col] ≈ RGB(1.0, 2.0, 3.0)
         end
     end
 
-    fire_all_rays!(OItracer, RGB(1.0, 2.0, 3.0))
-    for row in 1:OItracer.image.height
-        for col in 1:OItracer.image.width
-            @test OItracer.image.pixels[row, col] ≈ RGB(1.0, 2.0, 3.0)
+    fire_all_rays!(OItracer, func)
+    for row in 1:OItracer.img.height
+        for col in 1:OItracer.img.width
+            @test OItracer.img.pixels[row, col] ≈ RGB(1.0, 2.0, 3.0)
         end
     end
+
+end
+
+@testset "Check HitRecord methods" begin
+    
+    HR1 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.0), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)))
+    HR2 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.0), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)))
+
+    @test is_close(HR1, HR2)
+
+end
+
+@testset "Check sphere methods" begin
+
+    id = Matrix{Float64}(I(4))
+    null_transform = Transformation(id)
+    sph_1 = Sphere(null_transform)
+
+    ray_1 = Ray(Point(0.0, 0.0, 2.0), Vec(0.0, 0.0, -1.0))
+    ray_2 = Ray(Point(3.0, 0.0, 0.0), Vec(-1.0, 0.0, 0.0))
+    ray_3 = Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
+    p_1 = Point(0.0, 0.0, 1.0)
+    p_2 = Point(1.0, 0.0, 0.0)
+    n_1 = Normal(0.0, 0.0, 1.0)
+    n_2 = Normal(1.0, 0.0, 0.0)
+    n_3 = Normal(-1.0, 0.0, 0.0)
+
+    @test quick_ray_intersection(sph_1, ray_1) == true
+    @test quick_ray_intersection(sph_1, ray_2) == true
+    @test quick_ray_intersection(sph_1, ray_3) == true
+
+    hr_1 = ray_intersection(sph_1, ray_1)
+    hr_2 = ray_intersection(sph_1, ray_2) 
+    hr_3 = ray_intersection(sph_1, ray_3)
+
+    HRtest_1 = HitRecord(p_1, n_1, Vec2d(0.0, 0.0), 1.0, ray_1)
+    HRtest_2 = HitRecord(p_2, n_2, Vec2d(0.0, 0.5), 2.0, ray_2)
+    HRtest_3 = HitRecord(p_2, n_3, Vec2d(0.0, 0.5), 1.0, ray_3)
+
+    @test is_close(hr_1, HRtest_1)
+    @test is_close(hr_2, HRtest_2)
+    @test is_close(hr_3, HRtest_3)
+
+    v = Vec(10.0, 0.0, 0.0)
+    tr = traslation(v)
+    sph_2 = Sphere(tr)
+
+    ray_4 = Ray(Point(10.0, 0.0, 2.0), Vec(0.0, 0.0, -1.0))
+    ray_5 = Ray(Point(13.0, 0.0, 0.0), Vec(-1.0, 0.0, 0.0))
+    p_4 = Point(10.0, 0.0, 1.0)
+    p_5 = Point(11.0, 0.0, 0.0)
+
+    @test quick_ray_intersection(sph_2, ray_4) == true
+    @test quick_ray_intersection(sph_2, ray_5) == true
+
+    hr_4 = ray_intersection(sph_2, ray_4)
+    hr_5 = ray_intersection(sph_2, ray_5)
+
+    HRtest_4 = HitRecord(p_4, n_1, Vec2d(0.0, 0.0), 1.0, ray_4)
+    HRtest_5 = HitRecord(p_5, n_2, Vec2d(0.0, 0.5), 2.0, ray_5)
+
+    @test is_close(hr_4, HRtest_4)
+    @test is_close(hr_5, HRtest_5)
+
+    ray_6 = Ray(Point(0.0, 0.0, 2.0), Vec(0.0, 0.0, 1.0))
+    ray_7 = Ray(Point(-15.0, 0.0, 0.0), Vec(0.0, 0.0, -1.0))
+    ray_8 = Ray(Point(5.0, 0.0, 0.0), Vec(-1.0, 0.0, 0.0))
+
+    @test quick_ray_intersection(sph_1, ray_6) == false
+    @test quick_ray_intersection(sph_1, ray_7) == false
+    @test quick_ray_intersection(sph_2, ray_8) == false
+
+    hr_6 = ray_intersection(sph_1, ray_6)
+    hr_7 = ray_intersection(sph_1, ray_7)
+    hr_8 = ray_intersection(sph_2, ray_8)
+
+    @test hr_6 === nothing
+    @test hr_7 === nothing
+    @test hr_8 === nothing
+
+end
+
+@testset "Check plane methods" begin
+
+    id = Matrix{Float64}(I(4))
+    null_transform = Transformation(id)
+    pl_1 = Plane(null_transform)
+
+    v = Vec(10.0, 7.0, 5.0)
+    trasl = traslation(v)
+    pl_2 = Plane(trasl)
+
+    rot = rotation("x", π/4)
+    pl_3 = Plane(rot)
+
+    ray_1 = Ray(Point(1.0, 2.0, 10.0), Vec(0.0, 0.0, -1.0))
+    ray_2 = Ray(Point(0.0, 0.0, -3.0), Vec(1.0, 1.0, 1.0))
+    ray_3 = Ray(Point(0.0, 0.0, 1.0), Vec(1.0, 0.0, 0.0))
+    ray_4 = Ray(Point(0.0, 0.0, 1.0), Vec(0.0, 1.0, 0.0))
+
+    @test quick_ray_intersection(pl_1, ray_1) == true
+    @test quick_ray_intersection(pl_1, ray_2) == true
+    @test quick_ray_intersection(pl_1, ray_3) == false
+    @test quick_ray_intersection(pl_2, ray_1) == true
+    @test quick_ray_intersection(pl_2, ray_3) == false
+    @test quick_ray_intersection(pl_3, ray_1) == true
+    @test quick_ray_intersection(pl_3, ray_3) == false
+    @test quick_ray_intersection(pl_3, ray_4) == true
+
+    hr_11 = ray_intersection(pl_1, ray_1)
+    hr_12 = ray_intersection(pl_1, ray_2) 
+    hr_21 = ray_intersection(pl_2, ray_1)
+    hr_34 = ray_intersection(pl_3, ray_4)
+
+    HRtest_11 = HitRecord(Point(1.0, 2.0, 0.0), Normal(0.0, 0.0, 1.0), Vec2d(0.0, 0.0), 10.0, ray_1)
+    HRtest_12 = HitRecord(Point(3.0, 3.0, 0.0), Normal(0.0, 0.0, -1.0), Vec2d(0.0, 0.0), 3.0, ray_2)
+    HRtest_21 = HitRecord(Point(1.0, 2.0, 5.0), Normal(0.0, 0.0, 1.0), Vec2d(0.0, 0.0), 5.0, ray_1)
+    HRtest_34 = HitRecord(Point(0.0, 1.0, 1.0), Normal(0.0, -(√2)/2, (√2)/2), Vec2d(0.0, (√2)-1), 1.0, ray_4)
+
+    @test is_close(hr_11, HRtest_11)
+    @test is_close(hr_12, HRtest_12)
+    @test is_close(hr_21, HRtest_21)
+    @test is_close(hr_34, HRtest_34)
+
+end
+
+@testset "Check world methods" begin
+    
+    w = World()
+
+    coords = [-0.5,0.5]
+    for x in coords, y in coords, z in coords
+        trasl = traslation(Vec(x,y,z)) #put sphere in the correct position
+        s = Sphere(trasl(scaling(0.1))) #creates a sphere with radius = 0.1
+        add_shape!(w, s)
+    end
+
+    trasl1 = traslation(Vec(0.0, 0.0, -0.5))
+    trasl2 = traslation(Vec(0.0, 0.5, 0.0))
+    s1 = Sphere(trasl1(scaling(0.1)))
+    s2 = Sphere(trasl2(scaling(0.1)))
+    add_shape!(w,s1)
+    add_shape!(w,s2)
+
+    r1 = Ray(Point(0.0, 0.0, 0.0), Vec(0.0, 0.0, -1.0))
+    r2 = Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
+
+    inv_r = inverse(s1.T)(r1)
+    o_vec = Point_to_Vec(inv_r.origin)
+
+    a = squared_norm(inv_r.dir)
+    b = o_vec * inv_r.dir #tecnically is b/2, but we will use delta/4
+    c = squared_norm(o_vec) - 1
+    delta = b*b - a*c #it's delta/4
+ 
+    sqrt_delta = √(delta)
+
+    t_1 = ( -b - sqrt_delta ) / a
+    t_2 = ( -b + sqrt_delta ) / a
+
+    if (t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)
+        t_hit = t_1
+    elseif (t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)
+        t_hit = t_2
+    else
+        return nothing
+    end
+
+    point_hit = at(inv_r, t_hit)
+
+    #p = Point(0.0, 0.0, -0.4)
+    u = atan(point_hit.y, point_hit.x) / (2π)
+    v = acos(point_hit.z) / π
+    u = u >= 0.0 ? u : u + 1.0
+
+    @test is_close(ray_intersection(w, r1), HitRecord(Point(0.0, 0.0, -0.4), Normal(0.0, 0.0, 1.0), Vec2d(u,v), t_hit, r1))
+    @test ray_intersection(w, r2) === nothing
+
+    visible_point = Point(1.0, -2.0, 2.0)
+    invisible_point = Point(5.0, -0.5, 0.5)
+    observer_point = Point(0.0, -0.5, 0.5)
+
+    @test is_point_visible(w, visible_point, observer_point)
+    @test !is_point_visible(w, invisible_point, observer_point)
 
 end

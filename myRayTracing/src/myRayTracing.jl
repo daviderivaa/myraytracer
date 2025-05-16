@@ -6,13 +6,13 @@ include("Color_and_HdrImage.jl")
 export RGB, HdrImage, print_image, _read_float, _parse_endianness, _read_line
 
 include("PFMfunctions.jl")
-export read_pfm, InvalidPfmFileFormat
+export read_pfm, InvalidPfmFileFormat, write_pfm
 
 include("LdrImage.jl")
 export tone_mapping!, gamma_correction!, read_user_input
 
 include("geometry.jl")
-export Vec, Point, Normal, Type_error, print_element, _are_xyz_close, neg, squared_norm, norm, normalize, cross, Point_to_Vec, Vec_to_Point, Norm_to_Vec
+export Vec, Vec2d, Point, Normal, Type_error, print_element, is_close, neg, squared_norm, norm, normalize, cross, Point_to_Vec, Vec_to_Point, Norm_to_Vec, Vec_to_Normal
 
 include("transformations.jl")
 export Transformation, is_consistent, inverse, traslation, scaling, rotation
@@ -25,5 +25,14 @@ export Camera, fire_single_ray, OrthogonalCamera, PerspectiveCamera, aperture_de
 
 include("ImageTracer.jl")
 export ImageTracer, fire_ray, fire_all_rays!
+
+include("hitrecord.jl")
+export HitRecord, is_close
+
+include("shapes.jl")
+export Shape, Sphere, Plane, ray_intersection, quick_ray_intersection, union_shape, intersec_shape, diff_shape
+
+include("world.jl")
+export World, add_shape!, get_shapes, get_single_shape, ray_intersection, is_point_visible
 
 end #module myRayTracing
