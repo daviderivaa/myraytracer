@@ -29,10 +29,19 @@ export ImageTracer, fire_ray, fire_all_rays!
 include("hitrecord.jl")
 export HitRecord, is_close
 
+include("materials.jl")
+export Pigment, UniformPigment, CheckeredPigment, ImagePigment, get_color, BRDF, DiffuseBRDF, eval, Material
+
 include("shapes.jl")
 export Shape, Sphere, Plane, ray_intersection, quick_ray_intersection, union_shape, intersec_shape, diff_shape
 
 include("world.jl")
 export World, add_shape!, get_shapes, get_single_shape, ray_intersection, is_point_visible
+
+include("pcg.jl")
+export PCG, random!
+
+include("render.jl")
+export Renderer, OnOffRenderer, FlatRenderer
 
 end #module myRayTracing
