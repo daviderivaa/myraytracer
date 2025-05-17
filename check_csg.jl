@@ -66,7 +66,9 @@ function func(ray)
     end
 end
 
-fire_all_rays!(IT, func)
+RND = OnOffRender(w, RGB(0.0, 0.0, 0.0), RGB(0.0, 0.0, 1.0))
+
+fire_all_rays!(IT, RND)
 
 open(pfm_filename_and_path, "w") do io
     write_pfm(io, IT.img)

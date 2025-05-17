@@ -41,4 +41,7 @@ export World, add_shape!, get_shapes, get_single_shape, ray_intersection, is_poi
 include("pcg.jl")
 export PCG, random!
 
+include("render.jl")
+export Render, OnOffRender
+
 end #module myRayTracing
