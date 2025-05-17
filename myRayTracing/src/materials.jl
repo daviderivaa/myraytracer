@@ -1,8 +1,4 @@
 #PIGMENTS, BRDF AND MATERIAL STRUCTS
-
-import Colors
-import ColorTypes: ColorTypes, RGB
-
 #DEFINING ABSTRACT TYPE AND METHODS FOR PIGMENTS
 
 """Abstarct struct for pigments. It associates a pigment, a color, to pixels"""
