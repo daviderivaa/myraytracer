@@ -8,6 +8,7 @@ Defining HitRecord struct and methods
     surface_point::Vec2d --> coordinates of the intersection
     t::Float64 --> parameter associated with the intersection
     ray::Ray --> light ray that caused the intersection
+    s::Shape --> shape intersected
 """
 mutable struct HitRecord
 
@@ -16,9 +17,10 @@ mutable struct HitRecord
     surface_point::Vec2d
     t::Float64
     ray::Ray
+    s::Shape
 
-    function HitRecord(p::Point, n::Normal, surf_p::Vec2d, t, r::Ray)
-        new(p, n, surf_p, t, r)
+    function HitRecord(p::Point, n::Normal, surf_p::Vec2d, t, r::Ray, s::Shape)
+        new(p, n, surf_p, t, r, s)
     end
 
 end

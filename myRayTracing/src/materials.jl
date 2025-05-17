@@ -122,7 +122,7 @@ abstract type BRDF
 end
 
 """Abstarct method for eval"""
-function eval(brdf::BRDF, normal::Normal, in_dir::Vec, out_dir::Vec, uv::Vec2d)
+function eval(brdf::BRDF, uv::Vec2d, normal::Normal=nothing, in_dir::Vec=nothing, out_dir::Vec=nothing)
     throw(Type_error("get_color method not implemented for $(typeof(brdf))"))
 end
 
@@ -153,7 +153,7 @@ function eval(brdf::DiffuseBRDF, normal::Normal, in_dir::Vec, out_dir::Vec, uv::
     evaluates the brdf in a specific point given pigment and reflectance
 end
 """
-function eval(brdf::DiffuseBRDF, normal::Normal, in_dir::Vec, out_dir::Vec, uv::Vec2d)
+function eval(brdf::DiffuseBRDF, uv::Vec2d)
 
     return get_color(brdf.pigment, uv) * (brdf.reflectance / π)
 

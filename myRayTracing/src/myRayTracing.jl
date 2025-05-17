@@ -42,6 +42,6 @@ include("pcg.jl")
 export PCG, random!
 
 include("render.jl")
-export Render, OnOffRender
+export Renderer, OnOffRenderer, FlatRenderer
 
 end #module myRayTracing
