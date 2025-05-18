@@ -58,15 +58,9 @@ add_shape!(w, D)
 img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
 
-function func(ray)
-    if ray_intersection(w, ray) !== nothing
-        return RGB(1.0, 1.0, 1.0)
-    else
-        return RGB(0.0, 0.0, 0.0)
-    end
-end
+RND = OnOffRenderer(w, RGB(0.0, 0.0, 0.0), RGB(0.0, 0.0, 1.0))
 
-fire_all_rays!(IT, func)
+fire_all_rays!(IT, RND)
 
 open(pfm_filename_and_path, "w") do io
     write_pfm(io, IT.img)

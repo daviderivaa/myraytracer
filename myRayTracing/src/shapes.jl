@@ -105,7 +105,8 @@ function ray_intersection(shape::Sphere, r::Ray)
                       shape.T(_shape_normal(shape, inv_r, point_hit)), #normal at the surface in the world
                       (_xyz_to_uv(point_hit)), #(u,v) vec hitted on the surface
                       t_hit, #t
-                      r #ray
+                      r, #ray
+                      shape #s
                     )
 
 end
@@ -203,7 +204,8 @@ function ray_intersection(shape::Plane, r::Ray)
                       (shape.T)(_shape_normal(shape, inv_r, point_hit)), #normal at the surface in the world
                       (_xy_to_uv(point_hit)), #(u,v) vec hitted on the surface
                       t_hit, #t
-                      r #ray
+                      r, #ray
+                      shape #s
                     )
 
 end
@@ -236,7 +238,8 @@ function _transform_hit(hit::HitRecord, T::Transformation)
         T(hit.normal),
         hit.uv,
         hit.t,
-        hit.ray
+        hit.ray,
+        hit.s
     )
 end
 
@@ -359,7 +362,8 @@ function ray_intersection(u_shape::union_shape, r::Ray)
         u_shape.T(normal),
         _xyz_to_uv(point_hit),
         t_enter,
-        r
+        r,
+        hit_shape
     )
 
 end
@@ -420,7 +424,8 @@ function ray_intersection(i_shape::intersec_shape, r::Ray)
         i_shape.T(normal),
         _xyz_to_uv(point_hit),
         t_enter,
-        r
+        r,
+        hit_shape
     )
 
 end
@@ -480,7 +485,8 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
         d_shape.T(normal),
         _xyz_to_uv(point_hit),
         t_hit,
-        r
+        r,
+        hit_shape
     )
 
 end
