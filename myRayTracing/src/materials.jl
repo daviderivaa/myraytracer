@@ -109,7 +109,6 @@ function get_color(pigment::ImagePigment, uv::Vec2d)
     
 end
 
-
 #DEFINING ABSTRACT TYPE AND METHODS FOR BRDF
 
 """Abstarct struct for BRDF (Bidirectional Reflectance Distribution Function)"""
