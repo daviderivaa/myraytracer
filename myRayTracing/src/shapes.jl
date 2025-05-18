@@ -226,6 +226,126 @@ end
 
 #################################################################################
 
+#RECTANGLE STRUCT
+"""
+struct Rectangle <: Shape
+    Creates a Rectangle
+
+    origin::Point --> first vertex
+    edge1::Vec --> first vectorial edge
+    edge2::Vec --> second vectorial edge
+    normal::Normal --> Normal vector to the rectangle's plane
+    material::Material --> the material of the rectangle
+    T::Transformation --> global transformation
+
+    function Rectangle(origin::Point, edge1::Vec, edge2::Vec, T::Transformation, material::Material=Material())
+        n = normalize(cross(edge1, edge2)) |> Normal
+        new(origin, edge1, edge2, n, T, material)
+    end
+end
+"""
+struct Rectangle <: Shape
+    origin::Point
+    edge1::Vec
+    edge2::Vec
+    normal::Normal
+    T::Transformation
+    material::Material
+
+    function Rectangle(origin::Point, edge1::Vec, edge2::Vec, T::Transformation, material::Material=Material())
+        n = normalize(cross(edge1, edge2)) |> Normal
+        new(origin, edge1, edge2, n, T, material)
+    end
+end
+
+"""
+function _shape_normal(rect, r, p::Point = nothing)
+    it returns the normal to a rectangle, chosen in order to have the opposite direction of the incoming ray
+"""
+function _shape_normal(rect::Rectangle, r::Ray, p::Point)
+    if (rect.normal * r.dir) < 0
+        return rect.normal
+    else
+        return neg(rect.normal)
+    end
+end
+
+"""
+function ray_intersection(shape, r)
+    given a plane and a ray, it returns the HitRecord for the intersection between the ray and the sphere
+"""
+function ray_intersection(rect::Rectangle, r::Ray)
+
+    inv_r = inverse(rect.T)(r)
+
+    denom = dot(rect.normal, inv_r.dir)
+    if abs(denom) < 1e-8
+        return nothing
+    end
+
+    d = dot(rect.normal, Point_to_Vec(rect.origin))
+    t_hit = (d - dot(rect.normal, Point_to_Vec(inv_r.origin))) / denom
+
+    if t_hit < inv_r.tmin || t_hit > inv_r.tmax
+        return nothing
+    end
+
+    p_hit = at(inv_r, t_hit)
+
+    v = Point_to_Vec(p_hit - rect.origin)
+
+    u = dot(v, rect.edge1) / squared_norm(rect.edge1)
+    v_ = dot(v, rect.edge2) / squared_norm(rect.edge2)
+
+    if u < 0 || u > 1 || v_ < 0 || v_ > 1
+        return nothing
+    end
+
+    uv = Vec2d(u, v_)
+
+    return HitRecord(
+        rect.T(p_hit),
+        rect.T(_shape_normal(rect, inv_r, p_hit)),
+        uv,
+        t_hit,
+        r,
+        rect
+    )
+
+end
+
+"""
+function quick_ray_intersection(shape, r)
+    given a rectangle and a ray, it returns true/false if there is/isn't intersection
+"""
+function quick_ray_intersection(rect::Rectangle, r::Ray)
+
+    inv_r = inverse(rect.T)(r)
+
+    denom = dot(rect.normal, inv_r.dir)
+    if abs(denom) < 1e-8
+        return false
+    end
+
+    d = dot(rect.normal, Point_to_Vec(rect.origin))
+    t_hit = (d - dot(rect.normal, Point_to_Vec(inv_r.origin))) / denom
+
+    if t_hit < inv_r.tmin || t_hit > inv_r.tmax
+        return false
+    end
+
+    p_hit = at(inv_r, t_hit)
+    v = Point_to_Vec(p_hit - rect.origin)
+
+    u = dot(v, rect.edge1) / squared_norm(rect.edge1)
+    v_ = dot(v, rect.edge2) / squared_norm(rect.edge2)
+
+    return 0 <= u <= 1 && 0 <= v_ <= 1
+
+end
+
+#################################################################################
+
 #CSG
 
 """
