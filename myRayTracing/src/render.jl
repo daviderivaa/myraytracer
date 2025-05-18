@@ -18,7 +18,7 @@ Simplest renderer (2 colors)
 - back_col::RGB(Float64) --> background color (default is black)
 - h_color::RGB{Float64} --> hit shape color (default is white)
 """
-struct OnOffRender <: Renderer
+struct OnOffRenderer <: Renderer
 
     w::World
     b_color::RGB{Float64}
