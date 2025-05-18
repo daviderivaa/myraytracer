@@ -52,14 +52,16 @@ struct CheckeredPigment <: Pigment
 
     color1::RGB{Float64} --> first color in the checkered
     color2::RGB{Float64} --> second color in the checkered
+    steps::Int64 --> number of steps in the checkboard
 end
 """
 struct CheckeredPigment <: Pigment
 
     color1::RGB{Float64}
     color2::RGB{Float64}
+    steps::Int64
 
-    function CheckeredPigment(color1::RGB{Float64}=RGB(0.0, 0.0, 0.0), color2::RGB{Float64}=RGB(1.0, 1.0, 1.0), steps=10)
+    function CheckeredPigment(color1::RGB{Float64}=RGB(0.0, 0.0, 0.0), color2::RGB{Float64}=RGB(1.0, 1.0, 1.0), steps::Int64=10)
         new(color1, color2, steps)
     end
 
@@ -103,21 +105,14 @@ function get_color(pigment::ImagePigment, uv::Vec2d)
 end
 """
 function get_color(pigment::ImagePigment, uv::Vec2d)
-
-    col = floor(Int, uv.u * pigment.image.width)
-    row = floor(Int, uv.v * pigment.image.height)
-
-    if col >= pigment.image.width
-        col = pigment.image.width - 1
-    end
     
-    if row >= pigment.image.height
-        row = pigment.image.height - 1
-    end
-
-    return pigment.image.pixels[row, col]
-
+    img = pigment.image
+    col = clamp(floor(Int, uv.u * img.width) + 1, 1, img.width)
+    row = clamp(floor(Int, uv.v * img.height) + 1, 1, img.height)
+    return img.pixels[row, col]
+    
 end
+
 
 #DEFINING ABSTRACT TYPE AND METHODS FOR BRDF
 
