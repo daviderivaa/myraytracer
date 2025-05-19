@@ -50,8 +50,8 @@ color3 = RGB(0.0, 0.0, 1.0) #BLUE
 color4 = RGB(0.0, 1.0, 1.0) #CYAN
 color5 = RGB(0.1, 0.0, 1.0) #PURPLE
 
-pig1 = CheckeredPigment(RGB(0.0, 0.0, 0.0), color3, 30)
-pig2 = CheckeredPigment(RGB(0.0, 0.0, 0.0), color1, 30)
+pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color3, 200)
+pig2 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color1, 200)
 
 material1 = Material(DiffuseBRDF(pig1, 0.5), pig1)
 material2 = Material(DiffuseBRDF(pig2, 0.5), pig2)
