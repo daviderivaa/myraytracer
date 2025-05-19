@@ -50,8 +50,8 @@ color3 = RGB(0.0, 0.0, 1.0) #BLUE
 color4 = RGB(0.0, 1.0, 1.0) #CYAN
 color5 = RGB(0.1, 0.0, 1.0) #PURPLE
 
-pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color3)
-pig2 = CheckeredPigment(color4, color2)
+pig1 = CheckeredPigment(RGB(0.0, 0.0, 0.0), color3, 30)
+pig2 = CheckeredPigment(RGB(0.0, 0.0, 0.0), color1, 30)
 
 material1 = Material(DiffuseBRDF(pig1, 0.5), pig1)
 material2 = Material(DiffuseBRDF(pig2, 0.5), pig2)
@@ -61,11 +61,11 @@ s2 = Sphere(traslation(Vec(0.5, -0.12, 0.0))(scaling(0.3)), material2)
 
 U = union_shape(s1, s2, traslation(Vec(0.0, 1.0, 0.0)))
 I = intersec_shape(s1, s2)
-#D = diff_shape(s1, s2, traslation(Vec(0.0, -1.0, 0.0)))
+D = diff_shape(s1, s2, traslation(Vec(0.0, -1.0, 0.0)))
 
 add_shape!(w, U)
 add_shape!(w, I)
-#add_shape!(w, D)
+add_shape!(w, D)
 
 img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
