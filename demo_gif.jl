@@ -24,7 +24,7 @@ if length(ARGS) != 1
 end
 
 # rotate cube around z axis by 360 deg angle
-for angle in 0:359
+for angle in 0:360
     if ARGS[1] == "perspective"
         idx_angle = lpad(string(angle), 3, '0')
         path = "./demo/"
@@ -111,9 +111,9 @@ run(cmd)
 
 # Delete files
 for (i, _) in enumerate(files)
-    rm("./demo/img_$(i).png")
-    
     idx_str = lpad(string(i - 1), 3, '0')
+    rm("./demo/img_$(idx_str).png")
+    
     if ARGS[1] == "orthogonal"
         pfm_file = "./demo/demo_orthogonal_" * idx_str * ".pfm"
     elseif ARGS[1] == "perspective"

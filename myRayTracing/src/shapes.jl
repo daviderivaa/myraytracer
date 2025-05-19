@@ -616,27 +616,33 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
     inv_r = inverse(d_shape.T)(r)
 
     intA = _ray_interval(d_shape.s1, inv_r)
-    intB = _ray_interval(d_shape.s2, inv_r)
-
     if intA === nothing
         return nothing
     end
 
-    #Evaluates the intervals difference
-    intervals = if intB === nothing
-        [intA]
-    else
-        _difference_intervals(intB, intA)
-    end
+    intB = _ray_interval(d_shape.s2, inv_r)
+
+    t_enter1 = intA[1]
+    t_enter2 = intB !== nothing ? intB[1] : Inf
+
+    intervals = intB === nothing ? [intA] : _difference_intervals(intB, intA)
 
     if isempty(intervals)
         return nothing
     end
 
     t_hit = intervals[1][1]
+    
     point_hit = at(inv_r, t_hit)
 
-    normal = _shape_normal(d_shape.s1, inv_r, point_hit)
+    hit_shape = isapprox(t_hit, t_enter1; atol=1e-6) ? d_shape.s1 : d_shape.s2
+
+    normal = _shape_normal(hit_shape, inv_r, point_hit)
+
+    # If the hitted shape is s2, inverts the normal
+    if hit_shape == d_shape.s2
+        normal = neg(normal)
+    end
 
     return HitRecord(
         d_shape.T(point_hit),
