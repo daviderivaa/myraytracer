@@ -44,23 +44,36 @@ end
 
 w = World()
 
-s1 = Sphere(traslation(Vec(0.5, 0.12, 0.0))(scaling(0.3))) #creates a sphere with radius = 0.1
-s2 = Sphere(traslation(Vec(0.5, -0.12, 0.0))(scaling(0.3)))
+color1 = RGB(1.0, 0.0, 0.0) #RED 
+color2 = RGB(0.0, 1.0, 0.0) #GREEN
+color3 = RGB(0.0, 0.0, 1.0) #BLUE
+color4 = RGB(0.0, 1.0, 1.0) #CYAN
+color5 = RGB(0.1, 0.0, 1.0) #PURPLE
+
+pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color3)
+pig2 = CheckeredPigment(color4, color2)
+
+material1 = Material(DiffuseBRDF(pig1, 0.5), pig1)
+material2 = Material(DiffuseBRDF(pig2, 0.5), pig2)
+
+s1 = Sphere(traslation(Vec(0.5, 0.12, 0.0))(scaling(0.3)), material1) #creates a sphere with radius = 0.1
+s2 = Sphere(traslation(Vec(0.5, -0.12, 0.0))(scaling(0.3)), material2)
 
 U = union_shape(s1, s2, traslation(Vec(0.0, 1.0, 0.0)))
 I = intersec_shape(s1, s2)
-D = diff_shape(s1, s2, traslation(Vec(0.0, -1.0, 0.0)))
+#D = diff_shape(s1, s2, traslation(Vec(0.0, -1.0, 0.0)))
 
 add_shape!(w, U)
 add_shape!(w, I)
-add_shape!(w, D)
+#add_shape!(w, D)
 
 img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
 
 RND = OnOffRenderer(w, RGB(0.0, 0.0, 0.0), RGB(0.0, 0.0, 1.0))
+RND2 = FlatRenderer(w)
 
-fire_all_rays!(IT, RND)
+fire_all_rays!(IT, RND2)
 
 open(pfm_filename_and_path, "w") do io
     write_pfm(io, IT.img)
