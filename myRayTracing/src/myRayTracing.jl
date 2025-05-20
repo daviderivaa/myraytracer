@@ -39,7 +39,7 @@ include("world.jl")
 export World, add_shape!, get_shapes, get_single_shape, ray_intersection, is_point_visible
 
 include("pcg.jl")
-export PCG, random!
+export new_PCG, random!
 
 include("render.jl")
 export Renderer, OnOffRenderer, FlatRenderer

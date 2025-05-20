@@ -16,14 +16,14 @@ end
 function PCG(init_state, init_seq)
     external constructor for PCG (with default values for variables)
 """
-function PCG(init_state::UInt64 =42, init_seq::UInt64 =54)
+function new_PCG(init_state::UInt64 = UInt64(42), init_seq::UInt64 = UInt64(54))
     pcg = PCG(0, 0)
     pcg.state = 0
     pcg.inc = (init_seq << 1) | 1
 
     random!(pcg)
 
-    pcg.state += init_state
+    pcg.state = pcg.state + init_state
 
     random!(pcg)
 
@@ -37,9 +37,8 @@ function random!(pcg)
 function random!(pcg::PCG)
     oldstate = pcg.state
     pcg.state = oldstate * 6364136223846793005 + pcg.inc
-    xorshifted_64 = ((oldstate >> 18) ^ oldstate) >> 27
-    xorshifted_32 = UInt32( xorshifted_64 & 0xFFFFFFFF )
-    rot = UInt32(oldstate >> 59)
+    xorshifted = UInt32( ((oldstate >> 18) ⊻ oldstate) >> 27 & 0xFFFFFFFF)
+    rot = UInt32(oldstate >> 59 & 0xFFFFFFFF)
 
-    return ( (xorshifted_32 >> rot) | (xorshifted_32 << ((-rot) & 31)) & 0xFFFFFFFF )
+    return UInt32( (xorshifted >> rot) | (xorshifted << ((-rot) & 31)) & 0xFFFFFFFF)
 end
