@@ -26,7 +26,7 @@ if ARGS[1] == "perspective"
     pfm_filename_and_path = "./CSG/csg_perspective_" * ARGS[2] * ".pfm"
     filename = "csg_perspective_" * ARGS[2]
     angle = parse(Float64, ARGS[2])
-    rot1 = rotation("z", -angle*π/180.0)
+    rot1 = rotation("y", -angle*π/180.0)
     Cam = PerspectiveCamera(-1.0, 16.0/9.0, rot1(traslation(Vec(1.0, 0.0, 0.0))))
 
 elseif ARGS[1] == "orthogonal"
@@ -54,13 +54,15 @@ pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color3, 10)
 pig2 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color1, 10)
 pig3 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color2, 10)
 pig4 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color5, 10)
+pig5 = CheckeredPigment(RGB(0.0, 0.0, 0.0), color3, 10)
 
 material1 = Material(DiffuseBRDF(pig1, 0.5), pig1)
 material2 = Material(DiffuseBRDF(pig2, 0.5), pig2)
 material3 = Material(DiffuseBRDF(pig3, 0.5), pig3)
 material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
+material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
 
-s1 = Sphere(traslation(Vec(0.5, 0.12, 0.0))(scaling(0.3)), material1) #creates a sphere with radius = 0.1
+s1 = Sphere(traslation(Vec(0.1, 0.0, 0.5))(scaling(0.3)), material5) #creates a sphere with radius = 0.1
 s2 = Sphere(traslation(Vec(0.5, -0.12, 0.0))(scaling(0.3)), material2)
 
 r1 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), traslation(Vec(0.0, 0.0, 0.1)), material3) #Rectangle
@@ -77,6 +79,7 @@ D = diff_shape(s1, s2, traslation(Vec(0.0, -1.0, 0.0)))
 # add_shape!(w, U)
 # add_shape!(w, I)
 # add_shape!(w, D)
+add_shape!(w, s1)
 add_shape!(w, r1)
 add_shape!(w, r2)
 add_shape!(w, r3)
