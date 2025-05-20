@@ -198,6 +198,11 @@ function ray_intersection(shape::Plane, r::Ray)
     end
  
     t_hit = - inv_r.origin.z / inv_r.dir.z
+
+    if t_hit < inv_r.tmin || t_hit > inv_r.tmax
+        return nothing
+    end
+    
     point_hit = at(inv_r, t_hit)
 
     return HitRecord( (shape.T)(point_hit), #hitted point in the world

@@ -53,16 +53,18 @@ color5 = RGB(0.1, 0.0, 1.0) #PURPLE
 pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color3, 200)
 pig2 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color1, 200)
 pig3 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color2, 10)
+pig4 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color5, 10)
 
 material1 = Material(DiffuseBRDF(pig1, 0.5), pig1)
 material2 = Material(DiffuseBRDF(pig2, 0.5), pig2)
 material3 = Material(DiffuseBRDF(pig3, 0.5), pig3)
+material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
 
 s1 = Sphere(traslation(Vec(0.5, 0.12, 0.0))(scaling(0.3)), material1) #creates a sphere with radius = 0.1
 s2 = Sphere(traslation(Vec(0.5, -0.12, 0.0))(scaling(0.3)), material2)
 
-#p1 = Plane(rotation("x", 45.0*π/180.0), material3)
-r1 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.5), Vec(0.0, 1.0, 0.0), traslation(Vec(0.0, 0.0, 0.3)), material3)
+r1 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.5), Vec(0.0, 1.0, 0.0), traslation(Vec(0.0, 0.0, 0.3)), material3) #Rectangle
+p1 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material4) #plane
 
 U = union_shape(s1, s2, traslation(Vec(0.0, 1.0, 0.0)))
 I = intersec_shape(s1, s2)
@@ -72,6 +74,7 @@ add_shape!(w, U)
 add_shape!(w, I)
 add_shape!(w, D)
 add_shape!(w, r1)
+add_shape!(w, p1)
 
 img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
