@@ -50,8 +50,8 @@ color3 = RGB(0.0, 0.0, 1.0) #BLUE
 color4 = RGB(0.0, 1.0, 1.0) #CYAN
 color5 = RGB(0.1, 0.0, 1.0) #PURPLE
 
-pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color3, 200)
-pig2 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color1, 200)
+pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color3, 10)
+pig2 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color1, 10)
 pig3 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color2, 10)
 pig4 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color5, 10)
 
@@ -63,17 +63,25 @@ material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
 s1 = Sphere(traslation(Vec(0.5, 0.12, 0.0))(scaling(0.3)), material1) #creates a sphere with radius = 0.1
 s2 = Sphere(traslation(Vec(0.5, -0.12, 0.0))(scaling(0.3)), material2)
 
-r1 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.5), Vec(0.0, 1.0, 0.0), traslation(Vec(0.0, 0.0, 0.3)), material3) #Rectangle
+r1 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), traslation(Vec(0.0, 0.0, 0.1)), material3) #Rectangle
+r2 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(0.0, 0.0, 1.0), Vec(0.0, 1.0, 0.0), traslation(Vec(0.0, 0.0, 0.1)), material1) #Rectangle
+r3 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(0.0, 1.0, 0.0), Vec(1.0, 0.0, 0.0), traslation(Vec(0.0, 0.0, 1.1)), material3) #Rectangle
+r4 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 0.0, 1.0), traslation(Vec(0.0, 0.0, 0.1)), material2) #Rectangle
+r5 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 0.0, 1.0), traslation(Vec(0.0, 1.0, 0.1)), material2) #Rectangle
 p1 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material4) #plane
 
 U = union_shape(s1, s2, traslation(Vec(0.0, 1.0, 0.0)))
 I = intersec_shape(s1, s2)
 D = diff_shape(s1, s2, traslation(Vec(0.0, -1.0, 0.0)))
 
-add_shape!(w, U)
-add_shape!(w, I)
-add_shape!(w, D)
+# add_shape!(w, U)
+# add_shape!(w, I)
+# add_shape!(w, D)
 add_shape!(w, r1)
+add_shape!(w, r2)
+add_shape!(w, r3)
+add_shape!(w, r4)
+add_shape!(w, r5)
 add_shape!(w, p1)
 
 img = HdrImage(1600,900)
