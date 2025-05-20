@@ -292,7 +292,7 @@ function ray_intersection(rect::Rectangle, r::Ray)
 
     p_hit = at(inv_r, t_hit)
 
-    v = Point_to_Vec(p_hit - rect.origin)
+    v = p_hit - rect.origin
 
     u = (v * rect.edge1) / squared_norm(rect.edge1)
     v_ = (v * rect.edge2) / squared_norm(rect.edge2)
