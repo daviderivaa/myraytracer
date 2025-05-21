@@ -50,6 +50,6 @@ A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
 
 Run:
 ```shell
-julia check_csg.jl <camera_type> <angle>
+julia check_csg.jl <camera_type> <angle_z> <angle_y>
 ```
 In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.

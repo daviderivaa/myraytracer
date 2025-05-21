@@ -17,25 +17,28 @@ struct InvalidARGS <: Exception
 end
 
 
-if length(ARGS) != 2
-    throw(InvalidARGS("Required julia check_csg.jl <camera_type> <angle>      <camera_type>: perspective or orthogonal    <angle>: rotation around z axis (in deg)"))
+if length(ARGS) != 3
+    throw(InvalidARGS("Required julia check_csg.jl <camera_type> <angle_z> <angle_y>     <camera_type>: perspective or orthogonal    <angle_z>: rotation around z axis (in deg)     <angle_y>: rotation around z axis (in deg)"))
 end
 
 if ARGS[1] == "perspective"
     path = "./CSG/"
-    pfm_filename_and_path = "./CSG/csg_perspective_" * ARGS[2] * ".pfm"
-    filename = "csg_perspective_" * ARGS[2]
-    angle = parse(Float64, ARGS[2])
-    rot1 = rotation("y", -angle*π/180.0)
-    Cam = PerspectiveCamera(-1.0, 16.0/9.0, rot1(traslation(Vec(1.0, 0.0, 0.0))))
+    pfm_filename_and_path = "./CSG/csg_perspective_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
+    filename = "csg_perspective_z" * ARGS[2] * "_y" * ARGS[3]
+    angle_z = parse(Float64, ARGS[2])
+    angle_y = parse(Float64, ARGS[3])
+    rot1 = rotation("z", -angle_z*π/180.0)
+    rot2 = rotation("y", -angle_y*π/180.0)
+    Cam = PerspectiveCamera(-1.0, 16.0/9.0, rot1(rot2(traslation(Vec(1.0, 0.0, 0.0)))))
 
 elseif ARGS[1] == "orthogonal"
     path = "./CSG/"
-    pfm_filename_and_path = "./CSG/csg_orthogonal_" * ARGS[2] * ".pfm"
-    filename = "csg_orthogonal_" * ARGS[2]
-    angle = parse(Float64, ARGS[2])
-    rot1 = rotation("z", -angle*π/180.0)
-    rot2 = rotation("y", -π/18)
+    pfm_filename_and_path = "./CSG/csg_orthogonal_" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
+    filename = "csg_orthogonal_z" * ARGS[2] * "_y" * ARGS[3]
+    angle_z = parse(Float64, ARGS[2])
+    angle_y = parse(Float64, ARGS[3])
+    rot1 = rotation("z", -angle_z*π/180.0)
+    rot2 = rotation("y", -angle_y*π/180.0)
     Cam = OrthogonalCamera(16.0/9.0, rot1(rot2(traslation(Vec(-2.0, 0.0, 0.0)))))
 
 else
