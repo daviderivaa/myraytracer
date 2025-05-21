@@ -508,12 +508,12 @@ function ray_intersection(u_shape::union_shape, r::Ray)
     end
 
     point_hit = at(inv_r, chosen_hit.t)
-    normal = _shape_normal(hit_shape, inv_r, point_hit)
+    normal = _shape_normal(hit_shape, inverse(hit_shape.T)(inv_r), inverse(hit_shape.T)(point_hit))
 
     return HitRecord(
         u_shape.T(point_hit),
         u_shape.T(normal),
-        _xyz_to_uv(point_hit),
+        _xyz_to_uv(inverse(hit_shape.T)(point_hit)),
         chosen_hit.t,
         r,
         hit_shape
@@ -570,12 +570,12 @@ function ray_intersection(i_shape::intersec_shape, r::Ray)
     hit_shape = t_enter == t_enter1 ? i_shape.s1 : i_shape.s2
 
     point_hit = at(inv_r, t_enter)
-    normal = _shape_normal(hit_shape, inv_r, point_hit)
+    normal = _shape_normal(hit_shape, inverse(hit_shape.T)(inv_r), inverse(hit_shape.T)(point_hit))
 
     return HitRecord(
         i_shape.T(point_hit),
         i_shape.T(normal),
-        _xyz_to_uv(point_hit),
+        _xyz_to_uv(inverse(hit_shape.T)(point_hit)),
         t_enter,
         r,
         hit_shape
@@ -629,13 +629,13 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
 
     hit_shape = isapprox(t_hit, t_enter1; atol=1e-6) ? d_shape.s1 : d_shape.s2
 
-    normal = _shape_normal(hit_shape, inv_r, point_hit)
+    normal = _shape_normal(hit_shape, inverse(hit_shape.T)(inv_r), inverse(hit_shape.T)(point_hit))
 
     if hit_shape == d_shape.s1
         return HitRecord(
             d_shape.T(point_hit),
             d_shape.T(normal),
-            _xyz_to_uv(point_hit),
+            _xyz_to_uv(inverse(hit_shape.T)(point_hit)),
             t_hit,
             r,
             hit_shape
@@ -644,7 +644,7 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
         return HitRecord(
             d_shape.T(point_hit),
             d_shape.T(normal),
-            _xyz_to_uv(point_hit),
+            _xyz_to_uv(inverse(hit_shape.T)(point_hit)),
             t_hit,
             r,
             hit_shape
