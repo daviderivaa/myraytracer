@@ -413,7 +413,8 @@ function _ray_interval(shape::Shape, r::Ray)
     end
 
     #Find the exit from the shape
-    new_r = Ray(at(r, hit1.t + 1e-5), r.dir, 1e-5, r.tmax)
+    new_origin = at(r, hit1.t + 1e-8)
+    new_r = Ray(new_origin, r.dir, 0.0, r.tmax)
     hit2 = ray_intersection(shape, new_r)
 
     if hit2 === nothing
@@ -421,37 +422,35 @@ function _ray_interval(shape::Shape, r::Ray)
     end
 
     t_enter = hit1.t
-    t_exit = hit2.t
-    return (min(t_enter, t_exit), max(t_enter, t_exit)) #It returns the intervall in which the ray stays in both the shapes, so in the intersection of them
+    t_exit = hit1.t + hit2.t
+    return (min(t_enter, t_exit), max(t_enter, t_exit)) #It returns the intervall in which the ray stays in the shape
 
 end
 
 """
-function _difference_intervals(a::Tuple, b::Tuple)
-    This function calculates the actual intervals in which the ray stays in a difference between two shapes
+function _difference_hit(a::Tuple, b::Tuple)
+    This function calculates the actual shape hit in a difference
 """
-function _difference_intervals(a::Tuple, b::Tuple)
+function _difference_hit(a::Tuple, b::Tuple)
 
     a_start, a_end = a
     b_start, b_end = b
 
-    result = []
-
     if b_end <= a_start || b_start >= a_end
-        push!(result, a)
+        return a_start
     else
         if b_start > a_start
-            push!(result, (a_start, min(b_start, a_end)))
-        end
-        if b_end < a_end
-            push!(result, (max(b_end, a_start), a_end))
+            return a_start
+        else
+            if b_end < a_end
+                return b_end
+            else
+                return nothing
+            end
         end
     end
 
-    return result
-
 end
-
 
 #UNION
 """
@@ -480,50 +479,41 @@ function ray_intersection(u_shape::union_shape, r::Ray)
 
     inv_r = inverse(u_shape.T)(r)
 
-    i1 = _ray_interval(u_shape.s1, inv_r)
-    i2 = _ray_interval(u_shape.s2, inv_r)
+    hit1 = ray_intersection(u_shape.s1, inv_r)
+    hit2 = ray_intersection(u_shape.s2, inv_r)
 
-    if i1 === nothing && i2 === nothing
+    if hit1 === nothing && hit2 === nothing
         return nothing
-    elseif i1 === nothing
-        t_enter = i2[1]
-        point_hit = at(inv_r, t_enter)
-        hit_shape = u_shape.s2
-    elseif i2 === nothing
-        t_enter = i1[1]
-        point_hit = at(inv_r, t_enter)
-        hit_shape = u_shape.s1
-    else
-        t_enter1, t_exit1 = i1
-        t_enter2, t_exit2 = i2
-
-        if t_exit1 ≥ t_enter2 || t_exit2 ≥ t_enter1
-            t_enter = min(t_enter1, t_enter2)
-            hit_shape = t_enter == t_enter1 ? u_shape.s1 : u_shape.s2
-        else
-            if t_enter1 < t_enter2
-                t_enter = t_enter1
-                hit_shape = u_shape.s1
-            else
-                t_enter = t_enter2
-                hit_shape = u_shape.s2
-            end
-        end
-
-        point_hit = at(inv_r, t_enter)
     end
 
+    if hit1 === nothing
+        chosen_hit = hit2
+        hit_shape = u_shape.s2
+    elseif hit2 === nothing
+        chosen_hit = hit1
+        hit_shape = u_shape.s1
+    else
+        if hit1.t < hit2.t
+            chosen_hit = hit1
+            hit_shape = u_shape.s1
+        else
+            chosen_hit = hit2
+            hit_shape = u_shape.s2
+        end
+    end
+
+    point_hit = at(inv_r, chosen_hit.t)
     normal = _shape_normal(hit_shape, inv_r, point_hit)
 
     return HitRecord(
         u_shape.T(point_hit),
         u_shape.T(normal),
         _xyz_to_uv(point_hit),
-        t_enter,
+        chosen_hit.t,
         r,
         hit_shape
     )
-
+    
 end
 
 #INTERSECTION
@@ -620,37 +610,40 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
         return nothing
     end
 
+    t_enter1 = intA[1]
+
     intB = _ray_interval(d_shape.s2, inv_r)
 
-    t_enter1 = intA[1]
-    t_enter2 = intB !== nothing ? intB[1] : Inf
+    t_hit = intB === nothing ? t_enter1 : _difference_hit(intA, intB)
 
-    intervals = intB === nothing ? [intA] : _difference_intervals(intB, intA)
-
-    if isempty(intervals)
+    if t_hit === nothing
         return nothing
     end
 
-    t_hit = intervals[1][1]
-    
     point_hit = at(inv_r, t_hit)
 
     hit_shape = isapprox(t_hit, t_enter1; atol=1e-6) ? d_shape.s1 : d_shape.s2
 
     normal = _shape_normal(hit_shape, inv_r, point_hit)
 
-    # If the hitted shape is s2, inverts the normal
-    if hit_shape == d_shape.s2
-        normal = neg(normal)
+    if hit_shape == d_shape.s1
+        return HitRecord(
+            d_shape.T(point_hit),
+            d_shape.T(normal),
+            _xyz_to_uv(point_hit),
+            t_hit,
+            r,
+            hit_shape
+        )
+    else
+        return HitRecord(
+            d_shape.T(point_hit),
+            d_shape.T(normal),
+            _xyz_to_uv(point_hit),
+            t_hit,
+            r,
+            hit_shape
+        )
     end
-
-    return HitRecord(
-        d_shape.T(point_hit),
-        d_shape.T(normal),
-        _xyz_to_uv(point_hit),
-        t_hit,
-        r,
-        hit_shape
-    )
 
 end
