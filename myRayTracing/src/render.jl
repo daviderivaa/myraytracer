@@ -66,6 +66,6 @@ function (RND::FlatRenderer)(ray::Ray)
     if hit === nothing
         return RND.b_color
     else 
-        return (eval(hit.s.material.brdf, hit.surface_point) + get_color(hit.s.material.emitted_radiance, hit.surface_point))
+        return (Eval(hit.s.material.brdf, hit.surface_point) + get_color(hit.s.material.emitted_radiance, hit.surface_point))
     end
 end

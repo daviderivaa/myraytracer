@@ -198,6 +198,11 @@ function ray_intersection(shape::Plane, r::Ray)
     end
  
     t_hit = - inv_r.origin.z / inv_r.dir.z
+
+    if t_hit < inv_r.tmin || t_hit > inv_r.tmax
+        return nothing
+    end
+    
     point_hit = at(inv_r, t_hit)
 
     return HitRecord( (shape.T)(point_hit), #hitted point in the world
@@ -253,7 +258,7 @@ struct Rectangle <: Shape
     material::Material
 
     function Rectangle(origin::Point, edge1::Vec, edge2::Vec, T::Transformation, material::Material=Material())
-        n = normalize(cross(edge1, edge2)) |> Normal
+        n = Vec_to_Normal(normalize(cross(edge1, edge2)))
         new(origin, edge1, edge2, n, T, material)
     end
 end
@@ -278,13 +283,13 @@ function ray_intersection(rect::Rectangle, r::Ray)
 
     inv_r = inverse(rect.T)(r)
 
-    denom = dot(rect.normal, inv_r.dir)
+    denom = rect.normal * inv_r.dir
     if abs(denom) < 1e-8
         return nothing
     end
 
-    d = dot(rect.normal, Point_to_Vec(rect.origin))
-    t_hit = (d - dot(rect.normal, Point_to_Vec(inv_r.origin))) / denom
+    d = rect.normal * Point_to_Vec(rect.origin)
+    t_hit = (d - (rect.normal * Point_to_Vec(inv_r.origin))) / denom
 
     if t_hit < inv_r.tmin || t_hit > inv_r.tmax
         return nothing
@@ -292,10 +297,10 @@ function ray_intersection(rect::Rectangle, r::Ray)
 
     p_hit = at(inv_r, t_hit)
 
-    v = Point_to_Vec(p_hit - rect.origin)
+    v = p_hit - rect.origin
 
-    u = dot(v, rect.edge1) / squared_norm(rect.edge1)
-    v_ = dot(v, rect.edge2) / squared_norm(rect.edge2)
+    u = (v * rect.edge1) / squared_norm(rect.edge1)
+    v_ = (v * rect.edge2) / squared_norm(rect.edge2)
 
     if u < 0 || u > 1 || v_ < 0 || v_ > 1
         return nothing
