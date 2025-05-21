@@ -26,11 +26,8 @@ export Camera, fire_single_ray, OrthogonalCamera, PerspectiveCamera, aperture_de
 include("ImageTracer.jl")
 export ImageTracer, fire_ray, fire_all_rays!
 
-# include("hitrecord.jl")
-# export HitRecord, is_close
-
 include("materials.jl")
-export Pigment, UniformPigment, CheckeredPigment, ImagePigment, get_color, BRDF, DiffuseBRDF, eval, Material
+export Pigment, UniformPigment, CheckeredPigment, ImagePigment, get_color, BRDF, DiffuseBRDF, Eval, Material
 
 include("shapes.jl")
 export Shape, Sphere, Plane, Rectangle, ray_intersection, quick_ray_intersection, HitRecord, is_close, union_shape, intersec_shape, diff_shape
