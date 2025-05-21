@@ -2,22 +2,27 @@
 using LinearAlgebra
 
 #DEFINING AN ABSTRACT TYPE FOR SHAPES
-"""Abstarct struct for shapes"""
+"""Abstract struct for shapes"""
 abstract type Shape
 end
 
-"""Abstarct method for ray_intersection"""
+"""Abstract method for ray_intersection"""
 function ray_intersection(shape::Shape, r::Ray)
     throw(Type_error("ray_intersection method not implemented for $(typeof(shape))"))
 end
 
-"""Abstarct method for quick_ray_intersection"""
+"""Abstract method for quick_ray_intersection"""
 function quick_ray_intersection(shape::Shape, r::Ray)
     throw(Type_error("quick_ray_intersection method not implemented for $(typeof(shape))"))
 end
 
 """Abstract method for normals"""
 function _shape_normal(shape::Shape, r::Ray, p::Point)
+    throw(Type_error("_shape_normal method not implemented for $(typeof(shape))"))
+end
+
+"""Abstract method for (u,v) coordinates"""
+function _xyz_to_uv(shape::Shape, p::Point)
     throw(Type_error("_shape_normal method not implemented for $(typeof(shape))"))
 end
 
@@ -60,7 +65,7 @@ end
 function _xyz_to _uv(p)
     given a point on the sphere, in returns its (u,v) 2D form
 """
-function _xyz_to_uv(p::Point)
+function _xyz_to_uv(s::Sphere, p::Point)
     u = atan(p.y, p.x) / (2π)
     z_clamped = clamp(p.z, -1.0, 1.0)
     v = acos(z_clamped) / π
@@ -179,7 +184,7 @@ end
 function _xy_to _uv(p)
     given a point on the x-y plane, in returns its (u,v) 2D form
 """
-function _xy_to_uv(p::Point)
+function _xyz_to_uv(s::Plane, p::Point)
     u = p.x - floor(p.x)
     v = p.y - floor(p.y)
     return Vec2d(u, v)
