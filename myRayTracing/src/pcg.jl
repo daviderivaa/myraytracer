@@ -42,3 +42,11 @@ function random!(pcg::PCG)
 
     return UInt32( (xorshifted >> rot) | (xorshifted << ((-rot) & 31)) & 0xFFFFFFFF)
 end
+
+"""
+function norm_random!(pcg)
+    generates a random number between 0 and 1 and alters the state of the generator
+"""
+function norm_random!(pcg::PCG)
+    return Float64( random!(pcg) / 4294967295 )
+end
