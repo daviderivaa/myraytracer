@@ -33,7 +33,7 @@ if ARGS[1] == "perspective"
 
 elseif ARGS[1] == "orthogonal"
     path = "./CSG/"
-    pfm_filename_and_path = "./CSG/csg_orthogonal_" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
+    pfm_filename_and_path = "./CSG/csg_orthogonal_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
     filename = "csg_orthogonal_z" * ARGS[2] * "_y" * ARGS[3]
     angle_z = parse(Float64, ARGS[2])
     angle_y = parse(Float64, ARGS[3])
