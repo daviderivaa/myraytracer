@@ -34,7 +34,7 @@ end
 function fire_single_ray(cam::OrthogonalCamera, u, v)
     Shoot a ray through the camera screen, u and v are the coordinates un the screen. (u,v)=(0,0) is the bottom left corner, (u,v)=(1,1) is the top right one.
 
-    origin = Point(-1.0, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0)c
+    origin = Point(-1.0, (1.0 - 2 * u) * cam.aspect_ratio, 2 * v - 1.0)
 """
 function fire_single_ray(cam::OrthogonalCamera, u, v)
 

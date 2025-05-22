@@ -108,7 +108,7 @@ function ray_intersection(shape::Sphere, r::Ray)
 
     return HitRecord( shape.T(point_hit), #hitted point in the world
                       shape.T(_shape_normal(shape, inv_r, point_hit)), #normal at the surface in the world
-                      (_xyz_to_uv(point_hit)), #(u,v) vec hitted on the surface
+                      (_xyz_to_uv(shape, point_hit)), #(u,v) vec hitted on the surface
                       t_hit, #t
                       r, #ray
                       shape #s
@@ -212,7 +212,7 @@ function ray_intersection(shape::Plane, r::Ray)
 
     return HitRecord( (shape.T)(point_hit), #hitted point in the world
                       (shape.T)(_shape_normal(shape, inv_r, point_hit)), #normal at the surface in the world
-                      (_xy_to_uv(point_hit)), #(u,v) vec hitted on the surface
+                      (_xyz_to_uv(shape, point_hit)), #(u,v) vec hitted on the surface
                       t_hit, #t
                       r, #ray
                       shape #s
@@ -518,7 +518,7 @@ function ray_intersection(u_shape::union_shape, r::Ray)
     return HitRecord(
         u_shape.T(point_hit),
         u_shape.T(normal),
-        _xyz_to_uv(inverse(hit_shape.T)(point_hit)),
+        _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
         chosen_hit.t,
         r,
         hit_shape
@@ -580,7 +580,7 @@ function ray_intersection(i_shape::intersec_shape, r::Ray)
     return HitRecord(
         i_shape.T(point_hit),
         i_shape.T(normal),
-        _xyz_to_uv(inverse(hit_shape.T)(point_hit)),
+        _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
         t_enter,
         r,
         hit_shape
@@ -640,7 +640,7 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
         return HitRecord(
             d_shape.T(point_hit),
             d_shape.T(normal),
-            _xyz_to_uv(inverse(hit_shape.T)(point_hit)),
+            _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
             t_hit,
             r,
             hit_shape
@@ -649,7 +649,7 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
         return HitRecord(
             d_shape.T(point_hit),
             d_shape.T(normal),
-            _xyz_to_uv(inverse(hit_shape.T)(point_hit)),
+            _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
             t_hit,
             r,
             hit_shape

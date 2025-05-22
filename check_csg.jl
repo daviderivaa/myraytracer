@@ -27,8 +27,8 @@ if ARGS[1] == "perspective"
     filename = "csg_perspective_z" * ARGS[2] * "_y" * ARGS[3]
     angle_z = parse(Float64, ARGS[2])
     angle_y = parse(Float64, ARGS[3])
-    rot1 = rotation("z", -angle_z*π/180.0)
-    rot2 = rotation("y", -angle_y*π/180.0)
+    rot1 = rotation("z", angle_z*π/180.0)
+    rot2 = rotation("y", angle_y*π/180.0)
     Cam = PerspectiveCamera(-1.0, 16.0/9.0, rot1(rot2(traslation(Vec(1.0, 0.0, 0.0)))))
 
 elseif ARGS[1] == "orthogonal"
@@ -37,9 +37,9 @@ elseif ARGS[1] == "orthogonal"
     filename = "csg_orthogonal_z" * ARGS[2] * "_y" * ARGS[3]
     angle_z = parse(Float64, ARGS[2])
     angle_y = parse(Float64, ARGS[3])
-    rot1 = rotation("z", -angle_z*π/180.0)
-    rot2 = rotation("y", -angle_y*π/180.0)
-    Cam = OrthogonalCamera(16.0/9.0, rot1(rot2(traslation(Vec(-2.0, 0.0, 0.0)))))
+    rot1 = rotation("z", angle_z*π/180.0)
+    rot2 = rotation("y", angle_y*π/180.0)
+    Cam = OrthogonalCamera(16.0/9.0, rot1(rot2(traslation(Vec(-2.0, 0.0, 0.3)))))
 
 else
     throw(InvalidARGS("Error in ARGS: in <camera_type> write perspective or orthogonal"))
