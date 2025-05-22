@@ -2,16 +2,16 @@
 using LinearAlgebra
 
 #DEFINING AN ABSTRACT TYPE FOR SHAPES
-"""Abstarct struct for shapes"""
+"""Abstract struct for shapes"""
 abstract type Shape
 end
 
-"""Abstarct method for ray_intersection"""
+"""Abstract method for ray_intersection"""
 function ray_intersection(shape::Shape, r::Ray)
     throw(Type_error("ray_intersection method not implemented for $(typeof(shape))"))
 end
 
-"""Abstarct method for quick_ray_intersection"""
+"""Abstract method for quick_ray_intersection"""
 function quick_ray_intersection(shape::Shape, r::Ray)
     throw(Type_error("quick_ray_intersection method not implemented for $(typeof(shape))"))
 end
@@ -21,22 +21,29 @@ function _shape_normal(shape::Shape, r::Ray, p::Point)
     throw(Type_error("_shape_normal method not implemented for $(typeof(shape))"))
 end
 
+"""Abstract method for (u,v) coordinates"""
+function _xyz_to_uv(shape::Shape, p::Point)
+    throw(Type_error("_shape_normal method not implemented for $(typeof(shape))"))
+end
+
 #DEFINING SUBSTRUCTS
 #SPHERE STRUCT
 """
 struct Sphere <: Shape
     Creates a 3D unit sphere centered in the origin of the axes. 
 
-    - T::Transformation --> The transformation applied to the unit sphere in the origin to re-scale it 
+    T::Transformation --> The transformation applied to the unit sphere in the origin to re-scale it 
                             (eventually transforming it into an ellipsoid) and translate it in the right location
+    material::Material --> The material of the shape
 
 """
 struct Sphere <: Shape
 
     T::Transformation
+    material::Material
 
-    function Sphere(T::Transformation=Transformation(Matrix{Float64}(I(4))))
-        new(T)
+    function Sphere(T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+        new(T, material)
     end
 
 end
@@ -58,7 +65,7 @@ end
 function _xyz_to _uv(p)
     given a point on the sphere, in returns its (u,v) 2D form
 """
-function _xyz_to_uv(p::Point)
+function _xyz_to_uv(s::Sphere, p::Point)
     u = atan(p.y, p.x) / (2π)
     z_clamped = clamp(p.z, -1.0, 1.0)
     v = acos(z_clamped) / π
@@ -101,9 +108,10 @@ function ray_intersection(shape::Sphere, r::Ray)
 
     return HitRecord( shape.T(point_hit), #hitted point in the world
                       shape.T(_shape_normal(shape, inv_r, point_hit)), #normal at the surface in the world
-                      (_xyz_to_uv(point_hit)), #(u,v) vec hitted on the surface
+                      (_xyz_to_uv(shape, point_hit)), #(u,v) vec hitted on the surface
                       t_hit, #t
-                      r #ray
+                      r, #ray
+                      shape #s
                     )
 
 end
@@ -145,15 +153,17 @@ end
 struct Plane <: Shape
     Creates a plane (if not transformed, it's the x-y plane). 
 
-    - T::Transformation --> The transformation applied to the plane to rotate it and translate it in the right location.
+    T::Transformation --> The transformation applied to the plane to rotate it and translate it in the right location.
+    material::Material --> The material of the shape
 
 """
 struct Plane <: Shape
 
     T::Transformation
+    material::Material
 
-    function Plane(T::Transformation=Transformation(Matrix{Float64}(I(4))))
-        new(T)
+    function Plane(T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+        new(T, material)
     end
 
 end
@@ -174,7 +184,7 @@ end
 function _xy_to _uv(p)
     given a point on the x-y plane, in returns its (u,v) 2D form
 """
-function _xy_to_uv(p::Point)
+function _xyz_to_uv(s::Plane, p::Point)
     u = p.x - floor(p.x)
     v = p.y - floor(p.y)
     return Vec2d(u, v)
@@ -193,13 +203,19 @@ function ray_intersection(shape::Plane, r::Ray)
     end
  
     t_hit = - inv_r.origin.z / inv_r.dir.z
+
+    if t_hit < inv_r.tmin || t_hit > inv_r.tmax
+        return nothing
+    end
+    
     point_hit = at(inv_r, t_hit)
 
     return HitRecord( (shape.T)(point_hit), #hitted point in the world
                       (shape.T)(_shape_normal(shape, inv_r, point_hit)), #normal at the surface in the world
-                      (_xy_to_uv(point_hit)), #(u,v) vec hitted on the surface
+                      (_xyz_to_uv(shape, point_hit)), #(u,v) vec hitted on the surface
                       t_hit, #t
-                      r #ray
+                      r, #ray
+                      shape #s
                     )
 
 end
@@ -220,6 +236,164 @@ end
 
 #################################################################################
 
+#RECTANGLE STRUCT
+"""
+struct Rectangle <: Shape
+    Creates a Rectangle
+
+    origin::Point --> first vertex
+    edge1::Vec --> first vectorial edge
+    edge2::Vec --> second vectorial edge
+    normal::Normal --> Normal vector to the rectangle's plane
+    material::Material --> the material of the rectangle
+    T::Transformation --> global transformation
+
+    function Rectangle(origin::Point, edge1::Vec, edge2::Vec, T::Transformation, material::Material=Material())
+        n = normalize(cross(edge1, edge2)) |> Normal
+        new(origin, edge1, edge2, n, T, material)
+    end
+end
+"""
+struct Rectangle <: Shape
+    origin::Point
+    edge1::Vec
+    edge2::Vec
+    normal::Normal
+    T::Transformation
+    material::Material
+
+    function Rectangle(origin::Point, edge1::Vec, edge2::Vec, T::Transformation, material::Material=Material())
+        n = Vec_to_Normal(normalize(cross(edge1, edge2)))
+        new(origin, edge1, edge2, n, T, material)
+    end
+end
+
+"""
+function _shape_normal(rect, r, p::Point = nothing)
+    it returns the normal to a rectangle, chosen in order to have the opposite direction of the incoming ray
+"""
+function _shape_normal(rect::Rectangle, r::Ray, p::Point)
+    if (rect.normal * r.dir) < 0
+        return rect.normal
+    else
+        return neg(rect.normal)
+    end
+end
+
+"""
+function ray_intersection(shape, r)
+    given a plane and a ray, it returns the HitRecord for the intersection between the ray and the sphere
+"""
+function ray_intersection(rect::Rectangle, r::Ray)
+
+    inv_r = inverse(rect.T)(r)
+
+    denom = rect.normal * inv_r.dir
+    if abs(denom) < 1e-8
+        return nothing
+    end
+
+    d = rect.normal * Point_to_Vec(rect.origin)
+    t_hit = (d - (rect.normal * Point_to_Vec(inv_r.origin))) / denom
+
+    if t_hit < inv_r.tmin || t_hit > inv_r.tmax
+        return nothing
+    end
+
+    p_hit = at(inv_r, t_hit)
+
+    v = p_hit - rect.origin
+
+    u = (v * rect.edge1) / squared_norm(rect.edge1)
+    v_ = (v * rect.edge2) / squared_norm(rect.edge2)
+
+    if u < 0 || u > 1 || v_ < 0 || v_ > 1
+        return nothing
+    end
+
+    uv = Vec2d(u, v_)
+
+    return HitRecord(
+        rect.T(p_hit),
+        rect.T(_shape_normal(rect, inv_r, p_hit)),
+        uv,
+        t_hit,
+        r,
+        rect
+    )
+
+end
+
+"""
+function quick_ray_intersection(shape, r)
+    given a rectangle and a ray, it returns true/false if there is/isn't intersection
+"""
+function quick_ray_intersection(rect::Rectangle, r::Ray)
+
+    inv_r = inverse(rect.T)(r)
+
+    denom = dot(rect.normal, inv_r.dir)
+    if abs(denom) < 1e-8
+        return false
+    end
+
+    d = dot(rect.normal, Point_to_Vec(rect.origin))
+    t_hit = (d - dot(rect.normal, Point_to_Vec(inv_r.origin))) / denom
+
+    if t_hit < inv_r.tmin || t_hit > inv_r.tmax
+        return false
+    end
+
+    p_hit = at(inv_r, t_hit)
+    v = Point_to_Vec(p_hit - rect.origin)
+
+    u = dot(v, rect.edge1) / squared_norm(rect.edge1)
+    v_ = dot(v, rect.edge2) / squared_norm(rect.edge2)
+
+    return 0 <= u <= 1 && 0 <= v_ <= 1
+
+end
+
+#HIT RECORD STRUCT
+
+"""
+Defining HitRecord struct and methods
+
+    world_point::Point --> 3D point where the intersection occurred
+    normal::Normal --> surface normal vector
+    surface_point::Vec2d --> coordinates of the intersection
+    t::Float64 --> parameter associated with the intersection
+    ray::Ray --> light ray that caused the intersection
+    s::Shape --> shape intersected
+"""
+mutable struct HitRecord
+
+    world_point::Point
+    normal::Normal
+    surface_point::Vec2d
+    t::Float64
+    ray::Ray
+    s::Shape
+
+    function HitRecord(p::Point, n::Normal, surf_p::Vec2d, t, r::Ray, s::Shape)
+        new(p, n, surf_p, t, r, s)
+    end
+
+end
+
+function is_close(HR1::HitRecord, HR2::HitRecord, epsilon=1e-5)
+
+    """Check whether two `HitRecord` represent the same hit event or not"""
+    return ( is_close(HR1.world_point, HR2.world_point, epsilon) &&
+    is_close(HR1.normal, HR2.normal, epsilon) &&
+    is_close(HR1.surface_point, HR2.surface_point, epsilon) &&
+    abs(HR1.t - HR2.t) < epsilon &&
+    is_close(HR1.ray, HR2.ray, epsilon))
+
+end
+
+#################################################################################
+
 #CSG
 
 """
@@ -232,7 +406,8 @@ function _transform_hit(hit::HitRecord, T::Transformation)
         T(hit.normal),
         hit.uv,
         hit.t,
-        hit.ray
+        hit.ray,
+        hit.s
     )
 end
 
@@ -248,7 +423,8 @@ function _ray_interval(shape::Shape, r::Ray)
     end
 
     #Find the exit from the shape
-    new_r = Ray(at(r, hit1.t + 1e-5), r.dir, 1e-5, r.tmax)
+    new_origin = at(r, hit1.t + 1e-8)
+    new_r = Ray(new_origin, r.dir, 0.0, r.tmax)
     hit2 = ray_intersection(shape, new_r)
 
     if hit2 === nothing
@@ -256,37 +432,35 @@ function _ray_interval(shape::Shape, r::Ray)
     end
 
     t_enter = hit1.t
-    t_exit = hit2.t
-    return (min(t_enter, t_exit), max(t_enter, t_exit)) #It returns the intervall in which the ray stays in both the shapes, so in the intersection of them
+    t_exit = hit1.t + hit2.t
+    return (min(t_enter, t_exit), max(t_enter, t_exit)) #It returns the intervall in which the ray stays in the shape
 
 end
 
 """
-function _difference_intervals(a::Tuple, b::Tuple)
-    This function calculates the actual intervals in which the ray stays in a difference between two shapes
+function _difference_hit(a::Tuple, b::Tuple)
+    This function calculates the actual shape hit in a difference
 """
-function _difference_intervals(a::Tuple, b::Tuple)
+function _difference_hit(a::Tuple, b::Tuple)
 
     a_start, a_end = a
     b_start, b_end = b
 
-    result = []
-
     if b_end <= a_start || b_start >= a_end
-        push!(result, a)
+        return a_start
     else
         if b_start > a_start
-            push!(result, (a_start, min(b_start, a_end)))
-        end
-        if b_end < a_end
-            push!(result, (max(b_end, a_start), a_end))
+            return a_start
+        else
+            if b_end < a_end
+                return b_end
+            else
+                return nothing
+            end
         end
     end
 
-    return result
-
 end
-
 
 #UNION
 """
@@ -315,49 +489,41 @@ function ray_intersection(u_shape::union_shape, r::Ray)
 
     inv_r = inverse(u_shape.T)(r)
 
-    i1 = _ray_interval(u_shape.s1, inv_r)
-    i2 = _ray_interval(u_shape.s2, inv_r)
+    hit1 = ray_intersection(u_shape.s1, inv_r)
+    hit2 = ray_intersection(u_shape.s2, inv_r)
 
-    if i1 === nothing && i2 === nothing
+    if hit1 === nothing && hit2 === nothing
         return nothing
-    elseif i1 === nothing
-        t_enter = i2[1]
-        point_hit = at(inv_r, t_enter)
-        hit_shape = u_shape.s2
-    elseif i2 === nothing
-        t_enter = i1[1]
-        point_hit = at(inv_r, t_enter)
-        hit_shape = u_shape.s1
-    else
-        t_enter1, t_exit1 = i1
-        t_enter2, t_exit2 = i2
-
-        if t_exit1 ≥ t_enter2 || t_exit2 ≥ t_enter1
-            t_enter = min(t_enter1, t_enter2)
-            hit_shape = t_enter == t_enter1 ? u_shape.s1 : u_shape.s2
-        else
-            if t_enter1 < t_enter2
-                t_enter = t_enter1
-                hit_shape = u_shape.s1
-            else
-                t_enter = t_enter2
-                hit_shape = u_shape.s2
-            end
-        end
-
-        point_hit = at(inv_r, t_enter)
     end
 
-    normal = _shape_normal(hit_shape, inv_r, point_hit)
+    if hit1 === nothing
+        chosen_hit = hit2
+        hit_shape = u_shape.s2
+    elseif hit2 === nothing
+        chosen_hit = hit1
+        hit_shape = u_shape.s1
+    else
+        if hit1.t < hit2.t
+            chosen_hit = hit1
+            hit_shape = u_shape.s1
+        else
+            chosen_hit = hit2
+            hit_shape = u_shape.s2
+        end
+    end
+
+    point_hit = at(inv_r, chosen_hit.t)
+    normal = _shape_normal(hit_shape, inverse(hit_shape.T)(inv_r), inverse(hit_shape.T)(point_hit))
 
     return HitRecord(
         u_shape.T(point_hit),
         u_shape.T(normal),
-        _xyz_to_uv(point_hit),
-        t_enter,
-        r
+        _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
+        chosen_hit.t,
+        r,
+        hit_shape
     )
-
+    
 end
 
 #INTERSECTION
@@ -409,14 +575,15 @@ function ray_intersection(i_shape::intersec_shape, r::Ray)
     hit_shape = t_enter == t_enter1 ? i_shape.s1 : i_shape.s2
 
     point_hit = at(inv_r, t_enter)
-    normal = _shape_normal(hit_shape, inv_r, point_hit)
+    normal = _shape_normal(hit_shape, inverse(hit_shape.T)(inv_r), inverse(hit_shape.T)(point_hit))
 
     return HitRecord(
         i_shape.T(point_hit),
         i_shape.T(normal),
-        _xyz_to_uv(point_hit),
+        _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
         t_enter,
-        r
+        r,
+        hit_shape
     )
 
 end
@@ -449,60 +616,44 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
     inv_r = inverse(d_shape.T)(r)
 
     intA = _ray_interval(d_shape.s1, inv_r)
-    intB = _ray_interval(d_shape.s2, inv_r)
-
     if intA === nothing
         return nothing
     end
 
-    #Evaluates the intervals difference
-    intervals = if intB === nothing
-        [intA]
-    else
-        _difference_intervals(intB, intA)
-    end
+    t_enter1 = intA[1]
 
-    if isempty(intervals)
+    intB = _ray_interval(d_shape.s2, inv_r)
+
+    t_hit = intB === nothing ? t_enter1 : _difference_hit(intA, intB)
+
+    if t_hit === nothing
         return nothing
     end
 
-    t_hit = intervals[1][1]
     point_hit = at(inv_r, t_hit)
 
-    normal = _shape_normal(d_shape.s1, inv_r, point_hit)
+    hit_shape = isapprox(t_hit, t_enter1; atol=1e-6) ? d_shape.s1 : d_shape.s2
 
-    return HitRecord(
-        d_shape.T(point_hit),
-        d_shape.T(normal),
-        _xyz_to_uv(point_hit),
-        t_hit,
-        r
-    )
+    normal = _shape_normal(hit_shape, inverse(hit_shape.T)(inv_r), inverse(hit_shape.T)(point_hit))
+
+    if hit_shape == d_shape.s1
+        return HitRecord(
+            d_shape.T(point_hit),
+            d_shape.T(normal),
+            _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
+            t_hit,
+            r,
+            hit_shape
+        )
+    else
+        return HitRecord(
+            d_shape.T(point_hit),
+            d_shape.T(normal),
+            _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
+            t_hit,
+            r,
+            hit_shape
+        )
+    end
 
 end
-
-#=
-"""
-function Base.:+(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    sums two shapes returning a union_shape
-"""
-function Base.:+(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    return union_shape(s1, s2, T)
-end
-
-"""
-function Base.:-(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    subtracts two shapes returning a diff_shape
-"""
-function Base.:-(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    return diff_shape(s1, s2, T)
-end
-
-"""
-function Base.:^(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    intersecates two shapes returning a intersec_shape
-"""
-function Base.:^(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
-    return intersec_shape(s1, s2, T)
-end
-=#
