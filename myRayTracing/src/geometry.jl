@@ -312,6 +312,10 @@ function create_onb_from_z(normal: Union[Vec, Normal])
 """
 function create_onb_from_z(normal::Union{Vec, Normal})
 
+    x = normal.x
+    y = normal.y
+    z = normal.z
+
     sign = copysign(1.0, normal.z)
     a = -1.0 / (sign + normal.z)
     b = normal.x * normal.y * a
@@ -319,6 +323,6 @@ function create_onb_from_z(normal::Union{Vec, Normal})
     e1 = Vec(1.0 + sign * normal.x * normal.x * a, sign * b, -sign * normal.x)
     e2 = Vec(b, sign + normal.y * normal.y * a, -normal.y)
 
-    return (e1, e2, Vec(normal.x, normal.y, normal.z))
+    return (e1, e2, Vec(x, y, z))
 
 end

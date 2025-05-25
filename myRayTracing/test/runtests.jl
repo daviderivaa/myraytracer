@@ -373,7 +373,7 @@ end
 
 end
 
-@testset "Check materials methods" begin
+@testset "Check Pigment methods" begin
     
     color = RGB(1.0, 2.0, 3.0)
     pigment = UniformPigment(color)
@@ -432,4 +432,35 @@ end
     val = random!(pcg)
     @test val == 3421331566
 
+end
+
+@testset "Check ONB creation" begin
+    pcg = new_PCG()
+
+    for i in 0:100
+
+        normale = normalize(Normal(norm_random!(pcg), norm_random!(pcg), norm_random!(pcg)))
+        vec = normalize(Vec(norm_random!(pcg), norm_random!(pcg), norm_random!(pcg)))
+
+        e1_n, e2_n, e3_n = create_onb_from_z(normale)
+        e1_v, e2_v, e3_v = create_onb_from_z(vec)
+
+        #@test is_close(e3_n, vec)
+        @test is_close(e3_v, vec, 1e-05)
+
+        @test squared_norm(e1_n) ≈ 1.0
+        @test squared_norm(e2_n) ≈ 1.0
+        @test squared_norm(e3_n) ≈ 1.0
+        @test squared_norm(e1_v) ≈ 1.0
+        @test squared_norm(e2_v) ≈ 1.0
+        @test squared_norm(e3_v) ≈ 1.0
+
+        @test e1_n * e2_n <= 1e-10
+        @test e2_n * e3_n <= 1e-10
+        @test e1_n * e3_n <= 1e-10
+        @test e1_v * e2_v <= 1e-10
+        @test e2_v * e3_v <= 1e-10
+        @test e1_v * e3_v <= 1e-10
+
+    end
 end
