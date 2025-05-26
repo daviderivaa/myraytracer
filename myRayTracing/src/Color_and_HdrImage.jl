@@ -1,5 +1,7 @@
 import Colors
 import ColorTypes: ColorTypes, RGB
+import ColorVectorSpace
+import Base: *
 
 
 ###IMAGE STRUCT!
@@ -56,4 +58,12 @@ function valid_pixel(img::HdrImage, column, line)
 """
 function valid_pixel(img::HdrImage, column, line)
     return line >= 1 && line <= img.height && column >= 1 && column <= img.width
+end
+
+"""
+function Base.:*(c1::RGB{Float64}, c2::RGB{Float64})
+    dot product between two colors
+"""
+function Base.:*(c1::RGB{Float64}, c2::RGB{Float64})
+    return RGB(c1.r*c2.r, c1.g*c2.g, c1.b*c2.b)
 end

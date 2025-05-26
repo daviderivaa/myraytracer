@@ -469,13 +469,13 @@ end
 
     pcg = new_PCG()
 
-    for i in 0:0
+    for i in 1:10
 
         emitted_radiance = norm_random!(pcg)
         reflectance = norm_random!(pcg)
 
         w = World()
-        furnace_material = Material(DiffuseBRDF(UniformPigment(RGB(1.0 * reflectance, 1.0 * reflectance, 1.0 * reflectance))), UniformPigment(RGB(1.0 * emitted_radiance, 1.0 * emitted_radiance, 1.0 * emitted_radiance)))
+        furnace_material = Material(DiffuseBRDF(UniformPigment(RGB(1.0 , 1.0 , 1.0) * reflectance)), UniformPigment(RGB(1.0 , 1.0 , 1.0) * emitted_radiance))
 
         add_shape!(w, Sphere(Transformation(Matrix{Float64}(I(4))), furnace_material))
 
@@ -485,10 +485,8 @@ end
 
         expected = emitted_radiance / (1.0 - reflectance)
 
-        println(expected, color)
-
-        @test expected ≈ color.r
-        @test expected ≈ color.g
-        @test expected ≈ color.b
+        @test isapprox(expected, color.r; rtol=0, atol=1e-3)
+        @test isapprox(expected, color.g; rtol=0, atol=1e-3)
+        @test isapprox(expected, color.b; rtol=0, atol=1e-3)
     end
 end

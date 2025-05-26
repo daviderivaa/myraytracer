@@ -121,9 +121,8 @@ function (RND::PathTracer)(ray::Ray)
         q = max(0.05, 1.0 - hit_color_lum)
 
         if norm_random!(RND.pcg) > q
-            hit_color.r *= 1.0 / (1.0 - q)
-            hit_color.g *= 1.0 / (1.0 - q)
-            hit_color.b *= 1.0 / (1.0 - q)
+            println("1\n")
+            hit_color *= 1.0 / (1.0 - q)
         else
             println(emitted_radiance)
             return emitted_radiance
@@ -133,17 +132,13 @@ function (RND::PathTracer)(ray::Ray)
     cum_radiance = RGB(0.0, 0.0, 0.0)
 
     if hit_color_lum > 0.0
-
-        for ray_index in 0:RND.num_rays
+        for ray_index in 1:RND.num_rays
             new_ray = scatter_ray(hit_material.brdf, RND.pcg, hit_record.ray.dir, hit_record.world_point, hit_record.normal, ray.depth + 1)
             new_radiance = RND(new_ray)
-            cum_radiance.r += hit_color.r * new_radiance
-            cum_radiance.g += hit_color.g * new_radiance
-            cum_radiance.b += hit_color.b * new_radiance
+            cum_radiance += (hit_color * new_radiance)
         end
     end
 
-    println(emitted_radiance + cum_radiance * (1.0 / (RND.num_rays)))
     return (emitted_radiance + cum_radiance * (1.0 / (RND.num_rays)))
-    
+
 end

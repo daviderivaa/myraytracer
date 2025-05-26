@@ -167,6 +167,7 @@ end
 scatter ray implementation for Diffusive BRDF type
 """
 function scatter_ray(brdf::DiffuseBRDF, pcg::PCG, in_dir::Vec, interaction_point::Point, normal::Normal, depth::Int64)
+    
     e1, e2, e3 = create_onb_from_z(normal)
     cos_theta_sq = norm_random!(pcg)
     cos_theta = √(cos_theta_sq)
@@ -174,6 +175,7 @@ function scatter_ray(brdf::DiffuseBRDF, pcg::PCG, in_dir::Vec, interaction_point
     phi = 2.0 * π * norm_random!(pcg)
 
     return Ray(interaction_point, e1 * cos(phi) * cos_theta + e2 * sin(phi) * cos_theta + e3 * sin_theta, 1.0e-3, Inf, depth)
+
 end
 
 
@@ -204,6 +206,7 @@ function eval(brdf::SpecularBRDF, uv::Vec2d, normal::Normal, in_dir::Vec, out_di
 end
 """
 function Eval(brdf::SpecularBRDF, uv::Vec2d, normal::Normal, in_dir::Vec, out_dir::Vec)
+
     n_normal = normalize(normal)
     n_in_dir = normalize(in_dir)
     n_out_dir = normalize(out_dir)
@@ -216,6 +219,7 @@ function Eval(brdf::SpecularBRDF, uv::Vec2d, normal::Normal, in_dir::Vec, out_di
     else
         return RGB(0.0, 0.0, 0.0)
     end
+
 end
 
 """
@@ -228,6 +232,7 @@ function scatter_ray(brdf::SpecularBRDF, pcg::PCG, in_dir::Vec, interaction_poin
     dot_prod = n_normal *ray_dir
 
     return Ray(interaction_point, ray_dir - normal * 2.0 * dot_prod, 1e-5, Inf, depth)
+
 end
 
 
