@@ -39,6 +39,6 @@ include("world.jl")
 export World, add_shape!, get_shapes, get_single_shape, ray_intersection, is_point_visible
 
 include("render.jl")
-export Renderer, OnOffRenderer, FlatRenderer
+export Renderer, OnOffRenderer, FlatRenderer, PathTracer
 
 end #module myRayTracing

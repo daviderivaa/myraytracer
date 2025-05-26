@@ -125,7 +125,7 @@ end
 """
 Abstract method for ray scattering for path tracing methods
 """
-function scatter_ray(brdf::BRDF, pcg::PCG, in_dir::Vec, interaction_point::Point, normal::Normal, depth::Int32)
+function scatter_ray(brdf::BRDF, pcg::PCG, in_dir::Vec, interaction_point::Point, normal::Normal, depth::Int64)
     throw(Type_error("scatter_ray method invalid for these arguments"))
 end
 
@@ -166,7 +166,7 @@ end
 """
 scatter ray implementation for Diffusive BRDF type
 """
-function scatter_ray(brdf::DiffuseBRDF, pcg::PCG, in_dir::Vec, interaction_point::Point, normal::Normal, depth::Int32)
+function scatter_ray(brdf::DiffuseBRDF, pcg::PCG, in_dir::Vec, interaction_point::Point, normal::Normal, depth::Int64)
     e1, e2, e3 = create_onb_from_z(normal)
     cos_theta_sq = norm_random!(pcg)
     cos_theta = √(cos_theta_sq)
@@ -221,7 +221,7 @@ end
 """
 scatter ray implementation for Specular BRDF type (not using PCG because it's deterministic)
 """
-function scatter_ray(brdf::SpecularBRDF, pcg::PCG, in_dir::Vec, interaction_point::Point, normal::Normal, depth::Int32)
+function scatter_ray(brdf::SpecularBRDF, pcg::PCG, in_dir::Vec, interaction_point::Point, normal::Normal, depth::Int64)
 
     ray_dir = normalize(Vec(in_dir.x, in_dir.y, in_dir.z))
     n_normal = normalize(Norm_to_Vec(normal))
