@@ -21,7 +21,7 @@ mutable struct HdrImage
     pixels::Matrix{RGB}
 
     function HdrImage(width, height)  # defaul constructor
-        pixels = Matrix{RGB}(undef, height, width)
+        pixels = Matrix{RGB{Float64}}(undef, height, width)
         new(width, height, pixels)
     end
 
@@ -30,7 +30,7 @@ mutable struct HdrImage
             throw(ArgumentError("Number of elements of pixel_data doesn't match width * height * 3"))
         end
 
-        pixels = Matrix{RGB}(undef, height, width)
+        pixels = Matrix{RGB{Float64}}(undef, height, width)
         for i in 1:height
             for j in 1:width
                 index = ((i-1) * width + (j-1)) * 3 + 1

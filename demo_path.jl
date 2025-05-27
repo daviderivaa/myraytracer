@@ -53,22 +53,28 @@ color3 = RGB(0.0, 0.0, 1.0) #BLUE
 color4 = RGB(0.0, 1.0, 1.0) #CYAN
 color5 = RGB(0.1, 0.0, 1.0) #PURPLE
 
+format, width, height, endianness, pixel_data = read_pfm("./pigsky.pfm")
+
+starsky = HdrImage(pixel_data, width, height)
+
 pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color3, 10)
 pig2 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color1, 10)
 pig3 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color2, 10)
 pig4 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color5, 10)
 pig5 = CheckeredPigment(RGB(0.0, 0.0, 0.0), color3, 10)
+pigsky = ImagePigment(starsky)
 
-material1 = Material(DiffuseBRDF(pig1, 0.5), pig1)
+material1 = Material(DiffuseBRDF(pig1, 0.5))
 material2 = Material(DiffuseBRDF(pig2, 0.5), pig2)
 material3 = Material(DiffuseBRDF(pig3, 0.5), pig3)
 material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
 material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
 
-s = Sphere(scaling(0.3), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0))), UniformPigment(RGB(1.0, 0.0, 0.0))))
-s1 = Sphere(traslation(Vec(0.0, -1.3, -0.5))(scaling(0.5)), Material(DiffuseBRDF(UniformPigment(RGB(1.0, 1.0, 0.0))), UniformPigment(RGB(1.0, 1.0, 0.0))))
-sky = Plane(Transformation(Matrix{Float64}(I(4))), Material(DiffuseBRDF(UniformPigment(RGB(1.0, 1.0, 1.0))), UniformPigment(RGB(1.0, 1.0, 1.0))))
-p2 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material2)
+s = Sphere(traslation(Vec(0.0, 0.0, -0.7))(scaling(0.3)), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0)))))
+s1 = Sphere(traslation(Vec(0.0, -1.3, -0.5))(scaling(0.5)), Material(SpecularBRDF(UniformPigment(RGB(1.0, 1.0, 0.0)))))
+#sky = Plane(traslation(Vec(0.0, 0.0, 1.0)), Material(DiffuseBRDF(pigsky), pigsky))
+sky = Sphere(scaling(10.0), Material(DiffuseBRDF(pigsky), pigsky))
+p2 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material1)
 add_shape!(w, s)
 add_shape!(w, s1)
 add_shape!(w, sky)
