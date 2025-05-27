@@ -65,10 +65,12 @@ material3 = Material(DiffuseBRDF(pig3, 0.5), pig3)
 material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
 material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
 
-s = Sphere(scaling(0.3), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0)))))
-sky = Plane(Transformation(Matrix{Float64}(I(4))), Material(DiffuseBRDF(UniformPigment(RGB(0.4, 0.7, 1.0)))))
-p2 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material1)
+s = Sphere(scaling(0.3), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0))), UniformPigment(RGB(1.0, 0.0, 0.0))))
+s1 = Sphere(traslation(Vec(0.0, -1.3, -0.5))(scaling(0.5)), Material(DiffuseBRDF(UniformPigment(RGB(1.0, 1.0, 0.0))), UniformPigment(RGB(1.0, 1.0, 0.0))))
+sky = Plane(Transformation(Matrix{Float64}(I(4))), Material(DiffuseBRDF(UniformPigment(RGB(1.0, 1.0, 1.0))), UniformPigment(RGB(1.0, 1.0, 1.0))))
+p2 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material2)
 add_shape!(w, s)
+add_shape!(w, s1)
 add_shape!(w, sky)
 add_shape!(w, p2)
 
@@ -77,13 +79,9 @@ IT = ImageTracer(img, Cam)
 
 pcg = new_PCG()
 
-RND = PathTracer(w, RGB(0.0,0.5,1.0), pcg, 2, 5, 2)
-
-println("1\n")
+RND = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 2, 3, 2)
 
 fire_all_rays!(IT, RND)
-
-println("2\n")
 
 open(pfm_filename_and_path, "w") do io
     write_pfm(io, IT.img)
