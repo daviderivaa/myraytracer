@@ -77,6 +77,23 @@ where:
 
 In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
 
+## DRAW BOX
+
+If `myraytracer/CSG/` directory doesn't exist, in `myraytracer/` run:
+```shell
+mkdir CSG
+```
+
+Run:
+```shell
+julia -t <n_threads> box.jl <camera_type> <angle_z> <angle_y>
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+
+In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
+
 ## DEMO (WITH PATHTRACING ALGORITHM)
 
 If `myraytracer/` directory doesn't exist, in `myraytracer/` run:
@@ -91,3 +108,5 @@ julia -t <n_threads> demo_path.jl <camera_type> <angle_z> <angle_y>
 where:
 - `<n_threads> = auto` allows to use all available threads.
 - `<n_threads> = 1` means not using multi-threading.
+
+In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
