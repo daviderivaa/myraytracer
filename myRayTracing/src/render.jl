@@ -117,14 +117,11 @@ function (RND::PathTracer)(ray::Ray)
 
     #Russian Roulette
     if ray.depth >= RND.rr_limit
-
         q = max(0.05, 1.0 - hit_color_lum)
 
         if norm_random!(RND.pcg) > q
-            println("1\n")
             hit_color *= 1.0 / (1.0 - q)
         else
-            println(emitted_radiance)
             return emitted_radiance
         end
     end

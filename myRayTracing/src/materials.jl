@@ -231,7 +231,7 @@ function scatter_ray(brdf::SpecularBRDF, pcg::PCG, in_dir::Vec, interaction_poin
     n_normal = normalize(Norm_to_Vec(normal))
     dot_prod = n_normal *ray_dir
 
-    return Ray(interaction_point, ray_dir - normal * 2.0 * dot_prod, 1e-5, Inf, depth)
+    return Ray(interaction_point, ray_dir - Norm_to_Vec(normal) * 2.0 * dot_prod, 1e-5, Inf, depth)
 
 end
 

@@ -59,6 +59,7 @@ function fire_all_rays!(IT::ImageTracer, func)
                 #color = func
                 IT.img.pixels[row, col] = color
             end
+            println(row)
         end
     catch
         throw(Type_error("fire_all_rays! method not implemented for $(typeof(IT))"))

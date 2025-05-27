@@ -16,7 +16,6 @@ struct InvalidARGS <: Exception
     msg::String
 end
 
-
 if length(ARGS) != 3
     throw(InvalidARGS("Required julia check_csg.jl <camera_type> <angle_z> <angle_y>     <camera_type>: perspective or orthogonal    <angle_z>: rotation around z axis (in deg)     <angle_y>: rotation around z axis (in deg)"))
 end
