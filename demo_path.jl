@@ -47,15 +47,37 @@ end
 
 w = World()
 
-s = Sphere(scaling(0.3), Material(SpecularBRDF(UniformPigment(RGB(1.0,0.0,0.0)))))
-p = Plane(Transformation(Matrix{Float64}(I(4))), Material(DiffuseBRDF(CheckeredPigment())))
+color1 = RGB(1.0, 0.0, 0.0) #RED 
+color2 = RGB(0.0, 1.0, 0.0) #GREEN
+color3 = RGB(0.0, 0.0, 1.0) #BLUE
+color4 = RGB(0.0, 1.0, 1.0) #CYAN
+color5 = RGB(0.1, 0.0, 1.0) #PURPLE
+
+pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color3, 10)
+pig2 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color1, 10)
+pig3 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color2, 10)
+pig4 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color5, 10)
+pig5 = CheckeredPigment(RGB(0.0, 0.0, 0.0), color3, 10)
+
+material1 = Material(DiffuseBRDF(pig1, 0.5), pig1)
+material2 = Material(DiffuseBRDF(pig2, 0.5), pig2)
+material3 = Material(DiffuseBRDF(pig3, 0.5), pig3)
+material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
+material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
+
+s = Sphere(scaling(0.3), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0)))))
+sky = Plane(Transformation(Matrix{Float64}(I(4))), Material(DiffuseBRDF(UniformPigment(RGB(0.4, 0.7, 1.0)))))
+p2 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material1)
 add_shape!(w, s)
-add_shape!(w, p)
+add_shape!(w, sky)
+add_shape!(w, p2)
 
 img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
 
-RND = PathTracer(w, RGB(0.0,0.5,1.0))
+pcg = new_PCG()
+
+RND = PathTracer(w, RGB(0.0,0.5,1.0), pcg, 2, 5, 2)
 
 println("1\n")
 

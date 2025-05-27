@@ -48,8 +48,28 @@ A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
 
 ## CHECK CSG (*CONSTRUCTIVE SOLID GEOMETRY*)
 
+Then in directory `myraytracer/` run:
+```shell
+mkdir CSG
+```
+
 Run:
 ```shell
 julia check_csg.jl <camera_type> <angle_z> <angle_y>
 ```
 In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
+
+## DEMO (WITH PATHTRACING ALGORITHM)
+
+Then in directory `myraytracer/` run:
+```shell
+mkdir demo_path
+```
+
+Run:
+```shell
+julia -t <n_threads> demo_path.jl <camera_type> <angle_z> <angle_y>
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
