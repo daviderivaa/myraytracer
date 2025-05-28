@@ -30,16 +30,16 @@ for angle in 0:360
         path = "./demo/"
         pfm_filename_and_path = "./demo/demo_perspective_" * idx_angle * ".pfm"
         filename = "demo_perspective_" * idx_angle
-        rot1 = rotation("z", -angle*π/180.0)
-        Cam = PerspectiveCamera(-1.0, 16.0/9.0, rot1(traslation(Vec(1.0, 0.0, 0.0))))
+        rot1 = rotation("z", angle*π/180.0)
+        Cam = PerspectiveCamera(1.0, 16.0/9.0, rot1(traslation(Vec(1.0, 0.0, 0.0))))
 
     elseif ARGS[1] == "orthogonal"
         idx_angle = lpad(string(angle), 3, '0')
         path = "./demo/"
         pfm_filename_and_path = "./demo/demo_orthogonal_" * idx_angle * ".pfm"
         filename = "demo_orthogonal_" * (idx_angle)
-        rot1 = rotation("z", -angle*π/180.0)
-        rot2 = rotation("y", -π/18)
+        rot1 = rotation("z", angle*π/180.0)
+        rot2 = rotation("y", π/18)
         Cam = OrthogonalCamera(16.0/9.0, rot1(rot2(traslation(Vec(-2.0, 0.0, 0.0)))))
 
     else

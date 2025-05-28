@@ -373,7 +373,7 @@ end
 
 end
 
-@testset "Check materials methods" begin
+@testset "Check Pigment methods" begin
     
     color = RGB(1.0, 2.0, 3.0)
     pigment = UniformPigment(color)
@@ -432,4 +432,61 @@ end
     val = random!(pcg)
     @test val == 3421331566
 
+end
+
+@testset "Check ONB creation" begin
+    pcg = new_PCG()
+
+    for i in 0:100
+
+        normale = normalize(Normal(norm_random!(pcg), norm_random!(pcg), norm_random!(pcg)))
+        vec = normalize(Vec(norm_random!(pcg), norm_random!(pcg), norm_random!(pcg)))
+
+        e1_n, e2_n, e3_n = create_onb_from_z(normale)
+        e1_v, e2_v, e3_v = create_onb_from_z(vec)
+
+        @test is_close(e3_n, Norm_to_Vec(normale))
+        @test is_close(e3_v, vec, 1e-05)
+
+        @test squared_norm(e1_n) ≈ 1.0
+        @test squared_norm(e2_n) ≈ 1.0
+        @test squared_norm(e3_n) ≈ 1.0
+        @test squared_norm(e1_v) ≈ 1.0
+        @test squared_norm(e2_v) ≈ 1.0
+        @test squared_norm(e3_v) ≈ 1.0
+
+        @test e1_n * e2_n <= 1e-10
+        @test e2_n * e3_n <= 1e-10
+        @test e1_n * e3_n <= 1e-10
+        @test e1_v * e2_v <= 1e-10
+        @test e2_v * e3_v <= 1e-10
+        @test e1_v * e3_v <= 1e-10
+
+    end
+end
+
+@testset "Furnace test" begin
+
+    pcg = new_PCG()
+
+    for i in 1:10
+
+        emitted_radiance = norm_random!(pcg)
+        reflectance = norm_random!(pcg)
+
+        w = World()
+        furnace_material = Material(DiffuseBRDF(UniformPigment(RGB(1.0 , 1.0 , 1.0) * reflectance)), UniformPigment(RGB(1.0 , 1.0 , 1.0) * emitted_radiance))
+
+        add_shape!(w, Sphere(Transformation(Matrix{Float64}(I(4))), furnace_material))
+
+        path_tracer = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 1, 100, 101)
+        ray = Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
+        color = path_tracer(ray)
+
+        expected = emitted_radiance / (1.0 - reflectance)
+
+        @test isapprox(expected, color.r; rtol=0, atol=1e-3)
+        @test isapprox(expected, color.g; rtol=0, atol=1e-3)
+        @test isapprox(expected, color.b; rtol=0, atol=1e-3)
+    end
 end

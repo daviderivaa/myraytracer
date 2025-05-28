@@ -109,6 +109,8 @@ function get_color(pigment::ImagePigment, uv::Vec2d)
     
 end
 
+
+#############################################################################################################
 #DEFINING ABSTRACT TYPE AND METHODS FOR BRDF
 
 """Abstarct struct for BRDF (Bidirectional Reflectance Distribution Function)"""
@@ -120,7 +122,15 @@ function Eval(brdf::BRDF, uv::Vec2d, normal::Normal=nothing, in_dir::Vec=nothing
     throw(Type_error("get_color method not implemented for $(typeof(brdf))"))
 end
 
+"""
+Abstract method for ray scattering for path tracing methods
+"""
+function scatter_ray(brdf::BRDF, pcg::PCG, in_dir::Vec, interaction_point::Point, normal::Normal, depth::Int64)
+    throw(Type_error("scatter_ray method invalid for these arguments"))
+end
+
 #DEFINING SUBSTRUCTS
+#DIFFUSIVE BRDF
 
 """
 struct DiffuseBRDF <: BRDF
@@ -143,8 +153,8 @@ struct DiffuseBRDF <: BRDF
 end
 
 """
-function eval(brdf::DiffuseBRDF, normal::Normal, in_dir::Vec, out_dir::Vec, uv::Vec2d)
-    evaluates the brdf in a specific point given pigment and reflectance
+function eval(brdf::DiffuseBRDF, uv::Vec2d)
+    evaluates the brdf in a specific point given pigment at a given reflectance
 end
 """
 function Eval(brdf::DiffuseBRDF, uv::Vec2d)
@@ -153,6 +163,80 @@ function Eval(brdf::DiffuseBRDF, uv::Vec2d)
 
 end
 
+"""
+scatter ray implementation for Diffusive BRDF type
+"""
+function scatter_ray(brdf::DiffuseBRDF, pcg::PCG, in_dir::Vec, interaction_point::Point, normal::Normal, depth::Int64)
+    
+    e1, e2, e3 = create_onb_from_z(normal)
+    cos_theta_sq = norm_random!(pcg)
+    cos_theta = √(cos_theta_sq)
+    sin_theta = √(1.0 - cos_theta_sq)
+    phi = 2.0 * π * norm_random!(pcg)
+
+    return Ray(interaction_point, e1 * cos(phi) * cos_theta + e2 * sin(phi) * cos_theta + e3 * sin_theta, 1.0e-3, Inf, depth)
+
+end
+
+
+# SPECULAR BRDF TYPE AND METHODS
+"""
+struct SpecularBRDF <: BRDF
+    A class representing an ideal mirror
+
+    pigment::Pigment --> pigment of the BRDF
+    reflectance::Float64 --> treeshold angle in radiant
+
+end
+"""
+struct SpecularBRDF <: BRDF
+
+    pigment::Pigment
+    reflectance::Float64
+
+    function SpecularBRDF(pigment::Pigment, reflectance::Float64 = π/180.0)
+        new(pigment, reflectance)
+    end
+
+end
+
+"""
+function eval(brdf::SpecularBRDF, uv::Vec2d, normal::Normal, in_dir::Vec, out_dir::Vec)
+    evaluates the brdf in a specific point given pigment and reflectance
+end
+"""
+function Eval(brdf::SpecularBRDF, uv::Vec2d, normal::Normal, in_dir::Vec, out_dir::Vec)
+
+    n_normal = normalize(normal)
+    n_in_dir = normalize(in_dir)
+    n_out_dir = normalize(out_dir)
+
+    theta_in = acos(n_normal * n_in_dir)
+    theta_out = acos(n_normal * n_out_dir)
+
+    if abs(theta_out - theta_in) < brdf.reflectance
+        return get_color(brdf.pigment, uv)
+    else
+        return RGB(0.0, 0.0, 0.0)
+    end
+
+end
+
+"""
+scatter ray implementation for Specular BRDF type (not using PCG because it's deterministic)
+"""
+function scatter_ray(brdf::SpecularBRDF, pcg::PCG, in_dir::Vec, interaction_point::Point, normal::Normal, depth::Int64)
+
+    ray_dir = normalize(Vec(in_dir.x, in_dir.y, in_dir.z))
+    n_normal = normalize(Norm_to_Vec(normal))
+    dot_prod = n_normal *ray_dir
+
+    return Ray(interaction_point, ray_dir - Norm_to_Vec(normal) * 2.0 * dot_prod, 1e-5, Inf, depth)
+
+end
+
+
+##############################################################################################################
 #DEFINING MATERIAL STRUCT
 
 """Struct for a material, it contains a brdf and a radiance (a pigment)"""

@@ -1,5 +1,7 @@
 import Colors
 import ColorTypes: ColorTypes, RGB
+import ColorVectorSpace
+import Base: *
 
 
 ###IMAGE STRUCT!
@@ -19,7 +21,7 @@ mutable struct HdrImage
     pixels::Matrix{RGB}
 
     function HdrImage(width, height)  # defaul constructor
-        pixels = Matrix{RGB}(undef, height, width)
+        pixels = Matrix{RGB{Float64}}(undef, height, width)
         new(width, height, pixels)
     end
 
@@ -28,7 +30,7 @@ mutable struct HdrImage
             throw(ArgumentError("Number of elements of pixel_data doesn't match width * height * 3"))
         end
 
-        pixels = Matrix{RGB}(undef, height, width)
+        pixels = Matrix{RGB{Float64}}(undef, height, width)
         for i in 1:height
             for j in 1:width
                 index = ((i-1) * width + (j-1)) * 3 + 1
@@ -56,4 +58,12 @@ function valid_pixel(img::HdrImage, column, line)
 """
 function valid_pixel(img::HdrImage, column, line)
     return line >= 1 && line <= img.height && column >= 1 && column <= img.width
+end
+
+"""
+function Base.:*(c1::RGB{Float64}, c2::RGB{Float64})
+    dot product between two colors
+"""
+function Base.:*(c1::RGB{Float64}, c2::RGB{Float64})
+    return RGB(c1.r*c2.r, c1.g*c2.g, c1.b*c2.b)
 end

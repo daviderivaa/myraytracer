@@ -1,5 +1,7 @@
 #IMAGE TRACER STRUCTS AND METHODS
 
+using Base.Threads
+
 
 #IMAGE TRACER STRUCT
 """
@@ -52,7 +54,7 @@ function fire_all_rays!(IT::ImageTracer, func)
 function fire_all_rays!(IT::ImageTracer, func)
 
     try 
-        for row in 1:IT.img.height
+        Threads.@threads for row in 1:IT.img.height
             for col in 1:IT.img.width
                 ray = fire_ray(IT, col, row)
                 color = func(ray)

@@ -10,10 +10,20 @@ Repository of "Tecniche Numeriche per la Generazione di Immagini Fotorealistiche
 
 ## DEMO
 ### DEMO SINGLE IMAGE
-Run:
+
+If `myraytracer/demo/` directory doesn't exist, in `myraytracer/` run:
 ```shell
-julia demo.jl <camera_type> <angle>
+mkdir demo
 ```
+
+Then run:
+```shell
+julia demo.jl -t <n_threads> <camera_type> <angle>
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+
 In `myraytracer/demo/` creates a `pfm` file and the corresponding `png` image.
 
 ### DEMO GIF
@@ -35,21 +45,68 @@ Before executing [demo_gif.jl](./demo_gif.jl), you need to install [ffmpeg](http
     brew install ffmpeg
     ```
 
-Then in directory `myraytracer/` run:
+If `myraytracer/demo/` directory doesn't exist, in `myraytracer/` run:
 ```shell
 mkdir demo
 ```
 
 Now you can run:
 ```shell
-julia demo_gif.jl <camera_type>
+julia -t <n_threads> demo_gif.jl <camera_type>
 ```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+
 A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
 
 ## CHECK CSG (*CONSTRUCTIVE SOLID GEOMETRY*)
 
+If `myraytracer/CSG/` directory doesn't exist, in `myraytracer/` run:
+```shell
+mkdir CSG
+```
+
 Run:
 ```shell
-julia check_csg.jl <camera_type> <angle_z> <angle_y>
+julia -t <n_threads> check_csg.jl <camera_type> <angle_z> <angle_y>
 ```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+
+In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
+
+## DRAW BOX
+
+If `myraytracer/CSG/` directory doesn't exist, in `myraytracer/` run:
+```shell
+mkdir CSG
+```
+
+Run:
+```shell
+julia -t <n_threads> box.jl <camera_type> <angle_z> <angle_y>
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+
+In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
+
+## DEMO (WITH PATHTRACING ALGORITHM)
+
+If `myraytracer/` directory doesn't exist, in `myraytracer/` run:
+```shell
+mkdir demo_path
+```
+
+Then run:
+```shell
+julia -t <n_threads> demo_path.jl <camera_type> <angle_z> <angle_y>
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+
 In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
