@@ -136,6 +136,8 @@ function (RND::PathTracer)(ray::Ray)
         end
     end
 
+    #println(emitted_radiance, "\t", cum_radiance * (1.0 / (RND.num_rays)))
+
     return (emitted_radiance + cum_radiance * (1.0 / (RND.num_rays)))
 
 end
