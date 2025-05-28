@@ -26,7 +26,7 @@ if ARGS[1] == "perspective"
     angle_y = parse(Float64, ARGS[3])
     rot1 = rotation("z", angle_z*π/180.0)
     rot2 = rotation("y", angle_y*π/180.0)
-    Cam = PerspectiveCamera(-1.0, 16.0/9.0, rot1(rot2(traslation(Vec(1.0, 0.0, 0.0)))))
+    Cam = PerspectiveCamera(1.0, 16.0/9.0, rot1(rot2(traslation(Vec(1.0, 0.0, 0.0)))))
 
 elseif ARGS[1] == "orthogonal"
     path = "./CSG/"

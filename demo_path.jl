@@ -29,7 +29,7 @@ if ARGS[1] == "perspective"
     angle_y = parse(Float64, ARGS[3])
     rot1 = rotation("z", angle_z*π/180.0)
     rot2 = rotation("y", angle_y*π/180.0)
-    Cam = PerspectiveCamera(-1.0, 16.0/9.0, rot1(rot2(traslation(Vec(1.0, 0.0, 0.0)))))
+    Cam = PerspectiveCamera(1.0, 16.0/9.0, rot1(rot2(traslation(Vec(1.0, 0.0, 0.0)))))
 
 elseif ARGS[1] == "orthogonal"
     path = "./demo_path/"
@@ -57,7 +57,7 @@ format, width, height, endianness, pixel_data = read_pfm("./PFM_input/pigsky.pfm
 
 starsky = HdrImage(pixel_data, width, height)
 
-pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color3, 10)
+pig1 = CheckeredPigment(color2, color3, 10)
 pig2 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color1, 10)
 pig3 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color2, 10)
 pig4 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color5, 10)
@@ -71,9 +71,9 @@ material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
 material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
 
 s = Sphere(traslation(Vec(0.0, 0.0, -0.7))(scaling(0.3)), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0)))))
-s1 = Sphere(traslation(Vec(0.0, -1.3, -0.5))(scaling(0.5)), Material(SpecularBRDF(UniformPigment(RGB(1.0, 1.0, 0.0)))))
-#sky = Plane(traslation(Vec(0.0, 0.0, 1.0)), Material(DiffuseBRDF(pigsky), pigsky))
-sky = Sphere(scaling(10.0), Material(DiffuseBRDF(pigsky), pigsky))
+s1 = Sphere(traslation(Vec(0.0, -1.3, -0.5))(scaling(0.5)), Material(DiffuseBRDF(UniformPigment(RGB(1.0, 1.0, 0.0)))))
+sky = Sphere(scaling(15.0), Material(DiffuseBRDF(UniformPigment(RGB(37.0, 150.0, 190.0)), 0.0), UniformPigment(RGB(37.0, 150.0, 190.0))))
+#sky = Sphere(scaling(10.0), Material(DiffuseBRDF(pigsky), pigsky))
 p2 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material1)
 add_shape!(w, s)
 add_shape!(w, s1)
