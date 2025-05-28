@@ -53,7 +53,7 @@ color3 = RGB(0.0, 0.0, 1.0) #BLUE
 color4 = RGB(0.0, 1.0, 1.0) #CYAN
 color5 = RGB(0.1, 0.0, 1.0) #PURPLE
 
-format, width, height, endianness, pixel_data = read_pfm("./pigsky.pfm")
+format, width, height, endianness, pixel_data = read_pfm("./PFM_input/pigsky.pfm")
 
 starsky = HdrImage(pixel_data, width, height)
 
@@ -85,7 +85,7 @@ IT = ImageTracer(img, Cam)
 
 pcg = new_PCG()
 
-RND = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 2, 3, 2)
+RND = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 3, 3, 3)
 
 fire_all_rays!(IT, RND)
 
@@ -93,4 +93,4 @@ open(pfm_filename_and_path, "w") do io
     write_pfm(io, IT.img)
 end
 
-convert_pfm_to_png(path, pfm_filename_and_path, filename)
+convert_pfm_to_png(path, pfm_filename_and_path, filename, 1.0)

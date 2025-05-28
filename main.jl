@@ -3,7 +3,7 @@ Pkg.activate("myRayTracing")
 using Images
 using myRayTracing #Fino a qua non toccare che serve a importare classi e librerie correttamente
 
-format, width, height, endianness, pixel_data = read_pfm("./memorial.pfm")
+format, width, height, endianness, pixel_data = read_pfm("./PFM_input/memorial.pfm")
 alpha, gamma, output_file_name, output_file_format = read_user_input()
 
 image = HdrImage(pixel_data, width, height)
