@@ -181,7 +181,7 @@ function _shape_normal(pl::Plane, r::Ray, p::Point)
 end
 
 """
-function _xy_to _uv(p)
+function _xyz_to _uv(p)
     given a point on the x-y plane, in returns its (u,v) 2D form
 """
 function _xyz_to_uv(s::Plane, p::Point)
@@ -192,7 +192,7 @@ end
 
 """
 function ray_intersection(shape, r)
-    given a plane and a ray, it returns the HitRecord for the intersection between the ray and the sphere
+    given a plane and a ray, it returns the HitRecord for the intersection between the ray and the plane
 """
 function ray_intersection(shape::Plane, r::Ray)
 
@@ -262,7 +262,7 @@ struct Rectangle <: Shape
     T::Transformation
     material::Material
 
-    function Rectangle(origin::Point, edge1::Vec, edge2::Vec, T::Transformation, material::Material=Material())
+    function Rectangle(origin::Point, edge1::Vec, edge2::Vec, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
         n = Vec_to_Normal(normalize(cross(edge1, edge2)))
         new(origin, edge1, edge2, n, T, material)
     end
@@ -353,6 +353,197 @@ function quick_ray_intersection(rect::Rectangle, r::Ray)
     return 0 <= u <= 1 && 0 <= v_ <= 1
 
 end
+
+###############################################################à
+
+#BOX STRUCT
+"""
+struct Box <: Shape
+    Creates a box. It has a vertex in the origin and the edges aligned with the xyz axes.
+
+    X::Float64 --> lenght of x-aligned edges
+    Y::Float64 --> lenght of y-aligned edges
+    Z::Float64 --> lenght of z-aligned edges
+    T::Transformation --> The transformation applied to the box
+    material::Material --> the material of the box
+
+    function Box(X::Float64, Y::Float64, Z::Float64, T::Transformation, material::Material=Material())
+        new(X, Y, Z, T, material)
+    end
+end
+"""
+struct Box <: Shape
+ 
+    X::Float64
+    Y::Float64
+    Z::Float64
+    T::Transformation
+    material::Material
+
+    function Box(X::Float64, Y::Float64, Z::Float64, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+        new(X, Y, Z, T, material)
+    end
+end
+
+"""
+function _shape_normal(box, r, p::Point)
+    it returns the normal to the box, depending of the hitten face, chosen in order to have the opposite direction of the incoming ray
+"""
+function _shape_normal(box::Box, r::Ray, p::Point)
+    epsilon=1e-6
+    if abs(p.x-0.0) < epsilon || abs(p.x - box.X) < epsilon
+        if sign(r.dir.x) != 0
+            return Normal(-sign(r.dir.x), 0.0, 0.0) 
+        end
+    elseif abs(p.y-0.0) < epsilon || abs(p.y - box.Y) < epsilon
+        if sign(r.dir.y) != 0
+            return Normal(0.0, -sign(r.dir.y), 0.0)
+        end
+    elseif abs(p.z-0.0) < epsilon || abs(p.z - box.Z) < epsilon
+        if sign(r.dir.z) != 0
+            return Normal(0.0, 0.0, -sign(r.dir.z))
+        end
+    end
+end
+
+"""
+function _xyz_to _uv(box, p)
+    given a point on the box, in returns its (u,v) 2D form
+"""
+function _xyz_to_uv(box::Box, p::Point)
+    epsilon=1e-6
+    if abs(p.x-0.0) < epsilon || abs(p.x - box.X) < epsilon
+        return Vec2d(p.y/box.Y, p.z/box.Z)
+    elseif abs(p.y-0.0) < epsilon || abs(p.y - box.Y) < epsilon
+        return Vec2d(p.x/box.X, p.z/box.Z)
+    elseif abs(p.z-0.0) < epsilon || abs(p.z - box.Z) < epsilon
+        return Vec2d(p.x/box.X, p.y/box.Y)
+    end
+end
+
+"""
+function ray_intersection(box, r)
+    given a box and a ray, it returns the HitRecord for the intersection between the ray and the box
+"""
+function ray_intersection(box::Box, r::Ray)
+
+    inv_r = inverse(box.T)(r)
+
+    if inv_r.dir.x == 0.0
+        if (inv_r.origin.x < 0.0 || inv_r.origin.x > box.X)
+            return nothing
+        else
+            int_x = (-Inf,Inf)
+        end
+    else
+        int_x = (min(-inv_r.origin.x/inv_r.dir.x,(box.X-inv_r.origin.x)/inv_r.dir.x), 
+                 max(-inv_r.origin.x/inv_r.dir.x,(box.X-inv_r.origin.x)/inv_r.dir.x))
+    end
+
+
+    if inv_r.dir.y == 0.0
+        if (inv_r.origin.y < 0.0 || inv_r.origin.y > box.Y)
+            return nothing
+        else
+            int_y = (-Inf,Inf)
+        end
+    else
+        int_y = (min(-inv_r.origin.y/inv_r.dir.y,(box.Y-inv_r.origin.y)/inv_r.dir.y), 
+                 max(-inv_r.origin.y/inv_r.dir.y,(box.Y-inv_r.origin.y)/inv_r.dir.y))
+    end
+
+
+    if inv_r.dir.z == 0.0
+        if (inv_r.origin.z < 0.0 || inv_r.origin.z > box.Z)
+            return nothing
+        else
+            int_z = (-Inf,Inf)
+        end
+    else
+        int_z = (min(-inv_r.origin.z/inv_r.dir.z,(box.Z-inv_r.origin.z)/inv_r.dir.z), 
+                 max(-inv_r.origin.z/inv_r.dir.z,(box.Z-inv_r.origin.z)/inv_r.dir.z))
+    end
+
+    t_1 = max(int_x[1], int_y[1], int_z[1])
+    t_2 = min(int_x[2], int_y[2], int_z[2])
+
+    if t_1 > t_2
+        return nothing
+    end
+
+    if (t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)
+        t_hit = t_1
+    elseif (t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)
+        t_hit = t_2
+    else
+        return nothing
+    end
+
+    point_hit = at(inv_r, t_hit)
+
+    return HitRecord( box.T(point_hit), #hitted point in the world
+                      box.T(_shape_normal(box, inv_r, point_hit)), #normal at the surface in the world
+                      (_xyz_to_uv(box, point_hit)), #(u,v) vec hitted on the surface
+                      t_hit, #t
+                      r, #ray
+                      box #s
+                    )
+
+end
+
+"""
+function quick_ray_intersection(box, r)
+    given a box and a ray, it returns whether the intersection between the ray and the box happens or not
+"""
+function quick_ray_intersection(box::Box, r::Ray)
+
+    inv_r = inverse(box.T)(r)
+
+    if inv_r.dir.x == 0.0
+        if (inv_r.origin.x < 0.0 || inv_r.origin.x > box.X)
+            return false
+        else
+            int_x = (-Inf,Inf)
+        end
+    else
+        int_x = (min(-inv_r.origin.x/inv_r.dir.x,(box.X-inv_r.origin.x)/inv_r.dir.x), 
+                 max(-inv_r.origin.x/inv_r.dir.x,(box.X-inv_r.origin.x)/inv_r.dir.x))
+    end
+
+
+    if inv_r.dir.y == 0.0
+        if (inv_r.origin.y < 0.0 || inv_r.origin.y > box.Y)
+            return false
+        else
+            int_y = (-Inf,Inf)
+        end
+    else
+        int_y = (min(-inv_r.origin.y/inv_r.dir.y,(box.Y-inv_r.origin.y)/inv_r.dir.y), 
+                 max(-inv_r.origin.y/inv_r.dir.y,(box.Y-inv_r.origin.y)/inv_r.dir.y))
+    end
+
+
+    if inv_r.dir.z == 0.0
+        if (inv_r.origin.z < 0.0 || inv_r.origin.z > box.Z)
+            return false
+        else
+            int_z = (-Inf,Inf)
+        end
+    else
+        int_z = (min(-inv_r.origin.z/inv_r.dir.z,(box.Z-inv_r.origin.z)/inv_r.dir.z), 
+                 max(-inv_r.origin.z/inv_r.dir.z,(box.Z-inv_r.origin.z)/inv_r.dir.z))
+    end
+
+    t_1 = max(int_x[1], int_y[1], int_z[1])
+    t_2 = min(int_x[2], int_y[2], int_z[2])
+
+    if ((t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)) || ((t_2 > inv_r.tmin) && (t_2 < inv_r.tmax))
+        true  
+    else
+        return false
+    end
+end
+
 
 #HIT RECORD STRUCT
 
