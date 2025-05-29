@@ -45,12 +45,7 @@ function _normalize_image!(img::HdrImage, alpha=0.18, lum=nothing)
     lum = isnothing(lum) ? _average_luminosity(img) : lum
     #lum = max(_average_luminosity(img), 1e-2)
     scale = alpha / lum
-    #scale = min(alpha / lum, 10.0)  # o 10.0
-
-
-    println("Average Luminosity: ", lum)
-    println("Scale: ", scale)
-
+    #scale = min(alpha / lum, 10.0)
 
     img.pixels = [RGB(p.r * scale, p.g * scale, p.b * scale) for p in img.pixels]
 end
