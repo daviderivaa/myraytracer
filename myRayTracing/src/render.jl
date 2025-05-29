@@ -15,16 +15,16 @@ end
 Simplest renderer (2 colors)
 
 - w::World --> World variable that contains the scene
-- back_col::RGB(Float64) --> background color (default is black)
-- h_color::RGB{Float64} --> hit shape color (default is white)
+- back_col::RGB --> background color (default is black)
+- h_color::RGB --> hit shape color (default is white)
 """
 struct OnOffRenderer <: Renderer
 
     w::World
-    b_color::RGB{Float64}
-    h_color::RGB{Float64}
+    b_color::RGB
+    h_color::RGB
 
-    function OnOffRenderer(wor::World, back_col::RGB{Float64}=RGB(0.0, 0.0, 0.0), hit_color::RGB{Float64}=RGB(1.0, 1.0, 1.0))
+    function OnOffRenderer(wor::World, back_col::RGB=RGB(0.0, 0.0, 0.0), hit_color::RGB=RGB(1.0, 1.0, 1.0))
         new(wor, back_col, hit_color)
     end
 
@@ -44,12 +44,12 @@ end
 """
 FlatRenderer estimates the solution of the rendering equation by using only the pigment of the hit surface and computing the finale radiance.
 - w::World --> World variable that contains the scene
-- back_col::RGB{Float64} --> background color (default is black)
+- back_col::RGB --> background color (default is black)
 """
 struct FlatRenderer <: Renderer
 
     w::World
-    b_color::RGB{Float64}
+    b_color::RGB
 
     function FlatRenderer(wor::World, back_col = RGB(0.0, 0.0, 0.0))
         new(wor, back_col)
@@ -76,7 +76,7 @@ PathTracer renderer is the main algorithm that allows to throw rays and calcute 
 It's a recursive algorithm which stops thank to the Russian Roulette.
 
 - w::World --> contains the scene
-- b_color::RGB{Float64} --> background color of the scene
+- b_color::RGB --> background color of the scene
 - pcg::PCG --> random number generator
 - num_rays::Int64 --> number of rays thrown at each iteration
 - max_depth::Int64 --> maximun number number of iteration for each ray
@@ -85,13 +85,13 @@ It's a recursive algorithm which stops thank to the Russian Roulette.
 struct PathTracer <: Renderer
 
     w::World
-    b_color::RGB{Float64}
+    b_color::RGB
     pcg::PCG
     num_rays::Int64
     max_depth::Int64
     rr_limit::Int64
 
-    function PathTracer(w::World, b_color::RGB{Float64} = RGB(0.0, 0.0, 0.0), pcg::PCG = new_PCG(), num_rays::Int64 = 10, max_depth::Int64 = 10, rr_limit::Int64 = 3)
+    function PathTracer(w::World, b_color::RGB = RGB(0.0, 0.0, 0.0), pcg::PCG = new_PCG(), num_rays::Int64 = 10, max_depth::Int64 = 10, rr_limit::Int64 = 3)
         new(w, b_color, pcg, num_rays, max_depth, rr_limit)
     end
 

@@ -17,14 +17,14 @@ end
 struct UniformPigment <: Pigment
     it gives a uniform pigment all over the surface
 
-    color::RGB{Float64} --> the single color of the surface
+    color::RGB --> the single color of the surface
 end
 """
 struct UniformPigment <: Pigment
 
-    color::RGB{Float64}
+    color::RGB
 
-    function UniformPigment(color::RGB{Float64}=RGB(0.0, 0.0, 0.0))
+    function UniformPigment(color::RGB=RGB(0.0, 0.0, 0.0))
         new(color)
     end
 
@@ -46,18 +46,18 @@ end
 struct CheckeredPigment <: Pigment
     it gives a checkered pigment over the surface
 
-    color1::RGB{Float64} --> first color in the checkered
-    color2::RGB{Float64} --> second color in the checkered
+    color1::RGB --> first color in the checkered
+    color2::RGB --> second color in the checkered
     steps::Int64 --> number of steps in the checkboard
 end
 """
 struct CheckeredPigment <: Pigment
 
-    color1::RGB{Float64}
-    color2::RGB{Float64}
+    color1::RGB
+    color2::RGB
     steps::Int64
 
-    function CheckeredPigment(color1::RGB{Float64}=RGB(0.0, 0.0, 0.0), color2::RGB{Float64}=RGB(1.0, 1.0, 1.0), steps::Int64=10)
+    function CheckeredPigment(color1::RGB=RGB(0.0, 0.0, 0.0), color2::RGB=RGB(1.0, 1.0, 1.0), steps::Int64=10)
         new(color1, color2, steps)
     end
 

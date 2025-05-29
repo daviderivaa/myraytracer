@@ -1,6 +1,13 @@
 ###TONE MAPPING & LDR IMAGE!
 
 """
+Exeption defined in order to check if the values of objects used are consistent
+"""
+struct Value_Error <: Exception
+    msg::String
+end
+
+"""
 function _luminosity(color::RGB)
     compute luminosity as (max{R, G, B}+min{R, G, B}) / 2
 """
@@ -17,8 +24,11 @@ function _average_luminosity(img::HdrImage, delta)
     end
     return 10^(cumsum / length(img.pixels))
 """
-function _average_luminosity(img::HdrImage, delta=1e-10)
+function _average_luminosity(img::HdrImage, delta=1e-4)
     cumsum = 0.0
+    if delta <= 0
+        throw(Value_Error("Invalid value for delta: $(delta)"))
+    end
     for pix in img.pixels
         cumsum += log10(delta + _luminosity(pix))
     end
@@ -31,9 +41,16 @@ function _normalize_image!(img::HdrImage, alpha, lum=nothing)
     using lum as a nullable type
 
 """
-function _normalize_image!(img::HdrImage, alpha, lum=nothing)
+function _normalize_image!(img::HdrImage, alpha=0.18, lum=nothing)
     lum = isnothing(lum) ? _average_luminosity(img) : lum
+    #lum = max(_average_luminosity(img), 1e-2)
     scale = alpha / lum
+    #scale = min(alpha / lum, 10.0)  # o 10.0
+
+
+    println("Average Luminosity: ", lum)
+    println("Scale: ", scale)
+
 
     img.pixels = [RGB(p.r * scale, p.g * scale, p.b * scale) for p in img.pixels]
 end
@@ -43,7 +60,11 @@ function _clamp(x)
     return x/(1+x)
 """
 function _clamp(x)
-    return x / (1+x)
+    if x > 1.0
+        return 1.0
+    else
+        return x
+    end
 end
 
 """

@@ -37,12 +37,12 @@ end
     
     image = HdrImage(mat, 3, 2)
 
-    @test image.pixels[2, 1] == RGB{Float64}(1.0, 0.0, 0.0)
-    @test image.pixels[2, 2] == RGB{Float64}(0.0, 1.0, 0.0)
-    @test image.pixels[2, 3] == RGB{Float64}(0.0, 0.0, 1.0)
-    @test image.pixels[1, 1] == RGB{Float64}(1.0, 1.0, 0.0)
-    @test image.pixels[1, 2] == RGB{Float64}(0.5, 0.5, 0.5)
-    @test image.pixels[1, 3] == RGB{Float64}(0.0, 0.0, 0.0)
+    @test image.pixels[2, 1] == RGB(1.0, 0.0, 0.0)
+    @test image.pixels[2, 2] == RGB(0.0, 1.0, 0.0)
+    @test image.pixels[2, 3] == RGB(0.0, 0.0, 1.0)
+    @test image.pixels[1, 1] == RGB(1.0, 1.0, 0.0)
+    @test image.pixels[1, 2] == RGB(0.5, 0.5, 0.5)
+    @test image.pixels[1, 3] == RGB(0.0, 0.0, 0.0)
 
 end
 
