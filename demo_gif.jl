@@ -20,7 +20,7 @@ end
 
 
 if length(ARGS) != 2
-    throw(InvalidARGS("Required julia demo.jl <camera_type> <w_colors> \n <camera_type>: write perspective or orthogonal \n <w_colors>: write yes or no for colored spheres"))
+    throw(InvalidARGS("Required julia demo.jl <camera_type> <w_colors>     <camera_type>: write perspective or orthogonal     <w_colors>: write yes or no for colored spheres"))
 end
 
 # rotate cube around z axis by 360 deg angle
