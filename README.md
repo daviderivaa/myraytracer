@@ -50,7 +50,7 @@ If `myraytracer/demo/` directory doesn't exist, in `myraytracer/` run:
 mkdir demo
 ```
 
-Now you can run:
+### If you have [Version 0.3.0](https://github.com/daviderivaa/myraytracer/releases/tag/v0.3.0) or lower, you can run:
 ```shell
 julia -t <n_threads> demo_gif.jl <camera_type>
 ```
@@ -59,6 +59,16 @@ where:
 - `<n_threads> = 1` means not using multi-threading.
 
 A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
+
+### From *Version 0.4.0*, you can run:
+```shell
+julia -t <n_threads> demo_gif.jl <camera_type> <w_colors>
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+- `<w_colors> = "yes"` makes 2 colored spheres. A GIF file called `<camera_type>_c.gif` will appear in `myraytracer/`.
+- `<w_colors> = "no"` makes only white spheres. A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
 
 ## CHECK CSG (*CONSTRUCTIVE SOLID GEOMETRY*)
 
