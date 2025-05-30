@@ -52,7 +52,7 @@ end
 
 """
 function _clamp(x)
-    return x/(1+x)
+    return x if x < 1, else return 1
 """
 function _clamp(x)
     if x > 1.0

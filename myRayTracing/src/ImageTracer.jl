@@ -58,7 +58,6 @@ function fire_all_rays!(IT::ImageTracer, func)
             for col in 1:IT.img.width
                 ray = fire_ray(IT, col, row)
                 color = func(ray)
-                #color = func
                 IT.img.pixels[row, col] = color
             end
         end

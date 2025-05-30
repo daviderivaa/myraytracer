@@ -17,8 +17,8 @@ struct InvalidARGS <: Exception
     msg::String
 end
 
-if length(ARGS) != 3
-    throw(InvalidARGS("Required julia demo_path.jl <camera_type> <angle_z> <angle_y>     <camera_type>: perspective or orthogonal    <angle_z>: rotation around z axis (in deg)     <angle_y>: rotation around z axis (in deg)"))
+if length(ARGS) < 3 || length(ARGS) > 4
+    throw(InvalidARGS("Required julia demo_path.jl <camera_type> <angle_z> <angle_y> <profile(optional)>    <camera_type>: perspective or orthogonal    <angle_z>: rotation around z axis (in deg)     <angle_y>: rotation around z axis (in deg)"))
 end
 
 if ARGS[1] == "perspective"
@@ -72,22 +72,31 @@ material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
 
 s = Sphere(traslation(Vec(0.0, 0.0, -0.7))(scaling(0.3)), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0)))))
 s1 = Sphere(traslation(Vec(0.0, -1.3, -0.5))(scaling(0.5)), Material(DiffuseBRDF(UniformPigment(RGB(1.0, 1.0, 0.0)))))
-sky = Sphere(scaling(15.0), Material(DiffuseBRDF(UniformPigment(RGB(37.0, 150.0, 190.0)), 0.0), UniformPigment(RGB(37.0, 150.0, 190.0))))
+sky = Sphere(scaling(15.0), Material(DiffuseBRDF(UniformPigment(RGB(0.58, 0.56, 0.4)), 0.0), UniformPigment(RGB(0.58, 0.56, 0.4))))
 #sky = Sphere(scaling(10.0), Material(DiffuseBRDF(pigsky), pigsky))
 p2 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material1)
-add_shape!(w, s)
-add_shape!(w, s1)
+#add_shape!(w, s)
+#add_shape!(w, s1)
 add_shape!(w, sky)
-add_shape!(w, p2)
+#add_shape!(w, p2)
 
 img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
 
 pcg = new_PCG()
 
-RND = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 3, 3, 3)
+RND = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 2, 3, 2)
 
-fire_all_rays!(IT, RND)
+enable_profile = "--profile" in ARGS
+if enable_profile
+    Profile.clear()
+    @profile fire_all_rays!(IT, RND)
+    Profile.print()
+else
+    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND)
+    println("Profiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
+    println("For a complete profiling use --profile flag")
+end
 
 open(pfm_filename_and_path, "w") do io
     write_pfm(io, IT.img)

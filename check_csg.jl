@@ -3,6 +3,7 @@ Pkg.activate("myRayTracing")
 using Images
 using Colors
 using myRayTracing
+using Profile
 
 include("pfm2png.jl")
 
@@ -14,8 +15,8 @@ struct InvalidARGS <: Exception
     msg::String
 end
 
-if length(ARGS) != 3
-    throw(InvalidARGS("Required julia check_csg.jl <camera_type> <angle_z> <angle_y>     <camera_type>: perspective or orthogonal    <angle_z>: rotation around z axis (in deg)     <angle_y>: rotation around z axis (in deg)"))
+if length(ARGS) < 3 || length(ARGS) > 4
+    throw(InvalidARGS("Required julia check_csg.jl <camera_type> <angle_z> <angle_y> <profile(optional)>    <camera_type>: perspective or orthogonal    <angle_z>: rotation around z axis (in deg)     <angle_y>: rotation around z axis (in deg)"))
 end
 
 if ARGS[1] == "perspective"
@@ -26,7 +27,7 @@ if ARGS[1] == "perspective"
     angle_y = parse(Float64, ARGS[3])
     rot1 = rotation("z", angle_z*π/180.0)
     rot2 = rotation("y", angle_y*π/180.0)
-    Cam = PerspectiveCamera(1.0, 16.0/9.0, rot1(rot2(traslation(Vec(1.0, 0.0, 0.0)))))
+    Cam = PerspectiveCamera(6.0, 16.0/9.0, rot1(rot2(traslation(Vec(-1.0, 0.0, 0.0)))))
 
 elseif ARGS[1] == "orthogonal"
     path = "./CSG/"
@@ -94,7 +95,16 @@ IT = ImageTracer(img, Cam)
 RND = OnOffRenderer(w, RGB(0.0, 0.0, 0.0), RGB(0.0, 0.0, 1.0))
 RND2 = FlatRenderer(w)
 
-fire_all_rays!(IT, RND2)
+enable_profile = "--profile" in ARGS
+if enable_profile
+    Profile.clear()
+    @profile fire_all_rays!(IT, RND2)
+    Profile.print()
+else
+    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND2)
+    println("Profiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
+    println("For a complete profiling use --profile flag")
+end
 
 open(pfm_filename_and_path, "w") do io
     write_pfm(io, IT.img)
