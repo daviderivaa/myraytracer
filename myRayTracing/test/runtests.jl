@@ -1,6 +1,7 @@
 using myRayTracing
 using Test
 using LinearAlgebra
+using Colors
 
 @testset "Check _read_float" begin
     
@@ -30,6 +31,20 @@ end
 
 end
 
+@testset "Check Color_and_HdrImage functions" begin
+
+    mat = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0]
+    
+    image = HdrImage(mat, 3, 2)
+
+    @test image.pixels[2, 1] == RGB(1.0, 0.0, 0.0)
+    @test image.pixels[2, 2] == RGB(0.0, 1.0, 0.0)
+    @test image.pixels[2, 3] == RGB(0.0, 0.0, 1.0)
+    @test image.pixels[1, 1] == RGB(1.0, 1.0, 0.0)
+    @test image.pixels[1, 2] == RGB(0.5, 0.5, 0.5)
+    @test image.pixels[1, 3] == RGB(0.0, 0.0, 0.0)
+
+end
 
 @testset "Check geometry functions" begin
 
@@ -186,9 +201,13 @@ end
 end
 
 @testset "Check HitRecord methods" begin
+
+    id = Matrix{Float64}(I(4))
+    null_transform = Transformation(id)
+    pl = Plane(null_transform)
     
-    HR1 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.0), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)))
-    HR2 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.0), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)))
+    HR1 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.0), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)), pl)
+    HR2 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.0), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)), pl)
 
     @test is_close(HR1, HR2)
 
@@ -217,9 +236,9 @@ end
     hr_2 = ray_intersection(sph_1, ray_2) 
     hr_3 = ray_intersection(sph_1, ray_3)
 
-    HRtest_1 = HitRecord(p_1, n_1, Vec2d(0.0, 0.0), 1.0, ray_1)
-    HRtest_2 = HitRecord(p_2, n_2, Vec2d(0.0, 0.5), 2.0, ray_2)
-    HRtest_3 = HitRecord(p_2, n_3, Vec2d(0.0, 0.5), 1.0, ray_3)
+    HRtest_1 = HitRecord(p_1, n_1, Vec2d(0.0, 0.0), 1.0, ray_1, sph_1)
+    HRtest_2 = HitRecord(p_2, n_2, Vec2d(0.0, 0.5), 2.0, ray_2, sph_1)
+    HRtest_3 = HitRecord(p_2, n_3, Vec2d(0.0, 0.5), 1.0, ray_3, sph_1)
 
     @test is_close(hr_1, HRtest_1)
     @test is_close(hr_2, HRtest_2)
@@ -240,8 +259,8 @@ end
     hr_4 = ray_intersection(sph_2, ray_4)
     hr_5 = ray_intersection(sph_2, ray_5)
 
-    HRtest_4 = HitRecord(p_4, n_1, Vec2d(0.0, 0.0), 1.0, ray_4)
-    HRtest_5 = HitRecord(p_5, n_2, Vec2d(0.0, 0.5), 2.0, ray_5)
+    HRtest_4 = HitRecord(p_4, n_1, Vec2d(0.0, 0.0), 1.0, ray_4, sph_2)
+    HRtest_5 = HitRecord(p_5, n_2, Vec2d(0.0, 0.5), 2.0, ray_5, sph_2)
 
     @test is_close(hr_4, HRtest_4)
     @test is_close(hr_5, HRtest_5)
@@ -296,10 +315,10 @@ end
     hr_21 = ray_intersection(pl_2, ray_1)
     hr_34 = ray_intersection(pl_3, ray_4)
 
-    HRtest_11 = HitRecord(Point(1.0, 2.0, 0.0), Normal(0.0, 0.0, 1.0), Vec2d(0.0, 0.0), 10.0, ray_1)
-    HRtest_12 = HitRecord(Point(3.0, 3.0, 0.0), Normal(0.0, 0.0, -1.0), Vec2d(0.0, 0.0), 3.0, ray_2)
-    HRtest_21 = HitRecord(Point(1.0, 2.0, 5.0), Normal(0.0, 0.0, 1.0), Vec2d(0.0, 0.0), 5.0, ray_1)
-    HRtest_34 = HitRecord(Point(0.0, 1.0, 1.0), Normal(0.0, -(√2)/2, (√2)/2), Vec2d(0.0, (√2)-1), 1.0, ray_4)
+    HRtest_11 = HitRecord(Point(1.0, 2.0, 0.0), Normal(0.0, 0.0, 1.0), Vec2d(0.0, 0.0), 10.0, ray_1, pl_1)
+    HRtest_12 = HitRecord(Point(3.0, 3.0, 0.0), Normal(0.0, 0.0, -1.0), Vec2d(0.0, 0.0), 3.0, ray_2, pl_1)
+    HRtest_21 = HitRecord(Point(1.0, 2.0, 5.0), Normal(0.0, 0.0, 1.0), Vec2d(0.0, 0.0), 5.0, ray_1, pl_2)
+    HRtest_34 = HitRecord(Point(0.0, 1.0, 1.0), Normal(0.0, -(√2)/2, (√2)/2), Vec2d(0.0, (√2)-1), 1.0, ray_4, pl_3)
 
     @test is_close(hr_11, HRtest_11)
     @test is_close(hr_12, HRtest_12)
@@ -357,7 +376,7 @@ end
     v = acos(point_hit.z) / π
     u = u >= 0.0 ? u : u + 1.0
 
-    @test is_close(ray_intersection(w, r1), HitRecord(Point(0.0, 0.0, -0.4), Normal(0.0, 0.0, 1.0), Vec2d(u,v), t_hit, r1))
+    @test is_close(ray_intersection(w, r1), HitRecord(Point(0.0, 0.0, -0.4), Normal(0.0, 0.0, 1.0), Vec2d(u,v), t_hit, r1, s1))
     @test ray_intersection(w, r2) === nothing
 
     visible_point = Point(1.0, -2.0, 2.0)
@@ -367,4 +386,122 @@ end
     @test is_point_visible(w, visible_point, observer_point)
     @test !is_point_visible(w, invisible_point, observer_point)
 
+end
+
+@testset "Check Pigment methods" begin
+    
+    color = RGB(1.0, 2.0, 3.0)
+    pigment = UniformPigment(color)
+
+    @test get_color(pigment, Vec2d(0.0, 0.0)) == color
+    @test get_color(pigment, Vec2d(1.0, 0.0)) == color
+    @test get_color(pigment, Vec2d(0.0, 1.0)) == color
+    @test get_color(pigment, Vec2d(1.0, 1.0)) == color
+
+    image = HdrImage(2, 2)
+    image.pixels[1, 1] = RGB(1.0, 2.0, 3.0)
+    image.pixels[1, 2] = RGB(2.0, 3.0, 1.0)
+    image.pixels[2, 1] = RGB(2.0, 1.0, 3.0)
+    image.pixels[2, 2] = RGB(3.0, 2.0, 1.0)
+    
+    pigment = ImagePigment(image)
+    @test get_color(pigment, Vec2d(0.0, 0.0)) == RGB(1.0, 2.0, 3.0)
+    @test get_color(pigment, Vec2d(1.0, 0.0)) == RGB(2.0, 3.0, 1.0)
+    @test get_color(pigment, Vec2d(0.0, 1.0)) == RGB(2.0, 1.0, 3.0)
+    @test get_color(pigment, Vec2d(1.0, 1.0)) == RGB(3.0, 2.0, 1.0)
+
+    color1 = RGB(1.0, 2.0, 3.0)
+    color2 = RGB(10.0, 20.0, 30.0)
+
+    pigment = CheckeredPigment(color1, color2, 2)
+
+    @test get_color(pigment, Vec2d(0.25, 0.25)) == color1
+    @test get_color(pigment, Vec2d(0.75, 0.25)) == color2
+    @test get_color(pigment, Vec2d(0.25, 0.75)) == color2
+    @test get_color(pigment, Vec2d(0.75, 0.75)) == color1
+
+end
+
+@testset "Check PCG methods" begin
+
+    pcg = new_PCG()
+
+    @test pcg.state == 1753877967969059832
+    @test pcg.inc == 109
+
+    val = random!(pcg)
+    @test val == 2707161783
+
+    val = random!(pcg)
+    @test val == 2068313097
+
+    val = random!(pcg)
+    @test val == 3122475824
+
+    val = random!(pcg)
+    @test val == 2211639955
+
+    val = random!(pcg)
+    @test val == 3215226955
+
+    val = random!(pcg)
+    @test val == 3421331566
+
+end
+
+@testset "Check ONB creation" begin
+    pcg = new_PCG()
+
+    for i in 0:100
+
+        normale = normalize(Normal(norm_random!(pcg), norm_random!(pcg), norm_random!(pcg)))
+        vec = normalize(Vec(norm_random!(pcg), norm_random!(pcg), norm_random!(pcg)))
+
+        e1_n, e2_n, e3_n = create_onb_from_z(normale)
+        e1_v, e2_v, e3_v = create_onb_from_z(vec)
+
+        @test is_close(e3_n, Norm_to_Vec(normale))
+        @test is_close(e3_v, vec, 1e-05)
+
+        @test squared_norm(e1_n) ≈ 1.0
+        @test squared_norm(e2_n) ≈ 1.0
+        @test squared_norm(e3_n) ≈ 1.0
+        @test squared_norm(e1_v) ≈ 1.0
+        @test squared_norm(e2_v) ≈ 1.0
+        @test squared_norm(e3_v) ≈ 1.0
+
+        @test e1_n * e2_n <= 1e-10
+        @test e2_n * e3_n <= 1e-10
+        @test e1_n * e3_n <= 1e-10
+        @test e1_v * e2_v <= 1e-10
+        @test e2_v * e3_v <= 1e-10
+        @test e1_v * e3_v <= 1e-10
+
+    end
+end
+
+@testset "Furnace test" begin
+
+    pcg = new_PCG()
+
+    for i in 1:10
+
+        emitted_radiance = norm_random!(pcg)
+        reflectance = norm_random!(pcg)
+
+        w = World()
+        furnace_material = Material(DiffuseBRDF(UniformPigment(RGB(1.0 , 1.0 , 1.0) * reflectance)), UniformPigment(RGB(1.0 , 1.0 , 1.0) * emitted_radiance))
+
+        add_shape!(w, Sphere(Transformation(Matrix{Float64}(I(4))), furnace_material))
+
+        path_tracer = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 1, 100, 101)
+        ray = Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
+        color = path_tracer(ray)
+
+        expected = emitted_radiance / (1.0 - reflectance)
+
+        @test isapprox(expected, color.r; rtol=0, atol=1e-3)
+        @test isapprox(expected, color.g; rtol=0, atol=1e-3)
+        @test isapprox(expected, color.b; rtol=0, atol=1e-3)
+    end
 end

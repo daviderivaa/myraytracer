@@ -8,15 +8,37 @@ Repository of "Tecniche Numeriche per la Generazione di Immagini Fotorealistiche
 
 </div>
 
-## DEMO
-### DEMO SINGLE IMAGE
-Run:
+# <span style="color: blue;">DEMO</span>
+## <span style="color: green;">DEMO SINGLE IMAGE</span>
+
+If `myraytracer/demo/` directory doesn't exist, in `myraytracer/` run:
 ```shell
-julia demo.jl <camera_type> <angle>
+mkdir demo
 ```
+
+### If you have [Version 0.3.0](https://github.com/daviderivaa/myraytracer/releases/tag/v0.3.0), you can run:
+```shell
+julia -t <n_threads> demo.jl <camera_type> <angle>
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+
+A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
+
+### From *Version 0.4.0*, you can run:
+```shell
+julia -t <n_threads> demo.jl <camera_type> <angle> <w_colors>
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+- `<w_colors> = "yes"` makes 2 colored spheres.
+- `<w_colors> = "no"` makes only white spheres.
+
 In `myraytracer/demo/` creates a `pfm` file and the corresponding `png` image.
 
-### DEMO GIF
+## <span style="color: green;">DEMO GIF</span>
 
 <img src="orthogonal.gif" alt="GIF 1" width="500" style="display:inline-block; margin-right:10px;">
 <img src="perspective.gif" alt="GIF 2" width="500" style="display:inline-block;">
@@ -35,21 +57,81 @@ Before executing [demo_gif.jl](./demo_gif.jl), you need to install [ffmpeg](http
     brew install ffmpeg
     ```
 
-Then in directory `myraytracer/` run:
+If `myraytracer/demo/` directory doesn't exist, in `myraytracer/` run:
 ```shell
 mkdir demo
 ```
 
-Now you can run:
+### If you have [Version 0.3.0](https://github.com/daviderivaa/myraytracer/releases/tag/v0.3.0), you can run:
 ```shell
-julia demo_gif.jl <camera_type>
+julia -t <n_threads> demo_gif.jl <camera_type>
 ```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+
 A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
 
-## CHECK CSG (*CONSTRUCTIVE SOLID GEOMETRY*)
+### From *Version 0.4.0*, you can run:
+```shell
+julia -t <n_threads> demo_gif.jl <camera_type> <w_colors>
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+- `<w_colors> = "yes"` makes 2 colored spheres. A GIF file called `<camera_type>_c.gif` will appear in `myraytracer/`.
+- `<w_colors> = "no"` makes only white spheres. A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
+
+# <span style="color: blue;">CHECK CSG (*CONSTRUCTIVE SOLID GEOMETRY*)</span>
+
+If `myraytracer/CSG/` directory doesn't exist, in `myraytracer/` run:
+```shell
+mkdir CSG
+```
 
 Run:
 ```shell
-julia check_csg.jl <camera_type> <angle>
+julia -t <n_threads> check_csg.jl <camera_type> <angle_z> <angle_y> --profile(optional)
 ```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+- `--profile` prints a complete profiling of `fire_all_rays` method.
+
 In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
+
+# <span style="color: blue;">DRAW BOX</span>
+
+If `myraytracer/CSG/` directory doesn't exist, in `myraytracer/` run:
+```shell
+mkdir CSG
+```
+
+Run:
+```shell
+julia -t <n_threads> box.jl <camera_type> <angle_z> <angle_y> --profile(optional)
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+- `--profile` prints a complete profiling of `fire_all_rays` method.
+
+In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
+
+# <span style="color: blue;">DEMO (WITH PATHTRACING ALGORITHM)</span>
+
+If `myraytracer/` directory doesn't exist, in `myraytracer/` run:
+```shell
+mkdir demo_path
+```
+
+Then run:
+```shell
+julia -t <n_threads> demo_path.jl <camera_type> <angle_z> <angle_y> --profile(optional)
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+- `--profile` prints a complete profiling of `fire_all_rays` method.
+
+In `myraytracer/demo_path/` creates a `pfm` file and the corresponding `png` image.
