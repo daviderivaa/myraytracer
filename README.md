@@ -91,11 +91,12 @@ mkdir CSG
 
 Run:
 ```shell
-julia -t <n_threads> check_csg.jl <camera_type> <angle_z> <angle_y>
+julia -t <n_threads> check_csg.jl <camera_type> <angle_z> <angle_y> --profile(optional)
 ```
 where:
 - `<n_threads> = auto` allows to use all available threads.
 - `<n_threads> = 1` means not using multi-threading.
+- `--profile` prints a complete profiling of `fire_all_rays` method.
 
 In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
 
@@ -108,11 +109,12 @@ mkdir CSG
 
 Run:
 ```shell
-julia -t <n_threads> box.jl <camera_type> <angle_z> <angle_y>
+julia -t <n_threads> box.jl <camera_type> <angle_z> <angle_y> --profile(optional)
 ```
 where:
 - `<n_threads> = auto` allows to use all available threads.
 - `<n_threads> = 1` means not using multi-threading.
+- `--profile` prints a complete profiling of `fire_all_rays` method.
 
 In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
 
@@ -125,10 +127,11 @@ mkdir demo_path
 
 Then run:
 ```shell
-julia -t <n_threads> demo_path.jl <camera_type> <angle_z> <angle_y>
+julia -t <n_threads> demo_path.jl <camera_type> <angle_z> <angle_y> --profile(optional)
 ```
 where:
 - `<n_threads> = auto` allows to use all available threads.
 - `<n_threads> = 1` means not using multi-threading.
+- `--profile` prints a complete profiling of `fire_all_rays` method.
 
 In `myraytracer/demo_path/` creates a `pfm` file and the corresponding `png` image.
