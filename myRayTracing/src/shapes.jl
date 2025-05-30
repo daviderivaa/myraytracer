@@ -587,6 +587,8 @@ end
 
 #CSG
 
+##FIX CSG
+
 """
 function _transform_hit(hit::HitRecord, T::Transformation)
     Necessary function for the "composition" of the transformation in CSG, return to the world POV
