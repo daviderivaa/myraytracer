@@ -19,6 +19,8 @@ struct ImageTracer
 
 end
 
+# IMPLEMENT ANTIALIASING
+
 """
 function fire_ray(IT::ImageTracer, col, row, u_pixel=0.5, v_pixel=0.5)
     returns a modified ray
