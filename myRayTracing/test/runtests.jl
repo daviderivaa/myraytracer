@@ -484,6 +484,8 @@ end
 
     pcg = new_PCG()
 
+    ## FIX FURNACE TEST
+
     for i in 1:10
 
         emitted_radiance = norm_random!(pcg)
