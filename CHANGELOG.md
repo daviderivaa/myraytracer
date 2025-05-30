@@ -1,4 +1,19 @@
 # HEAD
+## VERSION 0.4.0
+- Add profiling and time evaluation in [`demo_path.jl`](./demo_path.jl), [`box.jl`](./box.jl), [`check_csg.jl`](./check_csg.jl). pathtracing: [PR #6](https://github.com/daviderivaa/myraytracer/pull/6). 
+- Implement demo project [`demo_path.jl`](./demo_path.jl) with Path Tracing algorithm. pathtracing: [PR #6](https://github.com/daviderivaa/myraytracer/pull/6).
+- Add `Box` shape in [`shapes.jl`](./myRayTracing/src/shapes.jl) and new script [`box.jl`](./box.jl). pathtracing: [PR #6](https://github.com/daviderivaa/myraytracer/pull/6).
+- New demo_images and demo GIF with colored spheres. pathtracing: [PR #6](https://github.com/daviderivaa/myraytracer/pull/6), demo: [PR #3](https://github.com/daviderivaa/myraytracer/pull/3)
+- Create [`check_csg.jl`](./check_csg.jl) that creates an image with 3 different operations on 2 spheres: Union, Intersection, Difference. demo: [PR #3](https://github.com/daviderivaa/myraytracer/pull/3)
+- Implement Renderers in [`render.jl`](./myRayTracing/src/render.jl) for color evaluation: `Renderer` (abstract), `OnOffRenderer`, `FlatRenderer`, `PathTracer`. pathtracing: [PR #6](https://github.com/daviderivaa/myraytracer/pull/6).
+- Fix CSG with new shapes. pathtracing: [PR #6](https://github.com/daviderivaa/myraytracer/pull/6).
+- Add `Rectangle` shape in [`shapes.jl`](./myRayTracing/src/shapes.jl). pathtracing: [PR #6](https://github.com/daviderivaa/myraytracer/pull/6).
+- Add `Materials` type and methods for a shape, in [`materials.jl`](./myRayTracing/src/materials.jl). pathtracing: [PR #6](https://github.com/daviderivaa/myraytracer/pull/6).
+- Add Pigment and BRDF types and methods in [`materials.jl`](./myRayTracing/src/materials.jl): `Pigment` and `BRDF` are abstract types. pathtracing: [PR #6](https://github.com/daviderivaa/myraytracer/pull/6)
+- Fixing bug [#4](https://github.com/daviderivaa/myraytracer/issues/4): upside-down images [PR #5](https://github.com/daviderivaa/myraytracer/pull/5)
+- camera: [PR #2](https://github.com/daviderivaa/myraytracer/pull/2)
+- geometry: [PR #1](https://github.com/daviderivaa/myraytracer/pull/1)
+
 ## VERSION 0.3.0
 - Create demo images and demo GIF. demo: [PR #3](https://github.com/daviderivaa/myraytracer/pull/3)
 - Create [`check_csg.jl`](./check_csg.jl) that creates an image with 3 different operations on 2 spheres: Union, Intersection, Difference
