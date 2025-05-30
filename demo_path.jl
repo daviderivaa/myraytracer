@@ -6,6 +6,7 @@ using Images
 using Colors
 using myRayTracing
 using LinearAlgebra
+using Profile
 
 include("pfm2png.jl")
 
