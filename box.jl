@@ -3,6 +3,7 @@ Pkg.activate("myRayTracing")
 using Images
 using Colors
 using myRayTracing
+using Profile
 
 include("pfm2png.jl")
 
