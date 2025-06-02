@@ -6,6 +6,11 @@ using LinearAlgebra
 abstract type Shape
 end
 
+"""Abstract method for all_ray_intersection"""
+function all_ray_intersection(shape::Shape, r::Ray)
+    throw(Type_error("all_ray_intersection method not implemented for $(typeof(shape))"))
+end
+
 """Abstract method for ray_intersection"""
 function ray_intersection(shape::Shape, r::Ray)
     throw(Type_error("ray_intersection method not implemented for $(typeof(shape))"))
@@ -74,10 +79,11 @@ function _xyz_to_uv(s::Sphere, p::Point)
 end
 
 """
-function ray_intersection(shape, r)
-    given a sphere and a ray, it returns the HitRecord for the first intersection between the ray and the sphere
+function all_ray_intersection(shape, r)
+    given a sphere and a ray, it returns the HitRecords for all the intersections between the ray and the sphere
 """
-function ray_intersection(shape::Sphere, r::Ray)
+function all_ray_intersection(shape::Sphere, r::Ray)
+    hits = Vector{Tuple{HitRecord, HitRecord}}()
 
     inv_r = inverse(shape.T)(r)
     o_vec = Point_to_Vec(inv_r.origin)
@@ -88,7 +94,7 @@ function ray_intersection(shape::Sphere, r::Ray)
     delta = b*b - a*c #it's delta/4
 
     if delta <= 0
-        return nothing
+        return hits
     end
  
     sqrt_delta = √(delta)
@@ -96,24 +102,53 @@ function ray_intersection(shape::Sphere, r::Ray)
     t_1 = ( -b - sqrt_delta ) / a
     t_2 = ( -b + sqrt_delta ) / a
 
-    if (t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)
-        t_hit = t_1
-    elseif (t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)
-        t_hit = t_2
+    if t_1 < inv_r.tmax
+        point_hit_1 = at(inv_r, t_1)
+        hit_1 = HitRecord(shape.T(point_hit_1), #hitted point in the world
+                          shape.T(_shape_normal(shape, inv_r, point_hit_1)), #normal at the surface in the world
+                          (_xyz_to_uv(shape, point_hit_1)), #(u,v) vec hitted on the surface
+                          t_1, #t
+                          r, #ray
+                          shape #sphere
+                          )
+            
+    end
+
+    if t_2 < inv_r.tmax
+        point_hit_2 = at(inv_r, t_2)
+        hit_2 = HitRecord(shape.T(point_hit_2), #hitted point in the world
+                          shape.T(_shape_normal(shape, inv_r, point_hit_2)), #normal at the surface in the world
+                          (_xyz_to_uv(shape, point_hit_2)), #(u,v) vec hitted on the surface
+                          t_2, #t
+                          r, #ray
+                          shape #sphere
+                          )
+    end
+    
+    push!(hits, (hit_1, hit_2))
+
+    return hits
+
+end
+
+"""
+function ray_intersection(shape, r)
+    given a sphere and a ray, it returns the HitRecord for the first intersection between the ray and the sphere
+"""
+function ray_intersection(shape::Sphere, r::Ray)
+    all_hits = all_ray_intersection(shape, r)
+
+    if !isempty(all_hits)
+        first_hit_index = findfirst(hit -> hit.t > r.tmin, all_hits[1])
+
+        if first_hit_index !== nothing
+            return all_hits[1][first_hit_index]
+        else
+            return nothing
+        end 
     else
         return nothing
     end
-
-    point_hit = at(inv_r, t_hit)
-
-    return HitRecord( shape.T(point_hit), #hitted point in the world
-                      shape.T(_shape_normal(shape, inv_r, point_hit)), #normal at the surface in the world
-                      (_xyz_to_uv(shape, point_hit)), #(u,v) vec hitted on the surface
-                      t_hit, #t
-                      r, #ray
-                      shape #s
-                    )
-
 end
 
 """
@@ -422,16 +457,17 @@ function _xyz_to_uv(box::Box, p::Point)
 end
 
 """
-function ray_intersection(box, r)
-    given a box and a ray, it returns the HitRecord for the intersection between the ray and the box
+function all_ray_intersection(box, r)
+    given a box and a ray, it returns all the HitRecords for the intersection between the ray and the box
 """
-function ray_intersection(box::Box, r::Ray)
+function all_ray_intersection(box::Box, r::Ray)
+    hits = Vector{Tuple{HitRecord, HitRecord}}()
 
     inv_r = inverse(box.T)(r)
 
     if inv_r.dir.x == 0.0
         if (inv_r.origin.x < 0.0 || inv_r.origin.x > box.X)
-            return nothing
+            return hits
         else
             int_x = (-Inf,Inf)
         end
@@ -443,7 +479,7 @@ function ray_intersection(box::Box, r::Ray)
 
     if inv_r.dir.y == 0.0
         if (inv_r.origin.y < 0.0 || inv_r.origin.y > box.Y)
-            return nothing
+            return hits
         else
             int_y = (-Inf,Inf)
         end
@@ -455,7 +491,7 @@ function ray_intersection(box::Box, r::Ray)
 
     if inv_r.dir.z == 0.0
         if (inv_r.origin.z < 0.0 || inv_r.origin.z > box.Z)
-            return nothing
+            return hits
         else
             int_z = (-Inf,Inf)
         end
@@ -467,28 +503,58 @@ function ray_intersection(box::Box, r::Ray)
     t_1 = max(int_x[1], int_y[1], int_z[1])
     t_2 = min(int_x[2], int_y[2], int_z[2])
 
-    if t_1 > t_2
-        return nothing
+    if (t_2-t_1) < 1e-6 #check both t2>=t1 and  t2!=t1
+        return hits
     end
 
-    if (t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)
-        t_hit = t_1
-    elseif (t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)
-        t_hit = t_2
+    if t_1 < inv_r.tmax
+        point_hit_1 = at(inv_r, t_1)
+        hit_1 = HitRecord(box.T(point_hit_1), #hitted point in the world
+                          box.T(_shape_normal(box, inv_r, point_hit_1)), #normal at the surface in the world
+                          (_xyz_to_uv(box, point_hit_1)), #(u,v) vec hitted on the surface
+                          t_1, #t
+                          r, #ray
+                          box #box
+                          )
+    
+    end
+
+    if t_2 < inv_r.tmax
+        point_hit_2 = at(inv_r, t_2)
+        hit_2 = HitRecord(box.T(point_hit_2), #hitted point in the world
+                          box.T(_shape_normal(box, inv_r, point_hit_2)), #normal at the surface in the world
+                          (_xyz_to_uv(box, point_hit_2)), #(u,v) vec hitted on the surface
+                          t_2, #t
+                          r, #ray
+                          box #box
+                          )
+             
+    end
+    
+    push!(hits, (hit_1, hit_2))
+
+    return hits
+
+end
+
+"""
+function ray_intersection(box, r)
+    given a box and a ray, it returns the HitRecord for the first intersection between the ray and the box
+"""
+function ray_intersection(box::Box, r::Ray)
+    all_hits = all_ray_intersection(box, r)
+
+    if !isempty(all_hits)
+        first_hit_index = findfirst(hit -> hit.t > r.tmin, all_hits[1])
+
+        if first_hit_index !== nothing
+            return all_hits[1][first_hit_index]
+        else
+            return nothing
+        end 
     else
         return nothing
     end
-
-    point_hit = at(inv_r, t_hit)
-
-    return HitRecord( box.T(point_hit), #hitted point in the world
-                      box.T(_shape_normal(box, inv_r, point_hit)), #normal at the surface in the world
-                      (_xyz_to_uv(box, point_hit)), #(u,v) vec hitted on the surface
-                      t_hit, #t
-                      r, #ray
-                      box #s
-                    )
-
 end
 
 """
@@ -593,64 +659,133 @@ function _transform_hit(hit::HitRecord, T::Transformation)
 """
 function _transform_hit(hit::HitRecord, T::Transformation)
     return HitRecord(
-        T(hit.point),
+        T(hit.world_point),
         T(hit.normal),
-        hit.uv,
+        hit.surface_point,
         hit.t,
-        hit.ray,
+        T(hit.ray),
         hit.s
     )
 end
 
 """
-function _ray_interval(shape::Shape, r::Ray)
-    This function calculates the interval in which the ray stays in the shape, necessary because a ray can hit both shapes without hitting their intersections
+merge_overlapping_intervals(intervals)
+    given a list of intervals of hitrecords (in ascending order of .t), this function merges it (useful for union of shapes)
 """
-function _ray_interval(shape::Shape, r::Ray)
-
-    hit1 = ray_intersection(shape, r)
-    if hit1 === nothing
-        return nothing
+function _merge_intervals(intervals::Vector{Tuple{HitRecord, HitRecord}})
+    if isempty(intervals)
+        no_hits = Vector{Tuple{HitRecord, HitRecord}}()
+        return no_hits 
     end
 
-    #Find the exit from the shape
-    new_origin = at(r, hit1.t + 1e-8)
-    new_r = Ray(new_origin, r.dir, 0.0, r.tmax)
-    hit2 = ray_intersection(shape, new_r)
+    merged = [intervals[1]] 
 
-    if hit2 === nothing
-        return nothing
+    for i in 2:length(intervals)
+        current_interval = intervals[i]
+        last_merged_interval = merged[end]
+ 
+        if current_interval[1].t <= last_merged_interval[2].t
+            if last_merged_interval[2].t < current_interval[2].t
+            merged[end] = (last_merged_interval[1], current_interval[2])
+            end
+        else #no overlap
+            push!(merged, current_interval) #this is not pushed in case of overlap
+        end 
     end
 
-    t_enter = hit1.t
-    t_exit = hit1.t + hit2.t
-    return (min(t_enter, t_exit), max(t_enter, t_exit)) #It returns the intervall in which the ray stays in the shape
-
+    return merged
 end
 
 """
-function _difference_hit(a::Tuple, b::Tuple)
-    This function calculates the actual shape hit in a difference
+_intersect_intervals(intervals_a, intervals_b)
+    given two lists of intervals of hitrecords (in ascending order of .t), this function makes the intersection (useful for intersection of shapes)
 """
-function _difference_hit(a::Tuple, b::Tuple)
+function _intersect_intervals(intervals_a::Vector{Tuple{HitRecord, HitRecord}}, intervals_b::Vector{Tuple{HitRecord, HitRecord}})
+    intersected = Vector{Tuple{HitRecord, HitRecord}}()
+    
+    i = 1
+    j = 1
 
-    a_start, a_end = a
-    b_start, b_end = b
+    while i <= length(intervals_a) && j <= length(intervals_b)
+        interval_a = intervals_a[i]
+        interval_b = intervals_b[j]
 
-    if b_end <= a_start || b_start >= a_end
-        return a_start
-    else
-        if b_start > a_start
-            return a_start
+        start_hit = (interval_a[1].t >= interval_b[1].t) ? interval_a[1] : interval_b[1]
+        end_hit = (interval_b[2].t >= interval_a[2].t) ? interval_a[2] : interval_b[2]
+
+        if start_hit.t < end_hit.t
+            push!(intersected, (start_hit, end_hit))
+        end
+
+        if interval_a[2].t < interval_b[2].t
+            i += 1
         else
-            if b_end < a_end
-                return b_end
-            else
-                return nothing
-            end
+            j += 1
         end
     end
 
+    return intersected
+end
+
+function _subtract_intervals(intervals_a::Vector{Tuple{HitRecord, HitRecord}}, intervals_b::Vector{Tuple{HitRecord, HitRecord}})
+
+    if isempty(intervals_a)
+        return subtracted
+    elseif isempty(intervals_b)
+        return intervals_a
+    end
+
+    subtracted = Vector{Tuple{HitRecord, HitRecord}}()
+    
+    i = 1
+    j = 1
+
+    interval_a = intervals_a[i]
+
+    while i <= length(intervals_a)
+
+        # If only A remaining, push all the A
+        if j > length(intervals_b) 
+            push!(subtracted, interval_a)
+            i += 1
+            interval_a = (i <= length(intervals_a)) ? intervals_a[i] : nothing
+            continue
+        end
+
+        interval_b = intervals_b[j]
+
+        # Case 1: B before A
+        if interval_b[2].t <= interval_a[1].t
+            j += 1
+            continue
+        end
+
+        # Case 2: B after A
+        if interval_a[2].t <= interval_b[1].t
+            push!(subtracted, interval_a)
+            i += 1
+            interval_a = (i <= length(intervals_a)) ? intervals_a[i] : nothing
+            continue
+        end
+
+        # Case 3: Sovrapposition or A in B
+        
+        # Beginning of A
+        if interval_a[1].t < interval_b[1].t
+            push!(subtracted, (interval_a[1], interval_b[1]))
+        end
+
+        # End of A
+        if interval_a[2].t > interval_b[2].t
+            interval_a = (interval_b[2], interval_a[2])
+            j += 1 
+        else 
+            i += 1
+            interval_a = (i <= length(intervals_a)) ? intervals_a[i] : nothing
+        end
+    end
+
+    return subtracted
 end
 
 #UNION
@@ -673,48 +808,45 @@ struct union_shape <: Shape
 end
 
 """
+function all_ray_intersection(u_shape::union_shape, r::Ray)
+    Given a union of shapes and a ray, it returns all the HitRecords for the intersections between the ray and the shapes's union
+"""
+function all_ray_intersection(u_shape::union_shape, r::Ray)
+    inv_r = inverse(u_shape.T)(r)
+    hits_s1 = all_ray_intersection(u_shape.s1, inv_r)
+    hits_s2 = all_ray_intersection(u_shape.s2, inv_r)
+
+    if isempty(hits_s1) && isempty(hits_s2)
+        no_hits = Vector{Tuple{HitRecord, HitRecord}}()
+        return no_hits
+    end
+
+    all_intervals = vcat(hits_s1, hits_s2)
+    sort!(all_intervals, by = i -> i[1].t)
+
+    return _merge_intervals(all_intervals)
+    
+end
+
+"""
 function ray_intersection(u_shape::union_shape, r::Ray)
     Given a union of shapes and a ray, it returns the HitRecord for the first intersection between the ray and the shapes's union
 """
 function ray_intersection(u_shape::union_shape, r::Ray)
+    all_hits_intervals = all_ray_intersection(u_shape, r)
 
-    inv_r = inverse(u_shape.T)(r)
-
-    hit1 = ray_intersection(u_shape.s1, inv_r)
-    hit2 = ray_intersection(u_shape.s2, inv_r)
-
-    if hit1 === nothing && hit2 === nothing
+    if !isempty(all_hits_intervals)
+        for (entry_hit, exit_hit) in all_hits_intervals
+            if entry_hit.t > r.tmin
+                return _transform_hit(entry_hit, u_shape.T)
+            elseif exit_hit.t > r.tmin
+                return _transform_hit(exit_hit, u_shape.T)
+            end
+        end
+        return nothing
+    else
         return nothing
     end
-
-    if hit1 === nothing
-        chosen_hit = hit2
-        hit_shape = u_shape.s2
-    elseif hit2 === nothing
-        chosen_hit = hit1
-        hit_shape = u_shape.s1
-    else
-        if hit1.t < hit2.t
-            chosen_hit = hit1
-            hit_shape = u_shape.s1
-        else
-            chosen_hit = hit2
-            hit_shape = u_shape.s2
-        end
-    end
-
-    point_hit = at(inv_r, chosen_hit.t)
-    normal = _shape_normal(hit_shape, inverse(hit_shape.T)(inv_r), inverse(hit_shape.T)(point_hit))
-
-    return HitRecord(
-        u_shape.T(point_hit),
-        u_shape.T(normal),
-        _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
-        chosen_hit.t,
-        r,
-        hit_shape
-    )
-    
 end
 
 #INTERSECTION
@@ -737,46 +869,42 @@ struct intersec_shape <: Shape
 end
 
 """
-function ray_intersection(i_shape::intersec_shape, r::Ray)
-    given a n intersection of shapes and a ray, it returns the HitRecord for the first intersection between the ray and the shapes's intersection
+function all_ray_intersection(i_shape::intersec_shape, r::Ray)
+    Given an intersection of shapes and a ray, it returns all the HitRecords for the intersections between the ray and the shapes's intersection
+"""
+function all_ray_intersection(i_shape::intersec_shape, r::Ray)
+    inv_r = inverse(i_shape.T)(r)
+    hits_s1 = all_ray_intersection(i_shape.s1, inv_r)
+    hits_s2 = all_ray_intersection(i_shape.s2, inv_r)
+
+    if isempty(hits_s1) || isempty(hits_s2)
+        no_hits = Vector{Tuple{HitRecord, HitRecord}}()
+        return no_hits
+    end
+
+    return _intersect_intervals(hits_s1, hits_s2)
+    
+end
+
 """
 function ray_intersection(i_shape::intersec_shape, r::Ray)
+    Given an intersection of shapes and a ray, it returns the HitRecord for the first intersection between the ray and the shapes's intersection
+"""
+function ray_intersection(i_shape::intersec_shape, r::Ray)
+    all_hits_intervals = all_ray_intersection(i_shape, r)
 
-    #Transforms the ray in the shapes's space
-    inv_r = inverse(i_shape.T)(r)
-
-    interval1 = _ray_interval(i_shape.s1, inv_r)
-    interval2 = _ray_interval(i_shape.s2, inv_r)
-
-    if interval1 === nothing || interval2 === nothing
+    if !isempty(all_hits_intervals)
+        for (entry_hit, exit_hit) in all_hits_intervals
+            if entry_hit.t > r.tmin
+                return _transform_hit(entry_hit, i_shape.T)
+            elseif exit_hit.t > r.tmin
+                return _transform_hit(exit_hit, i_shape.T)
+            end
+        end
+        return nothing
+    else
         return nothing
     end
-
-    t_enter1, t_exit1 = interval1
-    t_enter2, t_exit2 = interval2
-
-    t_enter = max(t_enter1, t_enter2)
-    t_exit  = min(t_exit1, t_exit2)
-
-    if t_enter >= t_exit
-        return nothing
-    end
-
-    #The shape that cause the t_enter is the one with that same t_enter
-    hit_shape = t_enter == t_enter1 ? i_shape.s1 : i_shape.s2
-
-    point_hit = at(inv_r, t_enter)
-    normal = _shape_normal(hit_shape, inverse(hit_shape.T)(inv_r), inverse(hit_shape.T)(point_hit))
-
-    return HitRecord(
-        i_shape.T(point_hit),
-        i_shape.T(normal),
-        _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
-        t_enter,
-        r,
-        hit_shape
-    )
-
 end
 
 #DIFFERENCE
@@ -799,52 +927,40 @@ struct diff_shape <: Shape
 end
 
 """
-function ray_intersection(d_shape::diff_shape, r::Ray)
-    given a difference of shapes and a ray, it returns the HitRecord for the first intersection between the ray and the shapes's difference
+function all_ray_intersection(d_shape::diff_shape, r::Ray)
+    Given a difference of shapes and a ray, it returns all the HitRecords for the intersections between the ray and the shapes's difference
+"""
+function all_ray_intersection(d_shape::diff_shape, r::Ray)
+    inv_r = inverse(d_shape.T)(r)
+    hits_s1 = all_ray_intersection(d_shape.s1, inv_r)
+    hits_s2 = all_ray_intersection(d_shape.s2, inv_r)
+
+    if isempty(hits_s1)
+        no_hits = Vector{Tuple{HitRecord, HitRecord}}()
+        return no_hits
+    end
+
+    return _subtract_intervals(hits_s1, hits_s2)
+    
+end
+
 """
 function ray_intersection(d_shape::diff_shape, r::Ray)
+    Given a difference of shapes and a ray, it returns the HitRecord for the first intersection between the ray and the shapes's difference
+"""
+function ray_intersection(d_shape::diff_shape, r::Ray)
+    all_hits_intervals = all_ray_intersection(d_shape, r)
 
-    inv_r = inverse(d_shape.T)(r)
-
-    intA = _ray_interval(d_shape.s1, inv_r)
-    if intA === nothing
+    if !isempty(all_hits_intervals)
+        for (entry_hit, exit_hit) in all_hits_intervals
+            if entry_hit.t > r.tmin
+                return _transform_hit(entry_hit, d_shape.T)
+            elseif exit_hit.t > r.tmin
+                return _transform_hit(exit_hit, d_shape.T)
+            end
+        end
         return nothing
-    end
-
-    t_enter1 = intA[1]
-
-    intB = _ray_interval(d_shape.s2, inv_r)
-
-    t_hit = intB === nothing ? t_enter1 : _difference_hit(intA, intB)
-
-    if t_hit === nothing
-        return nothing
-    end
-
-    point_hit = at(inv_r, t_hit)
-
-    hit_shape = isapprox(t_hit, t_enter1; atol=1e-6) ? d_shape.s1 : d_shape.s2
-
-    normal = _shape_normal(hit_shape, inverse(hit_shape.T)(inv_r), inverse(hit_shape.T)(point_hit))
-
-    if hit_shape == d_shape.s1
-        return HitRecord(
-            d_shape.T(point_hit),
-            d_shape.T(normal),
-            _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
-            t_hit,
-            r,
-            hit_shape
-        )
     else
-        return HitRecord(
-            d_shape.T(point_hit),
-            d_shape.T(normal),
-            _xyz_to_uv(hit_shape, inverse(hit_shape.T)(point_hit)),
-            t_hit,
-            r,
-            hit_shape
-        )
+        return nothing
     end
-
 end
