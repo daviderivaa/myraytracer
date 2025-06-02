@@ -486,10 +486,10 @@ end
 
     ## FIX FURNACE TEST
 
-    for i in 1:10
+    for i in 1:2000
 
         emitted_radiance = norm_random!(pcg)
-        reflectance = norm_random!(pcg)
+        reflectance = norm_random!(pcg)*0.8
 
         w = World()
         furnace_material = Material(DiffuseBRDF(UniformPigment(RGB(1.0 , 1.0 , 1.0) * reflectance)), UniformPigment(RGB(1.0 , 1.0 , 1.0) * emitted_radiance))
