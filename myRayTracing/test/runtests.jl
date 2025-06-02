@@ -480,28 +480,30 @@ end
     end
 end
 
-# @testset "Furnace test" begin
+@testset "Furnace test" begin
 
-#     pcg = new_PCG()
+    pcg = new_PCG()
 
-#     for i in 1:10
+    ## FIX FURNACE TEST
 
-#         emitted_radiance = norm_random!(pcg)
-#         reflectance = norm_random!(pcg)
+    for i in 1:2000
 
-#         w = World()
-#         furnace_material = Material(DiffuseBRDF(UniformPigment(RGB(1.0 , 1.0 , 1.0) * reflectance)), UniformPigment(RGB(1.0 , 1.0 , 1.0) * emitted_radiance))
+        emitted_radiance = norm_random!(pcg)
+        reflectance = norm_random!(pcg)*0.8
 
-#         add_shape!(w, Sphere(Transformation(Matrix{Float64}(I(4))), furnace_material))
+        w = World()
+        furnace_material = Material(DiffuseBRDF(UniformPigment(RGB(1.0 , 1.0 , 1.0) * reflectance)), UniformPigment(RGB(1.0 , 1.0 , 1.0) * emitted_radiance))
 
-#         path_tracer = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 1, 100, 101)
-#         ray = Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
-#         color = path_tracer(ray)
+        add_shape!(w, Sphere(Transformation(Matrix{Float64}(I(4))), furnace_material))
 
-#         expected = emitted_radiance / (1.0 - reflectance)
+        path_tracer = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 1, 100, 101)
+        ray = Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
+        color = path_tracer(ray)
 
-#         @test isapprox(expected, color.r; rtol=0, atol=1e-3)
-#         @test isapprox(expected, color.g; rtol=0, atol=1e-3)
-#         @test isapprox(expected, color.b; rtol=0, atol=1e-3)
-#     end
-# end
+        expected = emitted_radiance / (1.0 - reflectance)
+
+        @test isapprox(expected, color.r; rtol=0, atol=1e-3)
+        @test isapprox(expected, color.g; rtol=0, atol=1e-3)
+        @test isapprox(expected, color.b; rtol=0, atol=1e-3)
+    end
+end
