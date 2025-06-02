@@ -3,7 +3,6 @@ Pkg.activate("myRayTracing")
 using Images
 using Colors
 using myRayTracing
-using Profile
 
 include("pfm2png.jl")
 
@@ -15,8 +14,8 @@ struct InvalidARGS <: Exception
     msg::String
 end
 
-if length(ARGS) < 3 || length(ARGS) > 4
-    throw(InvalidARGS("Required julia check_csg.jl <camera_type> <angle_z> <angle_y> <profile(optional)>    <camera_type>: perspective or orthogonal    <angle_z>: rotation around z axis (in deg)     <angle_y>: rotation around z axis (in deg)"))
+if length(ARGS) != 3
+    throw(InvalidARGS("Required julia check_csg.jl <camera_type> <angle_z> <angle_y>     <camera_type>: perspective or orthogonal    <angle_z>: rotation around z axis (in deg)     <angle_y>: rotation around z axis (in deg)"))
 end
 
 if ARGS[1] == "perspective"
@@ -27,7 +26,7 @@ if ARGS[1] == "perspective"
     angle_y = parse(Float64, ARGS[3])
     rot1 = rotation("z", angle_z*π/180.0)
     rot2 = rotation("y", angle_y*π/180.0)
-    Cam = PerspectiveCamera(6.0, 16.0/9.0, rot1(rot2(traslation(Vec(-1.0, 0.0, 0.0)))))
+    Cam = PerspectiveCamera(1.0, 16.0/9.0, rot1(rot2(traslation(Vec(1.0, 0.0, 0.0)))))
 
 elseif ARGS[1] == "orthogonal"
     path = "./CSG/"
@@ -73,13 +72,42 @@ r4 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 0.0, 1.0), t
 r5 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 0.0, 1.0), traslation(Vec(0.0, 1.0, 0.1)), material2) #Rectangle
 p1 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material4) #plane
 
+b = Box(2.0,2.0,2.0, traslation(Vec(0.0,0.0,0.0)), material5)
+sp1 = Sphere(traslation(Vec(1.0,0.0,1.0)), material5)
+sp2 = Sphere(traslation(Vec(0.0,2.0,2.0))(scaling(0.5)), material3)
+sp3 = Sphere(traslation(Vec(0.0,0.0,2.0))(scaling(2.0)), material1)
+b2 = Box(1.0,2.0,1.0, traslation(Vec(0.0,-1.0,1.0)), material2)
+sp4 = Sphere(traslation(Vec(1.0,1.0,1.0))(rotation("y", -π/2)(scaling(0.5))), material4)
+
+u = union_shape(b, sp1)
+uu = union_shape(u, sp2)
+iuu = intersec_shape(uu, sp3)
+diuu = diff_shape(iuu, b2)
+udiuu = union_shape(diuu, sp4, traslation(Vec(2.0,-1.0,-1.0))(rotation("z", -π/6))(rotation("y", -π/12)))
+
+d = diff_shape(b2,sp4)
+ddiuu = diff_shape(iuu, d, traslation(Vec(2.0,-1.0,-1.0))(rotation("z", -π/6))(rotation("y", -π/12))) 
+
 U = union_shape(s1, s2, traslation(Vec(0.0, 1.0, 0.0)))
 I = intersec_shape(s1, s2)
 D = diff_shape(s1, s2, traslation(Vec(0.0, -1.0, 0.0)))
 
-add_shape!(w, U)
-add_shape!(w, I)
-add_shape!(w, D)
+room1 = Box(4.0,4.0,4.0, traslation(Vec(0.0,0.0,0.0)), material5)
+room2 = Box(6√2,6√2,6.0, traslation(Vec(-6.0,4.0,-1.0))(rotation("z", -π/4)), material2)
+intersecroom = intersec_shape(room1, room2)
+box = Box(1.0,1.0,1.0, traslation(Vec(3.0,2.5,1.5)), material3)
+sphere = Sphere(traslation(Vec(3.0,1.0,2.0))(scaling(0.5)), material1)
+diff = diff_shape(intersecroom,box)
+final = union_shape(diff,sphere, traslation(Vec(-1.0,-2.0,-2.0)))
+
+check_sphere = Sphere(traslation(Vec(2.3,-1.3,0.0))(scaling(0.05)), material5)
+
+add_shape!(w, final)
+add_shape!(w, check_sphere)
+
+#add_shape!(w, U)
+#add_shape!(w, I)
+#add_shape!(w, D)
 
 # add_shape!(w, s1)
 # add_shape!(w, r1)
@@ -87,7 +115,7 @@ add_shape!(w, D)
 # add_shape!(w, r3)
 # add_shape!(w, r4)
 # add_shape!(w, r5)
-add_shape!(w, p1)
+#add_shape!(w, p1)
 
 img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
@@ -95,16 +123,7 @@ IT = ImageTracer(img, Cam)
 RND = OnOffRenderer(w, RGB(0.0, 0.0, 0.0), RGB(0.0, 0.0, 1.0))
 RND2 = FlatRenderer(w)
 
-enable_profile = "--profile" in ARGS
-if enable_profile
-    Profile.clear()
-    @profile fire_all_rays!(IT, RND2)
-    Profile.print()
-else
-    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND2)
-    println("Profiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
-    println("For a complete profiling use --profile flag")
-end
+fire_all_rays!(IT, RND2)
 
 open(pfm_filename_and_path, "w") do io
     write_pfm(io, IT.img)
