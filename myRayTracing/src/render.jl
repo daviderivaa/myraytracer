@@ -129,14 +129,12 @@ function (RND::PathTracer)(ray::Ray)
     cum_radiance = RGB(0.0, 0.0, 0.0)
 
     if hit_color_lum > 0.0
-        for ray_index in 0:RND.num_rays
+        for ray_index in 1:RND.num_rays
             new_ray = scatter_ray(hit_material.brdf, RND.pcg, hit_record.ray.dir, hit_record.world_point, hit_record.normal, ray.depth + 1)
             new_radiance = RND(new_ray)
             cum_radiance += (hit_color * new_radiance)
         end
     end
-
-    #println(emitted_radiance, "\t", cum_radiance * (1.0 / (RND.num_rays)))
 
     return (emitted_radiance + cum_radiance * (1.0 / (RND.num_rays)))
 
