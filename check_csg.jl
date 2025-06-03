@@ -102,8 +102,13 @@ final = union_shape(diff,sphere, traslation(Vec(-1.0,-2.0,-2.0)))
 
 check_sphere = Sphere(traslation(Vec(2.3,-1.3,0.0))(scaling(0.05)), material5)
 
-add_shape!(w, final)
-add_shape!(w, check_sphere)
+cylinder = Cylinder(2.0,4.0,traslation(Vec(-1.0,0.0,0.0))(rotation("y", π/2)),material5)
+
+sph = Sphere((scaling(2.0)), material5)
+cyl = Cylinder(1.0,6.0,traslation(Vec(-2.0,0.0,0.0))(rotation("y", π/2)), material2)
+d = diff_shape(sph, cyl, traslation(Vec(4.0,0.0,0.0))(rotation("z", π/10)))
+
+add_shape!(w, d)
 
 #add_shape!(w, U)
 #add_shape!(w, I)

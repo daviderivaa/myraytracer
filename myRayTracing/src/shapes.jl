@@ -503,7 +503,7 @@ function all_ray_intersection(box::Box, r::Ray)
     t_1 = max(int_x[1], int_y[1], int_z[1])
     t_2 = min(int_x[2], int_y[2], int_z[2])
 
-    if (t_2-t_1) < 1e-6 #check both t2>=t1 and  t2!=t1
+    if (t_2-t_1) < 1e-6 #check both t2>=t1 and t2!=t1
         return hits
     end
 
@@ -603,8 +603,8 @@ function quick_ray_intersection(box::Box, r::Ray)
     t_1 = max(int_x[1], int_y[1], int_z[1])
     t_2 = min(int_x[2], int_y[2], int_z[2])
 
-    if ((t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)) || ((t_2 > inv_r.tmin) && (t_2 < inv_r.tmax))
-        true  
+    if ((t_2-t_1) < 1e-6) && ( ((t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)) || ((t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)) )
+        return true  
     else
         return false
     end
@@ -612,10 +612,214 @@ end
 
 
 ####################################################################################################
-#ADD HERE NEW SHAPES
 
+#CYLINDER STRUCT
+"""
+struct Cylinder <: Shape
+    Creates a cylinder. It has a base on the xy plane centered in the origin and his axis along z axis.
 
+    R::Float64 --> Radius of the cylinder's base
+    H::Float64 --> Height of the cylinder
+    T::Transformation --> The transformation applied to the cylinder
+    material::Material --> the material of the cylinder
 
+    function Cylinder(R::Float64, H::Float64, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+        new(R, H, T, material)
+    end
+end
+"""
+struct Cylinder <: Shape
+ 
+    R::Float64
+    H::Float64
+    T::Transformation
+    material::Material
+
+    function Cylinder(R::Float64, H::Float64, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+        new(R, H, T, material)
+    end
+end
+
+"""
+function _shape_normal(cyl, p, r)
+    it returns the normal to the cylinder surface in a given point, chosen in order to have the opposite direction of the incoming ray.
+"""
+function _shape_normal(cyl::Cylinder, r::Ray, p::Point)
+    epsilon = 1e-6
+
+    if abs(p.z - 0.0) < epsilon || abs(p.z - cyl.H) < epsilon
+        n = Normal(0.0, 0.0, 1.0)
+    else
+        n = normalize(Normal(p.x, p.y, 0.0))
+    end
+
+    if (n * r.dir) < 0
+        return n
+    else
+        return neg(n)
+    end
+end
+
+"""
+function _xyz_to_uv(s, p)
+    given a point on the cylinder, it returns its (u,v) 2D form.
+"""
+function _xyz_to_uv(cyl::Cylinder, p::Point)
+    epsilon = 1e-6 
+
+    if abs(p.z - 0.0) < epsilon || abs(p.z - cyl.H) < epsilon
+        u = (p.x + cyl.R) / (2 * cyl.R)
+        v = (p.y + cyl.R) / (2 * cyl.R)
+    else
+        u = ( atan(p.y, p.x) + π ) / (2π)
+        v = p.z / cyl.H 
+    end
+    return Vec2d(u, v)
+end
+
+"""
+function all_ray_intersection(cyl, r)
+    given a cylinder and a ray, it returns all the HitRecords for the intersection between the ray and the cylinder
+"""
+function all_ray_intersection(cyl::Cylinder, r::Ray)
+    hits = Vector{Tuple{HitRecord, HitRecord}}()
+
+    inv_r = inverse(cyl.T)(r)
+
+    if inv_r.dir.x == 0.0 && inv_r.dir.y == 0.0
+        if √(inv_r.dir.x^2 + inv_r.dir.y^2) >= cyl.R
+            return hits
+        else
+            int_xy = (-Inf,Inf)
+        end
+    else
+        a = inv_r.dir.x^2 + inv_r.dir.y^2
+        b = inv_r.origin.x * inv_r.dir.x + inv_r.origin.y * inv_r.dir.y #tecnically is b/2, but we will use delta/4
+        c = inv_r.origin.x^2 + inv_r.origin.y^2 - cyl.R^2
+        delta = b*b - a*c #it's delta/4
+        if delta <= 0
+            return hits
+        else
+            sqrt_delta = √(delta)
+            int_xy = ( (-b-sqrt_delta)/a , (-b+sqrt_delta)/a)
+        end
+    end
+
+    if inv_r.dir.z == 0.0
+        if (inv_r.origin.z < 0.0 || inv_r.origin.z > cyl.H)
+            return hits
+        else
+            int_z = (-Inf,Inf)
+        end
+    else
+        int_z = (min(-inv_r.origin.z/inv_r.dir.z,(cyl.H-inv_r.origin.z)/inv_r.dir.z), 
+                 max(-inv_r.origin.z/inv_r.dir.z,(cyl.H-inv_r.origin.z)/inv_r.dir.z))
+    end
+
+    t_1 = max(int_xy[1], int_z[1])
+    t_2 = min(int_xy[2], int_z[2])
+
+    if (t_2-t_1) < 1e-6 #check both t2>=t1 and t2!=t1
+        return hits
+    end
+
+    if t_1 < inv_r.tmax
+        point_hit_1 = at(inv_r, t_1)
+        hit_1 = HitRecord(cyl.T(point_hit_1), #hitted point in the world
+                          cyl.T(_shape_normal(cyl, inv_r, point_hit_1)), #normal at the surface in the world
+                          (_xyz_to_uv(cyl, point_hit_1)), #(u,v) vec hitted on the surface
+                          t_1, #t
+                          r, #ray
+                          cyl #cylinder
+                          )
+    
+    end
+
+    if t_2 < inv_r.tmax
+        point_hit_2 = at(inv_r, t_2)
+        hit_2 = HitRecord(cyl.T(point_hit_2), #hitted point in the world
+                          cyl.T(_shape_normal(cyl, inv_r, point_hit_2)), #normal at the surface in the world
+                          (_xyz_to_uv(cyl, point_hit_2)), #(u,v) vec hitted on the surface
+                          t_2, #t
+                          r, #ray
+                          cyl #cylinder
+                          )
+             
+    end
+    
+    push!(hits, (hit_1, hit_2))
+
+    return hits
+
+end
+
+"""
+function ray_intersection(cyl, r)
+    given a cylinder and a ray, it returns the HitRecord for the first intersection between the cylinder and the box
+"""
+function ray_intersection(cyl::Cylinder, r::Ray)
+    all_hits = all_ray_intersection(cyl, r)
+
+    if !isempty(all_hits)
+        first_hit_index = findfirst(hit -> hit.t > r.tmin, all_hits[1])
+
+        if first_hit_index !== nothing
+            return all_hits[1][first_hit_index]
+        else
+            return nothing
+        end 
+    else
+        return nothing
+    end
+end
+
+"""
+function aquick_ray_intersection(cyl, r)
+    given a cylinder and a ray, it returns whether the intersection between the ray and the ray and the cylinder happens or not
+"""
+function quick_ray_intersection(cyl::Cylinder, r::Ray)
+    inv_r = inverse(cyl.T)(r)
+
+    if inv_r.dir.x == 0.0 && inv_r.dir.y == 0.0
+        if √(inv_r.dir.x^2 + inv_r.dir.y^2) >= cyl.R
+            return false
+        else
+            int_xy = (-Inf,Inf)
+        end
+    else
+        a = inv_r.dir.x^2 + inv_r.dir.y^2
+        b = inv_r.origin.x * inv_r.dir.x + inv_r.origin.y * inv_r.dir.y #tecnically is b/2, but we will use delta/4
+        c = inv_r.origin.x^2 + inv_r.origin.y^2 - cyl.R^2
+        delta = b*b - a*c #it's delta/4
+        if delta <= 0
+            return false
+        else
+            sqrt_delta = √(delta)
+            int_xy = ( (-b-sqrt_delta)/a , (-b+sqrt_delta)/a)
+        end
+    end
+
+    if inv_r.dir.z == 0.0
+        if (inv_r.origin.z < 0.0 || inv_r.origin.z > cyl.H)
+            return false
+        else
+            int_z = (-Inf,Inf)
+        end
+    else
+        int_z = (min(-inv_r.origin.z/inv_r.dir.z,(cyl.H-inv_r.origin.z)/inv_r.dir.z), 
+                 max(-inv_r.origin.z/inv_r.dir.z,(cyl.H-inv_r.origin.z)/inv_r.dir.z))
+    end
+
+    t_1 = max(int_xy[1], int_z[1])
+    t_2 = min(int_xy[2], int_z[2])
+
+    if ((t_2-t_1) < 1e-6) && ( ((t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)) || ((t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)) )
+        return true  
+    else
+        return false
+    end
+
+end
 
 ####################################################################################################
 #HIT RECORD STRUCT
