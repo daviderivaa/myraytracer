@@ -139,3 +139,8 @@ function (RND::PathTracer)(ray::Ray)
     return (emitted_radiance + cum_radiance * (1.0 / (RND.num_rays)))
 
 end
+
+
+############################################################################################
+
+# ADD POINT LIGHT TRACING
