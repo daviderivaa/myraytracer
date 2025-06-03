@@ -51,7 +51,7 @@ function fire_all_rays!(IT::ImageTracer, func)
         end
     end
 """
-function fire_all_rays!(IT::ImageTracer, func, aa_num_of_rays::Int64=0)
+function fire_all_rays!(IT::ImageTracer, func, PCG=new_PCG(), aa_num_of_rays::Int64=0)
 
     if aa_num_of_rays == 0
         try 
@@ -69,20 +69,17 @@ function fire_all_rays!(IT::ImageTracer, func, aa_num_of_rays::Int64=0)
         if aa_num_of_rays < 0
             throw(Type_error("AntiAliasing number of rays can't be negative."))
         end
-        PCG = new_PCG()
         Threads.@threads for row in 1:IT.img.height
             for col in 1:IT.img.width
                 cum_color = RGB(0.0, 0.0, 0.0)
-                for i in aa_num_of_rays
-                    for j in aa_num_of_rays
+                for i in 1:aa_num_of_rays
+                    for j in 1:aa_num_of_rays
                         u_pixel = (norm_random!(PCG) + (j-1)) / aa_num_of_rays
                         v_pixel = (norm_random!(PCG) + (i-1)) / aa_num_of_rays
                         ray = fire_ray(IT, col, row, u_pixel, v_pixel)
                         cum_color += func(ray)
                     end
                 end
-                #println(cum_color, "color\n")
-                #println(cum_color / (aa_num_of_rays^2), "color//\n")
                 IT.img.pixels[row, col] = cum_color / (aa_num_of_rays^2)
             end
         end

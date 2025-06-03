@@ -23,17 +23,17 @@ export Ray, at, is_close
 include("camera.jl")
 export Camera, fire_single_ray, OrthogonalCamera, PerspectiveCamera, aperture_deg
 
-include("ImageTracer.jl")
-export ImageTracer, fire_ray, fire_all_rays!
-
 include("pcg.jl")
 export new_PCG, random!, norm_random!
+
+include("ImageTracer.jl")
+export ImageTracer, fire_ray, fire_all_rays!
 
 include("materials.jl")
 export Pigment, UniformPigment, CheckeredPigment, ImagePigment, get_color, BRDF, DiffuseBRDF, SpecularBRDF, Eval, scatter_ray, Material
 
 include("shapes.jl")
-export Shape, Sphere, Plane, Rectangle, Box, ray_intersection, quick_ray_intersection, HitRecord, is_close, union_shape, intersec_shape, diff_shape
+export Shape, Sphere, Plane, Rectangle, Box, union_shape, intersec_shape, diff_shape, _merge_intervals, _intersect_intervals, _merge_intervals, all_ray_intersection, ray_intersection, quick_ray_intersection, HitRecord, is_close, union_shape, intersec_shape, diff_shape
 
 include("world.jl")
 export World, add_shape!, get_shapes, get_single_shape, ray_intersection, is_point_visible
