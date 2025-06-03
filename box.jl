@@ -4,6 +4,7 @@ using Images
 using Colors
 using myRayTracing
 using Profile
+using PProf
 
 include("pfm2png.jl")
 
@@ -89,9 +90,7 @@ RND2 = FlatRenderer(w)
 
 enable_profile = "--profile" in ARGS
 if enable_profile
-    Profile.clear()
-    @profile fire_all_rays!(IT, RND2)
-    Profile.print()
+    @pprof fire_all_rays!(IT, RND2)
 else
     val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND2)
     println("Profiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")

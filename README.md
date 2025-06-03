@@ -91,12 +91,11 @@ mkdir CSG
 
 Run:
 ```shell
-julia -t <n_threads> check_csg.jl <camera_type> <angle_z> <angle_y> --profile(optional)
+julia -t <n_threads> check_csg.jl <camera_type> <angle_z> <angle_y> 
 ```
 where:
 - `<n_threads> = auto` allows to use all available threads.
 - `<n_threads> = 1` means not using multi-threading.
-- `--profile` prints a complete profiling of `fire_all_rays` method.
 
 In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
 
@@ -135,3 +134,35 @@ where:
 - `--profile` prints a complete profiling of `fire_all_rays` method.
 
 In `myraytracer/demo_path/` creates a `pfm` file and the corresponding `png` image.
+
+# <span style="color: red;">PROFILING</span>
+From [Version 0.4.0](https://github.com/daviderivaa/myraytracer/releases/tag/v0.4.0) you can profile `fire_all_rays` method.
+
+If not using `--profile` flag, `@btime` method of [Profile pkg](https://docs.julialang.org/en/v1/manual/profile/) will be used, which gives **Minimum time**, **Allocated memory** and **Garbage Collector (GC) time**. Here's an output example:
+```shell
+Profiling fire_all_rays method:
+Time: 3.250902643 s
+Allocated memory: 1785.623448 MB
+GC: 0.577122232 s
+For a complete profiling use --profile flag
+```
+
+When using `--profile` flag, a `profile.pb.gz` will be created (ignore errors), with [PProf](https://github.com/JuliaPerf/PProf.jl). In order to visualize it, open **Julia REPL** and use:
+```shell
+julia> using Pkg
+```
+```shell
+julia> Pkg.activate("myRayTracing/")
+```
+```shell
+julia> using PProf
+```
+```shell
+julia> PProf.refresh(file = "profile.pb.gz")
+```
+Which will produce an output as:
+```shell
+Serving web UI on http://localhost:57599
+Process(`/home/alberto/.julia/artifacts/579b2972c1e7b798ee4281dd37d60a362be0e1f5/bin/pprof -http=localhost:57599 -relative_percentages profile.pb.gz`, ProcessRunning)
+```
+Then open `http://localhost:57599`.
