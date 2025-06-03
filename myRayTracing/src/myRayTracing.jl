@@ -23,11 +23,11 @@ export Ray, at, is_close
 include("camera.jl")
 export Camera, fire_single_ray, OrthogonalCamera, PerspectiveCamera, aperture_deg
 
-include("ImageTracer.jl")
-export ImageTracer, fire_ray, fire_all_rays!
-
 include("pcg.jl")
 export new_PCG, random!, norm_random!
+
+include("ImageTracer.jl")
+export ImageTracer, fire_ray, fire_all_rays!
 
 include("materials.jl")
 export Pigment, UniformPigment, CheckeredPigment, ImagePigment, get_color, BRDF, DiffuseBRDF, SpecularBRDF, Eval, scatter_ray, Material

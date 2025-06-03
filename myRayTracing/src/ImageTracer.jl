@@ -51,18 +51,38 @@ function fire_all_rays!(IT::ImageTracer, func)
         end
     end
 """
-function fire_all_rays!(IT::ImageTracer, func)
+function fire_all_rays!(IT::ImageTracer, func, PCG=new_PCG(), aa_num_of_rays::Int64=0)
 
-    try 
+    if aa_num_of_rays == 0
+        try 
+            Threads.@threads for row in 1:IT.img.height
+                for col in 1:IT.img.width
+                    ray = fire_ray(IT, col, row)
+                    color = func(ray)
+                    IT.img.pixels[row, col] = color
+                end
+            end
+        catch
+            throw(Type_error("fire_all_rays! method not implemented for $(typeof(IT))"))
+        end
+    else
+        if aa_num_of_rays < 0
+            throw(Type_error("AntiAliasing number of rays can't be negative."))
+        end
         Threads.@threads for row in 1:IT.img.height
             for col in 1:IT.img.width
-                ray = fire_ray(IT, col, row)
-                color = func(ray)
-                IT.img.pixels[row, col] = color
+                cum_color = RGB(0.0, 0.0, 0.0)
+                for i in 1:aa_num_of_rays
+                    for j in 1:aa_num_of_rays
+                        u_pixel = (norm_random!(PCG) + (j-1)) / aa_num_of_rays
+                        v_pixel = (norm_random!(PCG) + (i-1)) / aa_num_of_rays
+                        ray = fire_ray(IT, col, row, u_pixel, v_pixel)
+                        cum_color += func(ray)
+                    end
+                end
+                IT.img.pixels[row, col] = cum_color / (aa_num_of_rays^2)
             end
         end
-    catch
-        throw(Type_error("fire_all_rays! method not implemented for $(typeof(IT))"))
     end
 
 end
