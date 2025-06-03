@@ -41,7 +41,7 @@ In `myraytracer/demo/` creates a `pfm` file and the corresponding `png` image.
 ## <span style="color: green;">DEMO GIF</span>
 
 <img src="orthogonal.gif" alt="GIF 1" width="500" style="display:inline-block; margin-right:10px;">
-<img src="perspective.gif" alt="GIF 2" width="500" style="display:inline-block;">
+<img src="perspective_c.gif" alt="GIF 2" width="500" style="display:inline-block;">
 
 Before executing [demo_gif.jl](./demo_gif.jl), you need to install [ffmpeg](https://ffmpeg.org/):
 - Ubuntu / Debian bash:
@@ -72,7 +72,7 @@ where:
 
 A GIF file called `<camera_type>.gif` will appear in `myraytracer/`.
 
-### From *Version 0.4.0*, you can run:
+### From [Version 0.4.0](https://github.com/daviderivaa/myraytracer/releases/tag/v0.4.0), you can run:
 ```shell
 julia -t <n_threads> demo_gif.jl <camera_type> <w_colors>
 ```
