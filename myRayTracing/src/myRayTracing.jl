@@ -15,7 +15,7 @@ include("geometry.jl")
 export Vec, Vec2d, Point, Normal, Type_error, print_element, is_close, neg, squared_norm, norm, normalize, cross, Point_to_Vec, Vec_to_Point, Norm_to_Vec, Vec_to_Normal, create_onb_from_z
 
 include("transformations.jl")
-export Transformation, is_consistent, inverse, traslation, scaling, rotation, IDENTITY_MATR4x4
+export Transformation, is_consistent, inverse, translation, scaling, rotation, IDENTITY_MATR4x4
 
 include("ray.jl")
 export Ray, at, is_close
@@ -40,5 +40,8 @@ export World, add_shape!, get_shapes, get_single_shape, ray_intersection, is_poi
 
 include("render.jl")
 export Renderer, OnOffRenderer, FlatRenderer, PathTracer
+
+include("scene_file.jl")
+export InputStream, parse_scene, Scene
 
 end #module myRayTracing

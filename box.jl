@@ -28,7 +28,7 @@ if ARGS[1] == "perspective"
     angle_y = parse(Float64, ARGS[3])
     rot1 = rotation("z", angle_z*π/180.0)
     rot2 = rotation("y", angle_y*π/180.0)
-    Cam = PerspectiveCamera(1.0, 16.0/9.0, rot1(rot2(traslation(Vec(1.0, 0.0, 0.0)))))
+    Cam = PerspectiveCamera(1.0, 16.0/9.0, rot1(rot2(translation(Vec(1.0, 0.0, 0.0)))))
 
 elseif ARGS[1] == "orthogonal"
     path = "./CSG/"
@@ -38,7 +38,7 @@ elseif ARGS[1] == "orthogonal"
     angle_y = parse(Float64, ARGS[3])
     rot1 = rotation("z", angle_z*π/180.0)
     rot2 = rotation("y", angle_y*π/180.0)
-    Cam = OrthogonalCamera(16.0/9.0, rot1(rot2(traslation(Vec(-2.0, 0.0, 0.3)))))
+    Cam = OrthogonalCamera(16.0/9.0, rot1(rot2(translation(Vec(-2.0, 0.0, 0.3)))))
 
 else
     throw(InvalidARGS("Error in ARGS: in <camera_type> write perspective or orthogonal"))
@@ -64,15 +64,15 @@ material3 = Material(DiffuseBRDF(pig3, 0.5), pig3)
 material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
 material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
 
-s1 = Sphere(traslation(Vec(0.1, 0.0, 0.5))(scaling(0.3)), material5) #creates a sphere with radius = 0.1
-s2 = Sphere(traslation(Vec(0.5, -0.12, 0.0))(scaling(0.3)), material2)
+s1 = Sphere(translation(Vec(0.1, 0.0, 0.5))(scaling(0.3)), material5) #creates a sphere with radius = 0.1
+s2 = Sphere(translation(Vec(0.5, -0.12, 0.0))(scaling(0.3)), material2)
 
-r1 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), traslation(Vec(0.0, 0.0, 0.1)), material3) #Rectangle
-r2 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(0.0, 0.0, 1.0), Vec(0.0, 1.0, 0.0), traslation(Vec(0.0, 0.0, 0.1)), material1) #Rectangle
-r3 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(0.0, 1.0, 0.0), Vec(1.0, 0.0, 0.0), traslation(Vec(0.0, 0.0, 1.1)), material3) #Rectangle
-r4 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 0.0, 1.0), traslation(Vec(0.0, 0.0, 0.1)), material2) #Rectangle
-r5 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 0.0, 1.0), traslation(Vec(0.0, 1.0, 0.1)), material2) #Rectangle
-p1 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material4) #plane
+r1 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), translation(Vec(0.0, 0.0, 0.1)), material3) #Rectangle
+r2 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(0.0, 0.0, 1.0), Vec(0.0, 1.0, 0.0), translation(Vec(0.0, 0.0, 0.1)), material1) #Rectangle
+r3 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(0.0, 1.0, 0.0), Vec(1.0, 0.0, 0.0), translation(Vec(0.0, 0.0, 1.1)), material3) #Rectangle
+r4 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 0.0, 1.0), translation(Vec(0.0, 0.0, 0.1)), material2) #Rectangle
+r5 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 0.0, 1.0), translation(Vec(0.0, 1.0, 0.1)), material2) #Rectangle
+p1 = Plane(translation(Vec(0.0, 0.0, -1.0)), material4) #plane
 
 add_shape!(w, s1)
 add_shape!(w, r1)

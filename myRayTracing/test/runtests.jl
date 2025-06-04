@@ -92,7 +92,7 @@ end
     v = Vec(1.0, 2.0, 3.0)
     n = Normal(0.0, 0.0, 1.0)
     u = Vec(9.0, 8.0, 7.0)
-    t = traslation(u)
+    t = translation(u)
     rx = rotation("x", pi/2)
     ry = rotation("y", pi/2)
     rz = rotation("z", pi/2)
@@ -148,7 +148,7 @@ end
 @testset "Check camera methods" begin
 
     vec = Vec(0.0, 0.0, 0.0)
-    t = traslation(vec)
+    t = translation(vec)
     OC = OrthogonalCamera((16.0/9.0), t)
     PC = PerspectiveCamera(1.0, (16.0/9.0), t)
     OCorigin = Point(-1.0, (16.0/9.0), -1.0)
@@ -167,7 +167,7 @@ end
 @testset "Check ImageTracer methods" begin
     
     vec = Vec(0.0, 0.0, 0.0)
-    t = traslation(vec)
+    t = translation(vec)
     OC = OrthogonalCamera((16.0/9.0), t)
     PC = PerspectiveCamera(1.0, (16.0/9.0), t)
     image = HdrImage(2,3)
@@ -244,7 +244,7 @@ end
     @test is_close(hr_3, HRtest_3)
 
     v = Vec(10.0, 0.0, 0.0)
-    tr = traslation(v)
+    tr = translation(v)
     sph_2 = Sphere(tr)
 
     ray_4 = Ray(Point(10.0, 0.0, 2.0), Vec(0.0, 0.0, -1.0))
@@ -289,7 +289,7 @@ end
     pl_1 = Plane(null_transform)
 
     v = Vec(10.0, 7.0, 5.0)
-    trasl = traslation(v)
+    trasl = translation(v)
     pl_2 = Plane(trasl)
 
     rot = rotation("x", π/4)
@@ -332,13 +332,13 @@ end
 
     coords = [-0.5,0.5]
     for x in coords, y in coords, z in coords
-        trasl = traslation(Vec(x,y,z)) #put sphere in the correct position
+        trasl = translation(Vec(x,y,z)) #put sphere in the correct position
         s = Sphere(trasl(scaling(0.1))) #creates a sphere with radius = 0.1
         add_shape!(w, s)
     end
 
-    trasl1 = traslation(Vec(0.0, 0.0, -0.5))
-    trasl2 = traslation(Vec(0.0, 0.5, 0.0))
+    trasl1 = translation(Vec(0.0, 0.0, -0.5))
+    trasl2 = translation(Vec(0.0, 0.5, 0.0))
     s1 = Sphere(trasl1(scaling(0.1)))
     s2 = Sphere(trasl2(scaling(0.1)))
     add_shape!(w,s1)

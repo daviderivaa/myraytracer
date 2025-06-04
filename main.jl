@@ -1,15 +1,68 @@
+#MAIN PROJECT
+
 using Pkg
 Pkg.activate("myRayTracing")
 using Images
-using myRayTracing #Fino a qua non toccare che serve a importare classi e librerie correttamente
+using Colors
+using myRayTracing
+using LinearAlgebra
+using Profile
+using PProf
 
-format, width, height, endianness, pixel_data = read_pfm("./PFM_input/memorial.pfm")
-alpha, gamma, output_file_name, output_file_format = read_user_input()
+include("pfm2png.jl")
 
-image = HdrImage(pixel_data, width, height)
+#Error definition
+"""
+throws a message if ARGS is incorrect
+"""
+struct InvalidARGS <: Exception
+    msg::String
+end
 
-tone_mapping!(image, alpha)
-gamma_correction!(image, gamma)
+if length(ARGS) < 1 || length(ARGS) > 2
+    throw(InvalidARGS("Required julia main.jl <text file> <profile(optional)>"))
+end
 
-complete_output_file_name = "$(output_file_name)_g$(gamma)a$(alpha).$(output_file_format)"
-save("./memorial_images/" * complete_output_file_name, image.pixels)
+txt_file = "./examples/" * ARGS[1]
+
+scene = open(txt_file, "r") do file
+    input = InputStream(file)
+    params = Dict{String, Float64}()
+    parse_scene(input, params)
+end
+
+println("Scene parsed successfully!")
+println(typeof(scene))
+
+path = "./demo_scene/"
+pfm_filename_and_path = "./demo_scene/demo_path" * ".pfm"
+filename = "demo_scene"
+Cam = scene.camera
+
+w = scene.world
+
+for s in scene.world._shapes
+    add_shape!(w, s)
+end
+
+img = HdrImage(160,90)
+IT = ImageTracer(img, Cam)
+
+pcg = new_PCG()
+
+RND = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 2, 3, 2)
+
+enable_profile = "--profile" in ARGS
+if enable_profile
+    @pprof fire_all_rays!(IT, RND, pcg, 2)
+else
+    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND, pcg, 2)
+    println("Profiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
+    println("For a complete profiling use --profile flag")
+end
+
+open(pfm_filename_and_path, "w") do io
+    write_pfm(io, IT.img)
+end
+
+convert_pfm_to_png(path, pfm_filename_and_path, filename, 0.5)

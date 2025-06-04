@@ -82,7 +82,7 @@ add_shape!(w, s1)
 add_shape!(w, sky)
 add_shape!(w, p2)
 
-img = HdrImage(1600,900)
+img = HdrImage(160,90)
 IT = ImageTracer(img, Cam)
 
 pcg = new_PCG()
@@ -91,9 +91,9 @@ RND = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 2, 3, 2)
 
 enable_profile = "--profile" in ARGS
 if enable_profile
-    @pprof fire_all_rays!(IT, RND, pcg, 4)
+    @pprof fire_all_rays!(IT, RND, pcg, 2)
 else
-    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND, pcg, 4)
+    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND, pcg, 2)
     println("Profiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
     println("For a complete profiling use --profile flag")
 end

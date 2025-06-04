@@ -20,7 +20,7 @@ struct Transformation
     m::Matrix{Float64}
     invm::Matrix{Float64}
 
-    function Transformation(M::Matrix{Float64})
+    function Transformation(M::Matrix{Float64}=IDENTITY_MATR4x4)
         invM = inv(M)
         new(M, invM)
     end
@@ -62,10 +62,10 @@ function inverse(T::Transformation)
 end
 
 """
-function traslation(v)
+function translation(v)
     creates the transformation in case of translation by a given vector v
 """
-function traslation(v)
+function translation(v)
     try
 
         m = [1.0 0.0 0.0 v.x;
@@ -78,7 +78,7 @@ function traslation(v)
         return T
 
     catch
-        throw(Transformation_error("Cannot define a traslation"))
+        throw(Transformation_error("Cannot define a translation"))
     end
 end
 

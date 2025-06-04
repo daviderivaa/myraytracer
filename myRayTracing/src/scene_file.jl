@@ -161,7 +161,7 @@ end
 struct GrammarError <: Exception
 
     location::SourceLocation
-    message::str
+    message::String
 
 end
 
@@ -210,13 +210,13 @@ function update_pos!(input::InputStream, ch::Char)
 end
 
 """Read a character"""
-function read_char(input::InputStream)::Union{Char, Nothing}
+#=function read_char(input::InputStream)::Union{Char, Nothing}
 
     if input.saved_char !== nothing
         ch = input.saved_char
         input.saved_char = nothing
     else
-        bytes = read(input.stream, Char, 1)
+        bytes = read(input.stream, Char)
         ch = isempty(bytes) ? nothing : bytes[1]
     end
 
@@ -226,6 +226,30 @@ function read_char(input::InputStream)::Union{Char, Nothing}
     end
     return ch
 
+end=#
+function read_char(input::InputStream)::Union{Char, Nothing}
+    if input.saved_char !== nothing
+        ch = input.saved_char
+        input.saved_char = nothing
+    else
+        # Prova a leggere un carattere, se EOF ritorna nothing
+        try
+            ch = read(input.stream, Char)
+        catch e
+            if e isa EOFError
+                ch = nothing
+            else
+                rethrow(e)
+            end
+        end
+    end
+
+    input.saved_location = input.location
+    if ch !== nothing
+        update_pos!(input, ch)
+    end
+
+    return ch
 end
 
 """Unread a character"""
@@ -316,7 +340,7 @@ function parse_keyword_or_identifier_token(input::InputStream, first_char::Char,
     write(token, first_char)
     while true
         ch = read_char(input)
-        if ch === nothing || !(isalnum(ch) || ch == '_')
+        if ch === nothing || !(isletter(ch) || isdigit(ch) || ch == '_')
             if ch !== nothing
                 unread_char(input, ch)
             end
@@ -347,7 +371,8 @@ function read_token(input::InputStream)::AbstractToken
 
     ch = read_char(input)
     if ch === nothing
-        return StopToken(input.location)
+        loc_token = Token(input.location)
+        return StopToken(loc_token)
     end
 
     token_location = input.location
@@ -358,7 +383,7 @@ function read_token(input::InputStream)::AbstractToken
         return parse_string_token(input, token_location)
     elseif isdigit(ch) || ch in ['+', '-', '.']
         return parse_float_token(input, ch, token_location)
-    elseif isalpha(ch) || ch == '_'
+    elseif isletter(ch) || ch == '_'
         return parse_keyword_or_identifier_token(input, ch, token_location)
     else
         throw(GrammarError(token_location, "Invalid character '$ch' at $token_location"))
@@ -563,23 +588,23 @@ function parse_transformation(input_file::InputStream, scene::Scene)::Transforma
             #do nothing
         elseif kw == TRANSLATION
             expect_symbol(input_file, "[")
-            result *= translation(parse_vector(input_file, scene))
+            result(translation(parse_vector(input_file, scene)))
             expect_symbol(input_file, "]")
         elseif kw == ROTATION_X
             expect_symbol(input_file, "[")
-            result *= rotation_x(expect_number(input_file, scene))
+            result(rotation("x", expect_number(input_file, scene)))
             expect_symbol(input_file, "]")
         elseif kw == ROTATION_Y
             expect_symbol(input_file, "[")
-            result *= rotation_y(expect_number(input_file, scene))
+            result(rotation("y", expect_number(input_file, scene)))
             expect_symbol(input_file, "]")
         elseif kw == ROTATION_Z
             expect_symbol(input_file, "[")
-            result *= rotation_z(expect_number(input_file, scene))
+            result(rotation("z", expect_number(input_file, scene)))
             expect_symbol(input_file, "]")
         elseif kw == SCALING
             expect_symbol(input_file, "[")
-            result *= scaling(parse_vector(input_file, scene))
+            result(scaling(parse_vector(input_file, scene)))
             expect_symbol(input_file, "]")
         end
 
@@ -599,11 +624,11 @@ function parse_sphere(input_file::InputStream, scene::Scene)::Sphere
     expect_symbol(input_file, "(")
     material_name = expect_identifier(input_file)
     if !(haskey(scene.materials, material_name))
-        throw(GrammarError(input_file.tokens[input_file.pos-1].location, "unknown material $material_name"))
+        throw(GrammarError(input_file.location, "unknown material $material_name"))
     end
     expect_symbol(input_file, ",")
     transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, "]")
+    expect_symbol(input_file, ")")
     return Sphere(transformation, scene.materials[material_name])
 
 end
@@ -614,11 +639,11 @@ function parse_plane(input_file::InputStream, scene::Scene)::Plane
     expect_symbol(input_file, "(")
     material_name = expect_identifier(input_file)
     if !(haskey(scene.materials, material_name))
-        throw(GrammarError(input_file.tokens[input_file.pos-1].location, "unknown material $material_name"))
+        throw(GrammarError(input_file.location, "unknown material $material_name"))
     end
     expect_symbol(input_file, ",")
     transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, "]")
+    expect_symbol(input_file, ")")
     return Plane(transformation, scene.materials[material_name])
 
 end
@@ -663,7 +688,7 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
 
         if what.keyword == FLOAT
             variable_name = expect_identifier(input_file)
-            variable_loc = input_file.pos
+            variable_loc = input_file.location
             expect_symbol(input_file, "(")
             variable_value = expect_number(input_file, scene)
             expect_symbol(input_file, ")")
@@ -677,9 +702,9 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
             end
 
         elseif what.keyword == SPHERE
-            push!(scene.world.shapes, parse_sphere(input_file, scene))
+            push!(scene.world._shapes, parse_sphere(input_file, scene))
         elseif what.keyword == PLANE
-            push!(scene.world.shapes, parse_plane(input_file, scene))
+            push!(scene.world._shapes, parse_plane(input_file, scene))
         elseif what.keyword == CAMERA
             if scene.camera !== nothing
                 throw(GrammarError(what.location, "At $(what.location): You cannot define more than one camera"))
