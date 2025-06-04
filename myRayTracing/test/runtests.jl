@@ -1,6 +1,5 @@
 using myRayTracing
 using Test
-using LinearAlgebra
 using Colors
 
 @testset "Check _read_float" begin

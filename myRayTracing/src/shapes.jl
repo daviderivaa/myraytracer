@@ -1,5 +1,4 @@
 #SHAPE STRUCTS
-using LinearAlgebra
 
 #DEFINING AN ABSTRACT TYPE FOR SHAPES
 """Abstract struct for shapes"""
@@ -801,7 +800,7 @@ struct union_shape <: Shape
     s2::Shape
     T::Transformation
 
-    function union_shape(s1, s2, T::Transformation=Transformation(Matrix{Float64}(I(4))))
+    function union_shape(s1, s2, T::Transformation=Transformation(IDENTITY_MATR4x4))
         new(s1, s2, T)
     end
 
@@ -862,7 +861,7 @@ struct intersec_shape <: Shape
     s2::Shape
     T::Transformation
 
-    function intersec_shape(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
+    function intersec_shape(s1::Shape, s2::Shape, T::Transformation=Transformation(IDENTITY_MATR4x4))
         new(s1, s2, T)
     end
 
@@ -920,7 +919,7 @@ struct diff_shape <: Shape
     s2::Shape
     T::Transformation
 
-    function diff_shape(s1::Shape, s2::Shape, T::Transformation=Transformation(Matrix{Float64}(I(4))))
+    function diff_shape(s1::Shape, s2::Shape, T::Transformation=Transformation(IDENTITY_MATR4x4))
         new(s1, s2, T)
     end
 

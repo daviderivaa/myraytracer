@@ -1,10 +1,12 @@
 
 #DEFINING TRANSFORMATION STRUCT AND OPERATIONS
-using LinearAlgebra
 
 #########################################################################################
 
-const IDENTITY_MATR4x4 = Matrix{Float64}(I(4))
+const IDENTITY_MATR4x4 = [1.0 0.0 0.0 0.0;
+                          0.0 1.0 0.0 0.0;
+                          0.0 0.0 1.0 0.0;
+                          0.0 0.0 0.0 1.0]
 
 
 """
