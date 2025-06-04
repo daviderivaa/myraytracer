@@ -1,7 +1,8 @@
+###############################################################################
 #LEXER AND TOKEN STRUCTS
 
 const WHITESPACE = [' ', '\t', '\n', '\r']
-const SYMBOLS = ['(', ')', '<', '>', '[', ']', ',', '*']
+const SYMBOLS = ['(', ')', '<', '>', '[', ']', '{', '}', ',', '*']
 
 """
 mutable struct SourceLocation
@@ -70,6 +71,7 @@ end
 end
 
 const KEYWORDS = Dict{String, KeywordEnum}(
+
     "new" => NEW,
     "material" => MATERIAL,
     "plane" => PLANE,
@@ -89,7 +91,8 @@ const KEYWORDS = Dict{String, KeywordEnum}(
     "orthogonal" => ORTHOGONAL,
     "perspective" => PERSPECTIVE,
     "float" => FLOAT,
-    "point_light" => POINT_LIGHT,
+    "point_light" => POINT_LIGHT
+
 )
 
 """A token containing a Keyword"""
@@ -148,14 +151,14 @@ function token_str(t::AbstractToken)
 end
 
 """
-struct GrammarError(BaseException)
+struct GrammarError <: Exception
 
     location::SourceLocation --> position of the error
     message::str --> error's message
 
 end
 """
-struct GrammarError(BaseException)
+struct GrammarError <: Exception
 
     location::SourceLocation
     message::str
@@ -259,6 +262,9 @@ function skip_whitespaces_and_comments!(input::InputStream)
 
 end
 
+##########################################################################################
+# PARSERS
+
 """Parse a string token"""
 function parse_string_token(input::InputStream, token_location::SourceLocation)
 
@@ -266,7 +272,7 @@ function parse_string_token(input::InputStream, token_location::SourceLocation)
     while true
         ch = read_char(input)
         if ch === nothing
-            error("unterminated string at $token_location")
+            throw(GrammarError(token_location, "unterminated string at $token_location"))
         elseif ch == '"'
             break
         else
@@ -296,10 +302,10 @@ function parse_float_token(input::InputStream, first_char::Char, token_location:
     s = String(take!(token))
     try
         val = parse(Float64, s)
+        return LiteralNumberToken(token_location, val)
     catch
-        error("Invalid floating-point number '$s' at $token_location")
+        throw(GrammarError(token_location, "Invalid floating-point number '$s' at $token_location"))
     end
-    return LiteralNumberToken(token_location, val)
 
 end
 
@@ -355,7 +361,7 @@ function read_token(input::InputStream)::AbstractToken
     elseif isalpha(ch) || ch == '_'
         return parse_keyword_or_identifier_token(input, ch, token_location)
     else
-        error("Invalid character '$ch' at $token_location")
+        throw(GrammarError(token_location, "Invalid character '$ch' at $token_location"))
     end
 
 end
@@ -462,13 +468,13 @@ end
 """Parse a vector object from tokens"""
 function parse_vector(input_file::InputStream, scene::Scene)::Vec
 
-    expect_symbol(input_file, "[")
+    expect_symbol(input_file, "{")
     x = expect_number(input_file, scene)
     expect_symbol(input_file, ",")
     y = expect_number(input_file, scene)
     expect_symbol(input_file, ",")
     z = expect_number(input_file, scene)
-    expect_symbol(input_file, "]")
+    expect_symbol(input_file, "}")
     return Vec(x, y, z)
 
 end
@@ -556,25 +562,25 @@ function parse_transformation(input_file::InputStream, scene::Scene)::Transforma
         if kw == IDENTITY
             #do nothing
         elseif kw == TRANSLATION
-            expect_symbol(input_file, "(")
+            expect_symbol(input_file, "[")
             result *= translation(parse_vector(input_file, scene))
-            expect_symbol(input_file, ")")
+            expect_symbol(input_file, "]")
         elseif kw == ROTATION_X
-            expect_symbol(input_file, "(")
+            expect_symbol(input_file, "[")
             result *= rotation_x(expect_number(input_file, scene))
-            expect_symbol(input_file, ")")
+            expect_symbol(input_file, "]")
         elseif kw == ROTATION_Y
-            expect_symbol(input_file, "(")
+            expect_symbol(input_file, "[")
             result *= rotation_y(expect_number(input_file, scene))
-            expect_symbol(input_file, ")")
+            expect_symbol(input_file, "]")
         elseif kw == ROTATION_Z
-            expect_symbol(input_file, "(")
+            expect_symbol(input_file, "[")
             result *= rotation_z(expect_number(input_file, scene))
-            expect_symbol(input_file, ")")
+            expect_symbol(input_file, "]")
         elseif kw == SCALING
-            expect_symbol(input_file, "(")
+            expect_symbol(input_file, "[")
             result *= scaling(parse_vector(input_file, scene))
-            expect_symbol(input_file, ")")
+            expect_symbol(input_file, "]")
         end
 
         next_tok = read_token(input_file)
@@ -597,7 +603,7 @@ function parse_sphere(input_file::InputStream, scene::Scene)::Sphere
     end
     expect_symbol(input_file, ",")
     transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, ")")
+    expect_symbol(input_file, "]")
     return Sphere(transformation, scene.materials[material_name])
 
 end
@@ -612,7 +618,7 @@ function parse_plane(input_file::InputStream, scene::Scene)::Plane
     end
     expect_symbol(input_file, ",")
     transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, ")")
+    expect_symbol(input_file, "]")
     return Plane(transformation, scene.materials[material_name])
 
 end
@@ -652,7 +658,7 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
         end
 
         if !(what isa KeywordToken)
-            error("GrammarError at $(what.location): expected a keyword instead of '$(what)'")
+            throw(GrammarError(what.location, "At $(what.location): expected a keyword instead of '$(what)'"))
         end
 
         if what.keyword == FLOAT
@@ -663,7 +669,7 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
             expect_symbol(input_file, ")")
 
             if (haskey(scene.float_variables, variable_name) && !(variable_name in scene.overridden_variables))
-                error("GrammarError at $(variable_loc): variable «$(variable_name)» cannot be redefined")
+                throw(GrammarError(variable_loc, "At $(variable_loc): variable «$(variable_name)» cannot be redefined"))
             end
 
             if !(variable_name in scene.overridden_variables)
@@ -675,8 +681,8 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
         elseif what.keyword == PLANE
             push!(scene.world.shapes, parse_plane(input_file, scene))
         elseif what.keyword == CAMERA
-            if scene.camera != nothing
-                error("GrammarError at $(what.location): You cannot define more than one camera")
+            if scene.camera !== nothing
+                throw(GrammarError(what.location, "At $(what.location): You cannot define more than one camera"))
             end
             scene.camera = parse_camera(input_file, scene)
         elseif what.keyword == MATERIAL
@@ -686,7 +692,7 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
             point_light = parse_point_light(input_file, scene)
             push!(scene.world.lights, point_light)
         else
-            error("GrammarError at $(what.location): Unexpected token $(what)")
+            throw(GrammarError(what.location, "At $(what.location): Unexpected token $(what)"))
         end
     end
 

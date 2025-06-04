@@ -147,7 +147,7 @@ GC: 0.577122232 s
 For a complete profiling use --profile flag
 ```
 
-When using `--profile` flag, a `profile.pb.gz` will be created (ignore errors), with [PProf](https://github.com/JuliaPerf/PProf.jl). In order to visualize it, open **Julia REPL** and use:
+When using `--profile` flag, a `profile.pb.gz` will be created (ignore errors, see Issue [here](https://github.com/JuliaPerf/PProf.jl/issues/102)), with [PProf](https://github.com/JuliaPerf/PProf.jl). In order to visualize it, open **Julia REPL** and use:
 ```shell
 julia> using Pkg
 ```

@@ -59,7 +59,7 @@ format, width, height, endianness, pixel_data = read_pfm("./PFM_input/pigsky.pfm
 
 starsky = HdrImage(pixel_data, width, height)
 
-pig1 = CheckeredPigment(color2, color3, 10)
+pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color3, 10)
 pig2 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color1, 10)
 pig3 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color2, 10)
 pig4 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color5, 10)
@@ -68,7 +68,7 @@ pigsky = ImagePigment(starsky)
 
 material1 = Material(DiffuseBRDF(pig1, 0.5))
 material2 = Material(DiffuseBRDF(pig2, 0.5), pig2)
-material3 = Material(DiffuseBRDF(pig3, 0.5), pig3)
+material3 = Material(DiffuseBRDF(pig3, 0.5))
 material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
 material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
 
@@ -102,4 +102,4 @@ open(pfm_filename_and_path, "w") do io
     write_pfm(io, IT.img)
 end
 
-convert_pfm_to_png(path, pfm_filename_and_path, filename, 0.3)
+convert_pfm_to_png(path, pfm_filename_and_path, filename, 0.5)
