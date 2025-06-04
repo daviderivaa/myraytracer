@@ -23,16 +23,19 @@ if length(ARGS) < 1 || length(ARGS) > 2
     throw(InvalidARGS("Required julia main.jl <text file> <profile(optional)>"))
 end
 
-txt_file = "./examples/" * ARGS[1]
+txt_file = "./examples/" * ARGS[1] * ".txt"
 
-scene = open(txt_file, "r") do file
-    input = InputStream(file)
-    params = Dict{String, Float64}()
-    parse_scene(input, params)
+function read_txt(file_in)
+    open(file_in, "r") do file
+        input = InputStream(file)
+        params = Dict{String, Float64}()
+        return parse_scene(input, params)
+    end
 end
+scene = read_txt(txt_file)
 
 println("Scene parsed successfully!")
-println(typeof(scene))
+println(scene)
 
 path = "./demo_scene/"
 pfm_filename_and_path = "./demo_scene/demo_path" * ".pfm"
@@ -40,10 +43,6 @@ filename = "demo_scene"
 Cam = scene.camera
 
 w = scene.world
-
-for s in scene.world._shapes
-    add_shape!(w, s)
-end
 
 img = HdrImage(160,90)
 IT = ImageTracer(img, Cam)
@@ -57,7 +56,7 @@ if enable_profile
     @pprof fire_all_rays!(IT, RND, pcg, 2)
 else
     val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND, pcg, 2)
-    println("Profiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
+    println("\nProfiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
     println("For a complete profiling use --profile flag")
 end
 

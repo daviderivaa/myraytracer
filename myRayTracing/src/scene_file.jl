@@ -405,7 +405,7 @@ mutable struct Scene
 
     materials::Dict{String, Material}
     world::World
-    camera::Union{Camera, Nothing}
+    camera::Union{Camera, nothing}
     float_variables::Dict{String, Float64}
     overridden_variables::Set{String}
 
@@ -419,8 +419,8 @@ mutable struct Scene
     float_variables::Dict{String, Float64}
     overridden_variables::Set{String}
 
-    function Scene()
-        new(Dict{String, Material}(), World(), nothing, Dict{String, Float64}(), Set{String}())
+    function Scene(mat::Dict{String, Material}=Dict{String, Material}(), w::World=World(), cam::Union{Camera, Nothing}=nothing, fl_v::Dict{String, Float64}=Dict{String, Float64}(), ov_v::Set{String}=Set{String}())
+        new(mat, w, cam, fl_v, ov_v)
     end
 
 end
@@ -670,7 +670,7 @@ function parse_camera(input_file::InputStream, scene::Scene)::Camera
 end
 
 """Parse a Scene object from tokens"""
-function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=Dict())::Scene
+function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=Dict{String, Float64}())::Scene
 
     scene = Scene()
     scene.float_variables = copy(variables)
