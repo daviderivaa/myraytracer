@@ -201,7 +201,7 @@ end
 
 @testset "Check HitRecord methods" begin
 
-    id = Matrix{Float64}(I(4))
+    id = IDENTITY_MATR4x4
     null_transform = Transformation(id)
     pl = Plane(null_transform)
     
@@ -214,7 +214,7 @@ end
 
 @testset "Check sphere methods" begin
 
-    id = Matrix{Float64}(I(4))
+    id = IDENTITY_MATR4x4
     null_transform = Transformation(id)
     sph_1 = Sphere(null_transform)
 
@@ -284,7 +284,7 @@ end
 
 @testset "Check plane methods" begin
 
-    id = Matrix{Float64}(I(4))
+    id = IDENTITY_MATR4x4
     null_transform = Transformation(id)
     pl_1 = Plane(null_transform)
 
@@ -493,7 +493,7 @@ end
         w = World()
         furnace_material = Material(DiffuseBRDF(UniformPigment(RGB(1.0 , 1.0 , 1.0) * reflectance)), UniformPigment(RGB(1.0 , 1.0 , 1.0) * emitted_radiance))
 
-        add_shape!(w, Sphere(Transformation(Matrix{Float64}(I(4))), furnace_material))
+        add_shape!(w, Sphere(Transformation(IDENTITY_MATR4x4), furnace_material))
 
         path_tracer = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 1, 100, 101)
         ray = Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
