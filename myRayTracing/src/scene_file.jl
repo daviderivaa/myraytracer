@@ -588,23 +588,23 @@ function parse_transformation(input_file::InputStream, scene::Scene)::Transforma
             #do nothing
         elseif kw == TRANSLATION
             expect_symbol(input_file, "[")
-            result(translation(parse_vector(input_file, scene)))
+            result = result(translation(parse_vector(input_file, scene)))
             expect_symbol(input_file, "]")
         elseif kw == ROTATION_X
             expect_symbol(input_file, "[")
-            result(rotation("x", expect_number(input_file, scene)))
+            result = result(rotation("x", expect_number(input_file, scene)))
             expect_symbol(input_file, "]")
         elseif kw == ROTATION_Y
             expect_symbol(input_file, "[")
-            result(rotation("y", expect_number(input_file, scene)))
+            result = result(rotation("y", expect_number(input_file, scene)))
             expect_symbol(input_file, "]")
         elseif kw == ROTATION_Z
             expect_symbol(input_file, "[")
-            result(rotation("z", expect_number(input_file, scene)))
+            result = result(rotation("z", expect_number(input_file, scene)))
             expect_symbol(input_file, "]")
         elseif kw == SCALING
             expect_symbol(input_file, "[")
-            result(scaling(parse_vector(input_file, scene)))
+            result = result(scaling(expect_number(input_file, scene)))
             expect_symbol(input_file, "]")
         end
 

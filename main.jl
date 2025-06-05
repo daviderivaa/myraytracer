@@ -28,23 +28,22 @@ txt_file = "./examples/" * ARGS[1] * ".txt"
 function read_txt(file_in)
     open(file_in, "r") do file
         input = InputStream(file)
-        params = Dict{String, Float64}()
-        return parse_scene(input, params)
+        #params = Dict{String, Float64}()
+        return parse_scene(input)
     end
 end
 scene = read_txt(txt_file)
 
 println("Scene parsed successfully!")
-println(scene)
 
 path = "./demo_scene/"
-pfm_filename_and_path = "./demo_scene/demo_path" * ".pfm"
+pfm_filename_and_path = "./demo_scene/demo_scene" * ".pfm"
 filename = "demo_scene"
 Cam = scene.camera
 
 w = scene.world
 
-img = HdrImage(160,90)
+img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
 
 pcg = new_PCG()
@@ -56,7 +55,7 @@ if enable_profile
     @pprof fire_all_rays!(IT, RND, pcg, 2)
 else
     val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND, pcg, 2)
-    println("\nProfiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
+    println("Profiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
     println("For a complete profiling use --profile flag")
 end
 

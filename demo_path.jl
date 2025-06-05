@@ -31,7 +31,7 @@ if ARGS[1] == "perspective"
     angle_y = parse(Float64, ARGS[3])
     rot1 = rotation("z", angle_z*π/180.0)
     rot2 = rotation("y", angle_y*π/180.0)
-    Cam = PerspectiveCamera(6.0, 16.0/9.0, rot1(rot2(traslation(Vec(-1.0, 0.0, 0.0)))))
+    Cam = PerspectiveCamera(6.0, 16.0/9.0, rot1(rot2(translation(Vec(-1.0, 0.0, 0.0)))))
 
 elseif ARGS[1] == "orthogonal"
     path = "./demo_path/"
@@ -41,7 +41,7 @@ elseif ARGS[1] == "orthogonal"
     angle_y = parse(Float64, ARGS[3])
     rot1 = rotation("z", angle_z*π/180.0)
     rot2 = rotation("y", angle_y*π/180.0)
-    Cam = OrthogonalCamera(16.0/9.0, rot1(rot2(traslation(Vec(-2.0, 0.0, 0.3)))))
+    Cam = OrthogonalCamera(16.0/9.0, rot1(rot2(translation(Vec(-2.0, 0.0, 0.3)))))
 
 else
     throw(InvalidARGS("Error in ARGS: in <camera_type> write perspective or orthogonal"))
@@ -72,11 +72,12 @@ material3 = Material(DiffuseBRDF(pig3, 0.5))
 material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
 material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
 
-s = Sphere(traslation(Vec(0.0, 0.0, -0.7))(scaling(0.3)), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0)))))
-s1 = Sphere(traslation(Vec(0.0, -1.3, -0.5))(scaling(0.5)), Material(DiffuseBRDF(UniformPigment(RGB(1.0, 1.0, 0.0)))))
+s = Sphere(translation(Vec(0.0, 0.0, -0.7))(scaling(0.3)), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0)))))
+s1 = Sphere(translation(Vec(0.0, -1.3, -0.5))(scaling(0.5)), Material(DiffuseBRDF(UniformPigment(RGB(1.0, 1.0, 0.0)))))
 sky = Sphere(scaling(15.0), Material(DiffuseBRDF(UniformPigment(RGB(0.58, 0.56, 0.6)), 0.0), UniformPigment(RGB(0.58, 0.56, 0.6))))
 #sky = Sphere(scaling(10.0), Material(DiffuseBRDF(pigsky), pigsky))
-p2 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material1)
+p2 = Plane(translation(Vec(0.0, 0.0, -1.0)), material1)
+println(p2)
 add_shape!(w, s)
 add_shape!(w, s1)
 add_shape!(w, sky)
