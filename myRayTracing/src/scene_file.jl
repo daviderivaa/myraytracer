@@ -67,6 +67,7 @@ end
     PERSPECTIVE = 18
     FLOAT = 19
     POINT_LIGHT = 20
+    BOX = 21
 
 end
 
@@ -91,7 +92,8 @@ const KEYWORDS = Dict{String, KeywordEnum}(
     "orthogonal" => ORTHOGONAL,
     "perspective" => PERSPECTIVE,
     "float" => FLOAT,
-    "point_light" => POINT_LIGHT
+    "point_light" => POINT_LIGHT,
+    "box" => BOX
 
 )
 
@@ -648,6 +650,27 @@ function parse_plane(input_file::InputStream, scene::Scene)::Plane
 
 end
 
+"""Parse a Box object from tokens"""
+function parse_box(input_file::InputStream, scene::Scene)::Box
+
+    expect_symbol(input_file, "(")
+    x = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    y = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    z = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    material_name = expect_identifier(input_file)
+    if !(haskey(scene.materials, material_name))
+        throw(GrammarError(input_file.location, "unknown material $material_name"))
+    end
+    expect_symbol(input_file, ",")
+    transformation = parse_transformation(input_file, scene)
+    expect_symbol(input_file, ")")
+    return Box(x, y, z, transformation, scene.materials[material_name])
+
+end
+
 """Parse a Camera object from tokens"""
 function parse_camera(input_file::InputStream, scene::Scene)::Camera
 
@@ -705,6 +728,8 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
             push!(scene.world._shapes, parse_sphere(input_file, scene))
         elseif what.keyword == PLANE
             push!(scene.world._shapes, parse_plane(input_file, scene))
+        elseif what.keyword == BOX
+            push!(scene.world._shapes, parse_box(input_file, scene))
         elseif what.keyword == CAMERA
             if scene.camera !== nothing
                 throw(GrammarError(what.location, "At $(what.location): You cannot define more than one camera"))
