@@ -253,7 +253,7 @@ function read_char(input::InputStream)::Union{Char, Nothing}
 end
 
 """Unread a character"""
-function unread_char(input::InputStream, ch::Char)
+function unread_char!(input::InputStream, ch::Char)
 
     @assert input.saved_char === nothing "Cannot unread more than one char"
     input.saved_char = ch
@@ -279,7 +279,7 @@ function skip_whitespaces_and_comments!(input::InputStream)
                 end
             end
         else
-            unread_char(input, ch)
+            unread_char!(input, ch)
             return
         end
     end
@@ -316,7 +316,7 @@ function parse_float_token(input::InputStream, first_char::Char, token_location:
         ch = read_char(input)
         if ch === nothing || !(isdigit(ch) || ch == '.' || ch == 'e' || ch == 'E' || ch == '+' || ch == '-')
             if ch !== nothing
-                unread_char(input, ch)
+                unread_char!(input, ch)
             end
             break
         end
@@ -342,7 +342,7 @@ function parse_keyword_or_identifier_token(input::InputStream, first_char::Char,
         ch = read_char(input)
         if ch === nothing || !(isletter(ch) || isdigit(ch) || ch == '_')
             if ch !== nothing
-                unread_char(input, ch)
+                unread_char!(input, ch)
             end
             break
         end

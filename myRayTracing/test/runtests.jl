@@ -506,3 +506,88 @@ end
         @test isapprox(expected, color.b; rtol=0, atol=1e-3)
     end
 end
+
+
+@testset "Check InputStream" begin
+    i_stream = InputStream(IOBuffer("Abc \t \nd\neF"))
+
+    @test i_stream.location.line_num == 1
+    @test i_stream.location.col_num == 1
+
+    @test myRayTracing.read_char(i_stream) == 'A'
+    @test i_stream.location.line_num == 1
+    @test i_stream.location.col_num == 2
+
+    @test myRayTracing.read_char(i_stream) == 'b'
+    @test i_stream.location.line_num == 1
+    @test i_stream.location.col_num == 3
+
+    myRayTracing.unread_char!(i_stream, 'b')
+    @test i_stream.saved_char == 'b'
+    myRayTracing.read_char(i_stream)
+
+    @test myRayTracing.read_char(i_stream) == 'c'
+    @test i_stream.location.line_num == 1
+    @test i_stream.location.col_num == 4
+
+    myRayTracing.skip_whitespaces_and_comments!(i_stream)
+    @test i_stream.location.line_num == 2
+    @test i_stream.location.col_num == 1
+
+    @test myRayTracing.read_char(i_stream) == 'd'
+    @test i_stream.location.line_num == 2
+    @test i_stream.location.col_num == 2
+
+    @test myRayTracing.read_char(i_stream) == '\n'
+    @test i_stream.location.line_num == 3
+    @test i_stream.location.col_num == 1
+
+    @test myRayTracing.read_char(i_stream) == 'e'
+    @test i_stream.location.line_num == 3
+    @test i_stream.location.col_num == 2
+
+    @test myRayTracing.read_char(i_stream) == 'F'
+    @test i_stream.location.line_num == 3
+    @test i_stream.location.col_num == 3
+
+    @test myRayTracing.read_char(i_stream) === nothing
+    @test i_stream.location.line_num == 3
+    @test i_stream.location.col_num == 3
+end
+
+
+@testset "Check Lexer" begin
+    i_buff = IOBuffer("#Comment 1\n#Comment 2\nmaterial sphere_material(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))")
+
+    i_stream = InputStream(i_buff)
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.KeywordToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.IdentifierToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.KeywordToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.KeywordToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.KeywordToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.StopToken
+
+end
