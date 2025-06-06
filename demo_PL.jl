@@ -76,7 +76,7 @@ add_shape!(w, s1)
 add_shape!(w, sky)
 add_shape!(w, p2)
 
-PL = PointLight(Point(0.0, -1.0, 2.0), RGB(0.58, 0.56, 0.6), 100.0)
+PL = PointLight(Point(0.0, -1.0, 12.0), RGB(0.58, 0.56, 0.6), 100.0)
 add_light!(w, PL)
 
 img = HdrImage(1600,900)
@@ -84,7 +84,7 @@ IT = ImageTracer(img, Cam)
 
 pcg = new_PCG()
 
-RND = PointLightRenderer(w, RGB(0.3, 0.3, 0.3))
+RND = PointLightRenderer(w, RGB(0.0, 0.0, 0.0), RGB(0.3, 0.3, 0.3))
 
 enable_profile = "--profile" in ARGS
 if enable_profile

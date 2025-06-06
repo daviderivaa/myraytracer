@@ -178,11 +178,11 @@ function (RND::PointLightRenderer)(ray::Ray)
     end
 
     hit_material = hit_record.s.material
-    result_color = RND.ambient_color
+    emitted_color = get_color(hit_material.emitted_radiance, hit_record.surface_point)
+
+    result_color = RND.ambient_color + emitted_color
 
     for light in get_lights(RND.w)
-
-        #println("Is P visible: ",is_point_visible(RND.w, light.pos, hit_record.world_point),"\n")
 
         if is_point_visible(RND.w, light.pos, hit_record.world_point)
 
@@ -199,11 +199,10 @@ function (RND::PointLightRenderer)(ray::Ray)
                 distance_factor = 1.0
             end
 
-            emitted_color = get_color(hit_material.emitted_radiance, hit_record.surface_point)
 
             brdf_color = Eval(hit_material.brdf, hit_record.surface_point, hit_record.normal, in_dir, neg(ray.dir))
 
-            result_color += (emitted_color + brdf_color) * light.color * cos_theta * distance_factor
+            result_color += brdf_color * light.color * cos_theta * distance_factor
         
         end
     end
