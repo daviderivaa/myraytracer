@@ -265,7 +265,12 @@ function quick_ray_intersection(shape::Plane, r::Ray)
     if inv_r.dir.z == 0
         return false
     else 
-        return true
+        t_hit = - inv_r.origin.z / inv_r.dir.z
+        if t_hit < inv_r.tmin || t_hit > inv_r.tmax
+            return false
+        else
+            return true
+        end
     end
 end
 
