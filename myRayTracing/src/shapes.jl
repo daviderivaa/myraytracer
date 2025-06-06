@@ -1354,6 +1354,25 @@ function ray_intersection(u_shape::union_shape, r::Ray)
     end
 end
 
+"""
+function quick_ray_intersection(u_shape::union_shape, r::Ray)
+    Given a union of shapes and a ray, it returns whether the intersection between the ray and the shape happens or not
+"""
+function quick_ray_intersection(u_shape::union_shape, r::Ray)
+    all_hits_intervals = all_ray_intersection(u_shape, r)
+
+    if !isempty(all_hits_intervals)
+        for (entry_hit, exit_hit) in all_hits_intervals
+            if entry_hit.t > r.tmin || exit_hit.t > r.tmin
+                return true
+            end
+        end
+        return false
+    else
+        return false
+    end
+end
+
 #INTERSECTION
 """
 new shape type for intersection in CSG:
@@ -1412,6 +1431,25 @@ function ray_intersection(i_shape::intersec_shape, r::Ray)
     end
 end
 
+"""
+function quick_ray_intersection(i_shape::intersec_shape, r::Ray)
+    Given an intersection of shapes and a ray, it returns whether the intersection between the ray and the shape happens or not
+"""
+function quick_ray_intersection(i_shape::intersec_shape, r::Ray)
+    all_hits_intervals = all_ray_intersection(i_shape, r)
+
+    if !isempty(all_hits_intervals)
+        for (entry_hit, exit_hit) in all_hits_intervals
+            if entry_hit.t > r.tmin || exit_hit.t > r.tmin
+                return true
+            end
+        end
+        return false
+    else
+        return false
+    end
+end
+
 #DIFFERENCE
 """
 new shape type for difference in CSG:
@@ -1467,5 +1505,24 @@ function ray_intersection(d_shape::diff_shape, r::Ray)
         return nothing
     else
         return nothing
+    end
+end
+
+"""
+function quick_ray_intersection(d_shape::diff_shape, r::Ray)
+    Given a difference of shapes and a ray, it returns whether the intersection between the ray and the shape happens or not
+"""
+function quick_ray_intersection(d_shape::diff_shape, r::Ray)
+    all_hits_intervals = all_ray_intersection(d_shape, r)
+
+    if !isempty(all_hits_intervals)
+        for (entry_hit, exit_hit) in all_hits_intervals
+            if entry_hit.t > r.tmin || exit_hit.t > r.tmin
+                return true
+            end
+        end
+        return false
+    else
+        return false
     end
 end
