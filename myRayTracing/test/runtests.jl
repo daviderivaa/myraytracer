@@ -300,6 +300,7 @@ end
     ray_2 = Ray(Point(0.0, 0.0, -3.0), Vec(1.0, 1.0, 1.0))
     ray_3 = Ray(Point(0.0, 0.0, 1.0), Vec(1.0, 0.0, 0.0))
     ray_4 = Ray(Point(0.0, 0.0, 1.0), Vec(0.0, 1.0, 0.0))
+    ray_5 = Ray(Point(0.0, 0.0, 2.0), Vec(0.0, 0.0, 1.0))
 
     @test quick_ray_intersection(pl_1, ray_1) == true
     @test quick_ray_intersection(pl_1, ray_2) == true
@@ -309,6 +310,8 @@ end
     @test quick_ray_intersection(pl_3, ray_1) == true
     @test quick_ray_intersection(pl_3, ray_3) == false
     @test quick_ray_intersection(pl_3, ray_4) == true
+    @test quick_ray_intersection(pl_1, ray_5) == false
+    @test quick_ray_intersection(pl_2, ray_5) == true
 
     hr_11 = ray_intersection(pl_1, ray_1)
     hr_12 = ray_intersection(pl_1, ray_2) 
@@ -325,6 +328,64 @@ end
     @test is_close(hr_21, HRtest_21)
     @test is_close(hr_34, HRtest_34)
 
+end
+
+@testset "Check box methods" begin
+    box1 = Box(1.0, 2.0, 3.0)
+    box2 = Box(1.0, 2.0, 3.0, traslation(Vec(0.0,0.0,10.0)))
+    box3 = Box(1.0, 2.0, 3.0, rotation("z", π/2))
+
+    ray_1 = Ray(Point(-2.0, -1.0, -3.0), Vec(3.0, 1.0, 5.0))
+    ray_2 = Ray(Point(-1.0, 0.5, 2.0), Vec(1.0, 0.0, 0.0))
+    ray_3 = Ray(Point(-5.0, 0.5, 1.0), Vec(1.0, 0.0, 0.0))
+    ray_4 = Ray(Point(0.5, 4.0, 1.5), Vec(0.0, -1.0, 0.0))
+    #ray_5 = Ray(Point(), Vec())
+
+    @test quick_ray_intersection(box1, ray_1) == false
+    @test ray_intersection(box1, ray_1) === nothing
+    @test quick_ray_intersection(box2, ray_1) == false
+    @test ray_intersection(box2, ray_1) === nothing
+    @test quick_ray_intersection(box3, ray_1) == false
+    @test ray_intersection(box3, ray_1) === nothing
+
+    @test quick_ray_intersection(box1, ray_2) == true
+    hr12 = ray_intersection(box1, ray_2)
+    @test abs(hr12.t - 1.0) < 1e-6
+    @test is_close(hr12.world_point, Point(0.0, 0.5, 2.0))
+    @test quick_ray_intersection(box2, ray_2) == false
+    @test ray_intersection(box2, ray_2) === nothing
+    @test quick_ray_intersection(box3, ray_2) == true
+    hr32 = ray_intersection(box3, ray_2)
+    @test abs(hr32.t - 1.0) < 1e-6
+    @test is_close(hr32.normal, Normal(-1.0, 0.0, 0.0))
+
+    @test quick_ray_intersection(box1, ray_3) == true
+    hr13 = ray_intersection(box1, ray_3)
+    @test abs(hr13.t - 5.0) < 1e-6
+    @test quick_ray_intersection(box2, ray_3) == false
+    @test ray_intersection(box2, ray_3) === nothing
+    @test quick_ray_intersection(box3, ray_3) == true
+    hr33 = ray_intersection(box3, ray_3)
+    @test abs(hr33.t - 3.0) < 1e-6
+
+    @test quick_ray_intersection(box1, ray_4) == true
+    @test ray_intersection(box1, ray_4) !== nothing
+    @test quick_ray_intersection(box2, ray_4) == false
+    @test ray_intersection(box2, ray_4) === nothing
+    @test quick_ray_intersection(box3, ray_4) == false
+    @test ray_intersection(box3, ray_4) === nothing
+end
+
+@testset "Check cylinder methods" begin
+    
+end
+
+@testset "Check cone methods" begin
+    
+end
+
+@testset "Check csg methods" begin
+    
 end
 
 @testset "Check world methods" begin
