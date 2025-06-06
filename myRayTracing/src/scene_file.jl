@@ -690,7 +690,7 @@ function parse_camera(input_file::InputStream, scene::Scene)::Camera
         expect_symbol(input_file, ")")
         return OrthogonalCamera(aspect_ratio, transformation)
     else
-        GrammarError("Invalid $(type_kw) camera type, expected perspective or orthogonal")
+        throw(GrammarError("Invalid $(type_kw) camera type, expected perspective or orthogonal"))
     end
 
 end
