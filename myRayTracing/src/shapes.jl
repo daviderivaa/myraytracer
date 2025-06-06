@@ -416,6 +416,9 @@ struct Box <: Shape
     material::Material
 
     function Box(X::Float64, Y::Float64, Z::Float64, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+        if X <= 0.0 || Y <= 0.0 || Z <= 0.0
+            throw(ArgumentError("Box.X, .Y and .Z must be positives"))
+        end
         new(X, Y, Z, T, material)
     end
 end
@@ -636,6 +639,9 @@ struct Cylinder <: Shape
     material::Material
 
     function Cylinder(R::Float64, H::Float64, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+        if R <= 0.0 || H <= 0.0
+            throw(ArgumentError("Cylinder's Radius and Height must be positives"))
+        end
         new(R, H, T, material)
     end
 end
@@ -845,6 +851,9 @@ struct Cone <: Shape
     material::Material
 
     function Cone(R::Float64, H::Float64, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+        if R <= 0.0 || H <= 0.0
+            throw(ArgumentError("Cone's Radius and Height must be positives"))
+        end
         new(R, H, T, material)
     end
 end
