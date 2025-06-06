@@ -20,6 +20,9 @@ export Transformation, is_consistent, inverse, traslation, scaling, rotation
 include("ray.jl")
 export Ray, at, is_close
 
+include("lights.jl")
+export PointLight
+
 include("camera.jl")
 export Camera, fire_single_ray, OrthogonalCamera, PerspectiveCamera, aperture_deg
 
@@ -36,9 +39,9 @@ include("shapes.jl")
 export Shape, Sphere, Plane, Rectangle, Box, union_shape, intersec_shape, diff_shape, _merge_intervals, _intersect_intervals, _merge_intervals, all_ray_intersection, ray_intersection, quick_ray_intersection, HitRecord, is_close, union_shape, intersec_shape, diff_shape
 
 include("world.jl")
-export World, add_shape!, get_shapes, get_single_shape, ray_intersection, is_point_visible
+export World, add_shape!, get_shapes, get_single_shape, add_light!, get_lights, get_single_light, ray_intersection, is_point_visible
 
 include("render.jl")
-export Renderer, OnOffRenderer, FlatRenderer, PathTracer
+export Renderer, OnOffRenderer, FlatRenderer, PathTracer, PointLightRenderer
 
 end #module myRayTracing
