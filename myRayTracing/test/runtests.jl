@@ -1,6 +1,5 @@
 using myRayTracing
 using Test
-using LinearAlgebra
 using Colors
 
 @testset "Check _read_float" begin
@@ -93,7 +92,7 @@ end
     v = Vec(1.0, 2.0, 3.0)
     n = Normal(0.0, 0.0, 1.0)
     u = Vec(9.0, 8.0, 7.0)
-    t = traslation(u)
+    t = translation(u)
     rx = rotation("x", pi/2)
     ry = rotation("y", pi/2)
     rz = rotation("z", pi/2)
@@ -149,7 +148,7 @@ end
 @testset "Check camera methods" begin
 
     vec = Vec(0.0, 0.0, 0.0)
-    t = traslation(vec)
+    t = translation(vec)
     OC = OrthogonalCamera((16.0/9.0), t)
     PC = PerspectiveCamera(1.0, (16.0/9.0), t)
     OCorigin = Point(-1.0, (16.0/9.0), -1.0)
@@ -168,7 +167,7 @@ end
 @testset "Check ImageTracer methods" begin
     
     vec = Vec(0.0, 0.0, 0.0)
-    t = traslation(vec)
+    t = translation(vec)
     OC = OrthogonalCamera((16.0/9.0), t)
     PC = PerspectiveCamera(1.0, (16.0/9.0), t)
     image = HdrImage(2,3)
@@ -202,7 +201,7 @@ end
 
 @testset "Check HitRecord methods" begin
 
-    id = Matrix{Float64}(I(4))
+    id = IDENTITY_MATR4x4
     null_transform = Transformation(id)
     pl = Plane(null_transform)
     
@@ -215,7 +214,7 @@ end
 
 @testset "Check sphere methods" begin
 
-    id = Matrix{Float64}(I(4))
+    id = IDENTITY_MATR4x4
     null_transform = Transformation(id)
     sph_1 = Sphere(null_transform)
 
@@ -245,7 +244,7 @@ end
     @test is_close(hr_3, HRtest_3)
 
     v = Vec(10.0, 0.0, 0.0)
-    tr = traslation(v)
+    tr = translation(v)
     sph_2 = Sphere(tr)
 
     ray_4 = Ray(Point(10.0, 0.0, 2.0), Vec(0.0, 0.0, -1.0))
@@ -285,12 +284,12 @@ end
 
 @testset "Check plane methods" begin
 
-    id = Matrix{Float64}(I(4))
+    id = IDENTITY_MATR4x4
     null_transform = Transformation(id)
     pl_1 = Plane(null_transform)
 
     v = Vec(10.0, 7.0, 5.0)
-    trasl = traslation(v)
+    trasl = translation(v)
     pl_2 = Plane(trasl)
 
     rot = rotation("x", π/4)
@@ -333,13 +332,13 @@ end
 
     coords = [-0.5,0.5]
     for x in coords, y in coords, z in coords
-        trasl = traslation(Vec(x,y,z)) #put sphere in the correct position
+        trasl = translation(Vec(x,y,z)) #put sphere in the correct position
         s = Sphere(trasl(scaling(0.1))) #creates a sphere with radius = 0.1
         add_shape!(w, s)
     end
 
-    trasl1 = traslation(Vec(0.0, 0.0, -0.5))
-    trasl2 = traslation(Vec(0.0, 0.5, 0.0))
+    trasl1 = translation(Vec(0.0, 0.0, -0.5))
+    trasl2 = translation(Vec(0.0, 0.5, 0.0))
     s1 = Sphere(trasl1(scaling(0.1)))
     s2 = Sphere(trasl2(scaling(0.1)))
     add_shape!(w,s1)
@@ -494,7 +493,7 @@ end
         w = World()
         furnace_material = Material(DiffuseBRDF(UniformPigment(RGB(1.0 , 1.0 , 1.0) * reflectance)), UniformPigment(RGB(1.0 , 1.0 , 1.0) * emitted_radiance))
 
-        add_shape!(w, Sphere(Transformation(Matrix{Float64}(I(4))), furnace_material))
+        add_shape!(w, Sphere(Transformation(IDENTITY_MATR4x4), furnace_material))
 
         path_tracer = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 1, 100, 101)
         ray = Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
@@ -506,4 +505,122 @@ end
         @test isapprox(expected, color.g; rtol=0, atol=1e-3)
         @test isapprox(expected, color.b; rtol=0, atol=1e-3)
     end
+end
+
+
+@testset "Check InputStream" begin
+    i_stream = InputStream(IOBuffer("Abc \t \nd\neF"))
+
+    @test i_stream.location.line_num == 1
+    @test i_stream.location.col_num == 1
+
+    @test myRayTracing.read_char(i_stream) == 'A'
+    @test i_stream.location.line_num == 1
+    @test i_stream.location.col_num == 2
+
+    @test myRayTracing.read_char(i_stream) == 'b'
+    @test i_stream.location.line_num == 1
+    @test i_stream.location.col_num == 3
+
+    myRayTracing.unread_char!(i_stream, 'b')
+    @test i_stream.saved_char == 'b'
+    myRayTracing.read_char(i_stream)
+
+    @test myRayTracing.read_char(i_stream) == 'c'
+    @test i_stream.location.line_num == 1
+    @test i_stream.location.col_num == 4
+
+    myRayTracing.skip_whitespaces_and_comments!(i_stream)
+    @test i_stream.location.line_num == 2
+    @test i_stream.location.col_num == 1
+
+    @test myRayTracing.read_char(i_stream) == 'd'
+    @test i_stream.location.line_num == 2
+    @test i_stream.location.col_num == 2
+
+    @test myRayTracing.read_char(i_stream) == '\n'
+    @test i_stream.location.line_num == 3
+    @test i_stream.location.col_num == 1
+
+    @test myRayTracing.read_char(i_stream) == 'e'
+    @test i_stream.location.line_num == 3
+    @test i_stream.location.col_num == 2
+
+    @test myRayTracing.read_char(i_stream) == 'F'
+    @test i_stream.location.line_num == 3
+    @test i_stream.location.col_num == 3
+
+    @test myRayTracing.read_char(i_stream) === nothing
+    @test i_stream.location.line_num == 3
+    @test i_stream.location.col_num == 3
+end
+
+
+@testset "Check Lexer" begin
+    i_buff = IOBuffer("#Comment 1\n#Comment 2\nmaterial sphere_material(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.5, 0.0>))")
+
+    i_stream = InputStream(i_buff)
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.KeywordToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.IdentifierToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.KeywordToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.KeywordToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.KeywordToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.LiteralNumberToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
+    @test myRayTracing.read_token(i_stream) isa myRayTracing.StopToken
+
+    i_buff2 = IOBuffer("#Comment 1\n#Comment 2\nmaterial sphere_material(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.5, 0.0>))")
+
+    i_stream2 = InputStream(i_buff2)
+    @test myRayTracing.read_token(i_stream2).keyword == myRayTracing.MATERIAL
+    @test myRayTracing.read_token(i_stream2).identifier == "sphere_material"
+    @test myRayTracing.read_token(i_stream2).symbol == "("
+    @test myRayTracing.read_token(i_stream2).keyword == myRayTracing.SPECULAR
+    @test myRayTracing.read_token(i_stream2).symbol == "("
+    @test myRayTracing.read_token(i_stream2).keyword == myRayTracing.UNIFORM
+    @test myRayTracing.read_token(i_stream2).symbol == "("
+    @test myRayTracing.read_token(i_stream2).symbol == "<"
+    @test myRayTracing.read_token(i_stream2).value == 1.0
+    @test myRayTracing.read_token(i_stream2).symbol == ","
+    @test myRayTracing.read_token(i_stream2).value == 0.0
+    @test myRayTracing.read_token(i_stream2).symbol == ","
+    @test myRayTracing.read_token(i_stream2).value == 0.0
+    @test myRayTracing.read_token(i_stream2).symbol == ">"
+    @test myRayTracing.read_token(i_stream2).symbol == ")"
+    @test myRayTracing.read_token(i_stream2).symbol == ")"
+    @test myRayTracing.read_token(i_stream2).symbol == ","
+    @test myRayTracing.read_token(i_stream2).keyword == myRayTracing.UNIFORM
+    @test myRayTracing.read_token(i_stream2).symbol == "("
+    @test myRayTracing.read_token(i_stream2).symbol == "<"
+    @test myRayTracing.read_token(i_stream2).value == 0.0
+    @test myRayTracing.read_token(i_stream2).symbol == ","
+    @test myRayTracing.read_token(i_stream2).value == 0.5
+    @test myRayTracing.read_token(i_stream2).symbol == ","
+    @test myRayTracing.read_token(i_stream2).value == 0.0
+    @test myRayTracing.read_token(i_stream2).symbol == ">"
+    @test myRayTracing.read_token(i_stream2).symbol == ")"
+    @test myRayTracing.read_token(i_stream2).symbol == ")"
+    @test myRayTracing.read_token(i_stream2) isa myRayTracing.StopToken
+
 end

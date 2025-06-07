@@ -1,5 +1,3 @@
-import LinearAlgebra: cross, norm, normalize
-
 # DEFINING VEC POINT AND NORMAL STRUCTS AND CORRESPONDING OPERATIONS
 ############################################################################
 

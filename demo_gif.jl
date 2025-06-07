@@ -31,7 +31,7 @@ for angle in 0:360
         pfm_filename_and_path = "./demo/demo_perspective_" * idx_angle * ".pfm"
         filename = "demo_perspective_" * idx_angle
         rot1 = rotation("z", angle*π/180.0)
-        Cam = PerspectiveCamera(6.0, 16.0/9.0, rot1(traslation(Vec(-1.0, 0.0, 0.0))))
+        Cam = PerspectiveCamera(6.0, 16.0/9.0, rot1(translation(Vec(-1.0, 0.0, 0.0))))
 
     elseif ARGS[1] == "orthogonal"
         idx_angle = lpad(string(angle), 3, '0')
@@ -40,7 +40,7 @@ for angle in 0:360
         filename = "demo_orthogonal_" * (idx_angle)
         rot1 = rotation("z", angle*π/180.0)
         rot2 = rotation("y", π/18)
-        Cam = OrthogonalCamera(16.0/9.0, rot1(rot2(traslation(Vec(-2.0, 0.0, 0.0)))))
+        Cam = OrthogonalCamera(16.0/9.0, rot1(rot2(translation(Vec(-2.0, 0.0, 0.0)))))
 
     else
         throw(InvalidARGS("Error in ARGS: in <camera_type> write perspective or orthogonal"))
@@ -50,7 +50,7 @@ for angle in 0:360
 
     coords = [-0.5,0.5]
     for x in coords, y in coords, z in coords
-        trasl = traslation(Vec(x,y,z)) #put sphere in the correct position
+        trasl = translation(Vec(x,y,z)) #put sphere in the correct position
         if ARGS[2] == "no"
             s = Sphere(trasl(scaling(0.1))) #creates a sphere with radius = 0.1
         elseif ARGS[2] =="yes"
@@ -62,8 +62,8 @@ for angle in 0:360
         add_shape!(w, s)
     end
 
-    trasl1 = traslation(Vec(0.0, 0.0, -0.5))
-    trasl2 = traslation(Vec(0.0, 0.5, 0.0))
+    trasl1 = translation(Vec(0.0, 0.0, -0.5))
+    trasl2 = translation(Vec(0.0, 0.5, 0.0))
 
     if ARGS[2] == "no"
 
@@ -77,8 +77,8 @@ for angle in 0:360
         pig1 = CheckeredPigment(RGB(1.0, 1.0, 1.0), RGB(0.0, 0.0, 1.0), 10)
         pig2 = UniformPigment(RGB(0.1, 0.0, 1.0))
 
-        s1 = Sphere(traslation(Vec(0.0, 0.01, 0.0))(scaling(0.1)), Material(DiffuseBRDF(pig1),pig1))
-        s2 = Sphere(traslation(Vec(0.0, -0.01, 0.0))(scaling(0.1)), Material(DiffuseBRDF(pig2), pig2))
+        s1 = Sphere(translation(Vec(0.0, 0.01, 0.0))(scaling(0.1)), Material(DiffuseBRDF(pig1),pig1))
+        s2 = Sphere(translation(Vec(0.0, -0.01, 0.0))(scaling(0.1)), Material(DiffuseBRDF(pig2), pig2))
 
         u1 = union_shape(s1, s2, trasl1)
         u2 = union_shape(s1, s2, trasl2)
