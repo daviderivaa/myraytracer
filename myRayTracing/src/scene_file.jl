@@ -68,6 +68,10 @@ end
     FLOAT = 19
     POINT_LIGHT = 20
     BOX = 21
+    RECTANGLE = 22
+    UNION = 23
+    INTERSECTION = 24
+    DIFFERENCE = 25
 
 end
 
@@ -93,7 +97,11 @@ const KEYWORDS = Dict{String, KeywordEnum}(
     "perspective" => PERSPECTIVE,
     "float" => FLOAT,
     "point_light" => POINT_LIGHT,
-    "box" => BOX
+    "box" => BOX,
+    "rectangle" => RECTANGLE,
+    "union" => UNION,
+    "intersection" => INTERSECTION,
+    "difference" => DIFFERENCE
 
 )
 
@@ -506,6 +514,34 @@ function parse_vector(input_file::InputStream, scene::Scene)::Vec
 
 end
 
+"""Parse a point object from tokens"""
+function parse_point(input_file::InputStream, scene::Scene)::Point
+
+    expect_symbol(input_file, "{")
+    x = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    y = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    z = expect_number(input_file, scene)
+    expect_symbol(input_file, "}")
+    return Point(x, y, z)
+
+end
+
+"""Parse a normal object from tokens"""
+function parse_normal(input_file::InputStream, scene::Scene)::Normal
+
+    expect_symbol(input_file, "{")
+    x = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    y = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    z = expect_number(input_file, scene)
+    expect_symbol(input_file, "}")
+    return Normal(x, y, z)
+
+end
+
 """Parse a color object from tokens"""
 function parse_color(input_file::InputStream, scene::Scene)::RGB
 
@@ -671,6 +707,123 @@ function parse_box(input_file::InputStream, scene::Scene)::Box
 
 end
 
+"""Parse a Rectangle object from tokens"""
+function parse_rectangle(input_file::InputStream, scene::Scene)::Rectangle
+
+    expect_symbol(input_file, "(")
+    p = parse_point(input_file, scene)
+    expect_symbol(input_file, ",")
+    v1= parse_vector(input_file, scene)
+    expect_symbol(input_file, ",")
+    v2= parse_vector(input_file, scene)
+    expect_symbol(input_file, ",")
+    material_name = expect_identifier(input_file)
+    if !(haskey(scene.materials, material_name))
+        throw(GrammarError(input_file.location, "unknown material $material_name"))
+    end
+    expect_symbol(input_file, ",")
+    transformation = parse_transformation(input_file, scene)
+    expect_symbol(input_file, ")")
+    return Rectangle(p, v1, v2, transformation, scene.materials[material_name])
+
+end
+
+"""Parse a Union object from tokens"""
+function parse_union(input_file::InputStream, scene::Scene)::union_shape
+
+    expect_symbol(input_file, "(")
+    what = read_token(input_file)
+    if what.keyword == SPHERE
+        s1 = parse_sphere(input_file, scene)
+    elseif what.keyword == PLANE
+        s1 = parse_plane(input_file, scene)
+    elseif what.keyword == BOX
+        s1 = parse_box(input_file, scene)
+    elseif what.keyword == RECTANGLE
+        s1 = parse_rectangle(input_file, scene)
+    end
+    expect_symbol(input_file, ",")
+    what2 = read_token(input_file)
+    if what2.keyword == SPHERE
+        s2 = parse_sphere(input_file, scene)
+    elseif what2.keyword == PLANE
+        s2 = parse_plane(input_file, scene)
+    elseif what2.keyword == BOX
+        s2 = parse_box(input_file, scene)
+    elseif what2.keyword == RECTANGLE
+        s2 = parse_rectangle(input_file, scene)
+    end
+    expect_symbol(input_file, ",")
+    transformation = parse_transformation(input_file, scene)
+    expect_symbol(input_file, ")")
+    return union_shape(s1, s2, transformation)
+
+end
+
+"""Parse an Intersection object from tokens"""
+function parse_intersec(input_file::InputStream, scene::Scene)::intersec_shape
+
+    expect_symbol(input_file, "(")
+    what = read_token(input_file)
+    if what.keyword == SPHERE
+        s1 = parse_sphere(input_file, scene)
+    elseif what.keyword == PLANE
+        s1 = parse_plane(input_file, scene)
+    elseif what.keyword == BOX
+        s1 = parse_box(input_file, scene)
+    elseif what.keyword == RECTANGLE
+        s1 = parse_rectangle(input_file, scene)
+    end
+    expect_symbol(input_file, ",")
+    what2 = read_token(input_file)
+    if what2.keyword == SPHERE
+        s2 = parse_sphere(input_file, scene)
+    elseif what2.keyword == PLANE
+        s2 = parse_plane(input_file, scene)
+    elseif what2.keyword == BOX
+        s2 = parse_box(input_file, scene)
+    elseif what2.keyword == RECTANGLE
+        s2 = parse_rectangle(input_file, scene)
+    end
+    expect_symbol(input_file, ",")
+    transformation = parse_transformation(input_file, scene)
+    expect_symbol(input_file, ")")
+    return intersec_shape(s1, s2, transformation)
+
+end
+
+"""Parse a Difference object from tokens"""
+function parse_diff(input_file::InputStream, scene::Scene)::diff_shape
+
+    expect_symbol(input_file, "(")
+    what = read_token(input_file)
+    if what.keyword == SPHERE
+        s1 = parse_sphere(input_file, scene)
+    elseif what.keyword == PLANE
+        s1 = parse_plane(input_file, scene)
+    elseif what.keyword == BOX
+        s1 = parse_box(input_file, scene)
+    elseif what.keyword == RECTANGLE
+        s1 = parse_rectangle(input_file, scene)
+    end
+    expect_symbol(input_file, ",")
+    what2 = read_token(input_file)
+    if what2.keyword == SPHERE
+        s2 = parse_sphere(input_file, scene)
+    elseif what2.keyword == PLANE
+        s2 = parse_plane(input_file, scene)
+    elseif what2.keyword == BOX
+        s2 = parse_box(input_file, scene)
+    elseif what2.keyword == RECTANGLE
+        s2 = parse_rectangle(input_file, scene)
+    end
+    expect_symbol(input_file, ",")
+    transformation = parse_transformation(input_file, scene)
+    expect_symbol(input_file, ")")
+    return diff_shape(s1, s2, transformation)
+
+end
+
 """Parse a Camera object from tokens"""
 function parse_camera(input_file::InputStream, scene::Scene)::Camera
 
@@ -733,6 +886,14 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
             push!(scene.world._shapes, parse_plane(input_file, scene))
         elseif what.keyword == BOX
             push!(scene.world._shapes, parse_box(input_file, scene))
+        elseif what.keyword == RECTANGLE
+            push!(scene.world._shapes, parse_rectangle(input_file, scene))
+        elseif what.keyword == UNION
+            push!(scene.world._shapes, parse_union(input_file, scene))
+        elseif what.keyword == INTERSECTION
+            push!(scene.world._shapes, parse_intersec(input_file, scene))
+        elseif what.keyword == DIFFERENCE
+            push!(scene.world._shapes, parse_diff(input_file, scene))
         elseif what.keyword == CAMERA
             if scene.camera !== nothing
                 throw(GrammarError(what.location, "At $(what.location): You cannot define more than one camera"))

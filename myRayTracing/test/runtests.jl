@@ -557,7 +557,7 @@ end
 
 
 @testset "Check Lexer" begin
-    i_buff = IOBuffer("#Comment 1\n#Comment 2\nmaterial sphere_material(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))")
+    i_buff = IOBuffer("#Comment 1\n#Comment 2\nmaterial sphere_material(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.5, 0.0>))")
 
     i_stream = InputStream(i_buff)
     @test myRayTracing.read_token(i_stream) isa myRayTracing.KeywordToken
@@ -589,5 +589,38 @@ end
     @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
     @test myRayTracing.read_token(i_stream) isa myRayTracing.SymbolToken
     @test myRayTracing.read_token(i_stream) isa myRayTracing.StopToken
+
+    i_buff2 = IOBuffer("#Comment 1\n#Comment 2\nmaterial sphere_material(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.5, 0.0>))")
+
+    i_stream2 = InputStream(i_buff2)
+    @test myRayTracing.read_token(i_stream2).keyword == myRayTracing.MATERIAL
+    @test myRayTracing.read_token(i_stream2).identifier == "sphere_material"
+    @test myRayTracing.read_token(i_stream2).symbol == "("
+    @test myRayTracing.read_token(i_stream2).keyword == myRayTracing.SPECULAR
+    @test myRayTracing.read_token(i_stream2).symbol == "("
+    @test myRayTracing.read_token(i_stream2).keyword == myRayTracing.UNIFORM
+    @test myRayTracing.read_token(i_stream2).symbol == "("
+    @test myRayTracing.read_token(i_stream2).symbol == "<"
+    @test myRayTracing.read_token(i_stream2).value == 1.0
+    @test myRayTracing.read_token(i_stream2).symbol == ","
+    @test myRayTracing.read_token(i_stream2).value == 0.0
+    @test myRayTracing.read_token(i_stream2).symbol == ","
+    @test myRayTracing.read_token(i_stream2).value == 0.0
+    @test myRayTracing.read_token(i_stream2).symbol == ">"
+    @test myRayTracing.read_token(i_stream2).symbol == ")"
+    @test myRayTracing.read_token(i_stream2).symbol == ")"
+    @test myRayTracing.read_token(i_stream2).symbol == ","
+    @test myRayTracing.read_token(i_stream2).keyword == myRayTracing.UNIFORM
+    @test myRayTracing.read_token(i_stream2).symbol == "("
+    @test myRayTracing.read_token(i_stream2).symbol == "<"
+    @test myRayTracing.read_token(i_stream2).value == 0.0
+    @test myRayTracing.read_token(i_stream2).symbol == ","
+    @test myRayTracing.read_token(i_stream2).value == 0.5
+    @test myRayTracing.read_token(i_stream2).symbol == ","
+    @test myRayTracing.read_token(i_stream2).value == 0.0
+    @test myRayTracing.read_token(i_stream2).symbol == ">"
+    @test myRayTracing.read_token(i_stream2).symbol == ")"
+    @test myRayTracing.read_token(i_stream2).symbol == ")"
+    @test myRayTracing.read_token(i_stream2) isa myRayTracing.StopToken
 
 end
