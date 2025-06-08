@@ -66,12 +66,16 @@ end
     ORTHOGONAL = 17
     PERSPECTIVE = 18
     FLOAT = 19
-    POINT_LIGHT = 20
+    LIGHT = 20
     BOX = 21
     RECTANGLE = 22
     UNION = 23
     INTERSECTION = 24
     DIFFERENCE = 25
+    RENDERER = 26
+    FLAT = 27
+    PATH = 28
+    POINTLIGHT = 29
 
 end
 
@@ -96,12 +100,16 @@ const KEYWORDS = Dict{String, KeywordEnum}(
     "orthogonal" => ORTHOGONAL,
     "perspective" => PERSPECTIVE,
     "float" => FLOAT,
-    "point_light" => POINT_LIGHT,
+    "light" => LIGHT,
     "box" => BOX,
     "rectangle" => RECTANGLE,
     "union" => UNION,
     "intersection" => INTERSECTION,
-    "difference" => DIFFERENCE
+    "difference" => DIFFERENCE,
+    "renderer" => RENDERER,
+    "flat" => FLAT,
+    "path" => PATH,
+    "point_light" => POINTLIGHT
 
 )
 
@@ -428,9 +436,10 @@ mutable struct Scene
     camera::Union{Camera, Nothing}
     float_variables::Dict{String, Float64}
     overridden_variables::Set{String}
+    renderer::Renderer
 
-    function Scene(mat::Dict{String, Material}=Dict{String, Material}(), w::World=World(), cam::Union{Camera, Nothing}=nothing, fl_v::Dict{String, Float64}=Dict{String, Float64}(), ov_v::Set{String}=Set{String}())
-        new(mat, w, cam, fl_v, ov_v)
+    function Scene(mat::Dict{String, Material}=Dict{String, Material}(), w::World=World(), cam::Union{Camera, Nothing}=nothing, fl_v::Dict{String, Float64}=Dict{String, Float64}(), ov_v::Set{String}=Set{String}(), renderer::Renderer=nothing)
+        new(mat, w, cam, fl_v, ov_v, renderer)
     end
 
 end
@@ -848,6 +857,123 @@ function parse_camera(input_file::InputStream, scene::Scene)::Camera
 
 end
 
+# """Parse a light source for Point Light tracing from tokens"""
+# function parse_light(input_file::InputStream, scene::Scene)
+
+#     expect_symbol(input_file, "(")
+#     type_kw = expect_keywords(input_file, [PERSPECTIVE, ORTHOGONAL])
+#     expect_symbol(input_file, ",")
+#     transformation = parse_transformation(input_file, scene)
+#     expect_symbol(input_file, ",")
+#     aspect_ratio = expect_number(input_file, scene)
+
+#     if type_kw == PERSPECTIVE
+#         expect_symbol(input_file, ",")
+#         distance = expect_number(input_file, scene)
+#         expect_symbol(input_file, ")")
+#         return PerspectiveCamera(distance, aspect_ratio, transformation)
+#     elseif type_kw == ORTHOGONAL
+#         expect_symbol(input_file, ")")
+#         return OrthogonalCamera(aspect_ratio, transformation)
+#     else
+#         throw(GrammarError("Invalid $(type_kw) camera type, expected perspective or orthogonal"))
+#     end
+
+# end
+
+"""Parse a renderer from tokens"""
+function parse_renderer(input_file::InputStream, scene::Scene)::Renderer
+
+    expect_symbol(input_file, "(")
+    type_kw = expect_keywords(input_file, [FLAT, PATH, POINTLIGHT])
+
+    if type_kw == FLAT
+        tok1 = read_token(input_file)
+        if tok1 isa SymbolToken && tok1.symbol == ","
+            b_color = parse_color(input_file, scene)
+            return FlatRenderer(scene.world, b_color)
+        elseif tok1 isa SymbolToken && tok1.symbol == ")"
+            return FlatRenderer(scene.world)
+        else
+            throw(GrammarError("Undefined renderer sequence, after $(tok1) expected ',' or ')'"))
+        end
+    elseif type_kw == PATH
+        tok = read_token(input_file)
+        if tok isa SymbolToken && tok.symbol == ")"
+            return PathTracer(scene.world)
+        elseif tok isa SymbolToken && tok.symbol == ","
+            b_color = parse_color(input_file, scene)
+            tok2 = read_token(input_file)
+            if tok2 isa SymbolToken && tok2.symbol == ")"
+                return PathTracer(scene.world, b_color)
+            elseif tok2 isa SymbolToken && tok2.symbol == ","
+                num_rays = expect_number(input_file, scene)
+                tok3 = read_token(input_file)
+                if tok3 isa SymbolToken && tok3.symbol == ")"
+                    return PathTracer(scene.world, b_color, num_rays)
+                elseif tok3 isa SymbolToken && tok3.symbol == ","
+                    max_depth = expect_number(input_file, scene)
+                    tok4 = read_token(input_file)
+                    if tok4 isa SymbolToken && tok4.symbol == ")"
+                        return PathTracer(scene.world, b_color, num_rays, max_depth)
+                    elseif tok4 isa SymbolToken && tok4.symbol == ","
+                        rr_limit = expect_number(input_file, scene)
+                        tok5 = read_token(input_file)
+                        if tok5 isa SymbolToken && tok5.symbol == ")"
+                            return PathTracer(scene.world, b_color, num_rays, max_depth, rr_limit)
+                        elseif tok5 isa SymbolToken && tok5.symbol == ","
+                            seed = expect_number(input_file, scene)
+                            expect_symbol(input_file, ",")
+                            sequence = expect_number(input_file, scene)
+                            tok6 = read_token(input_file)
+                            if tok6 isa SymbolToken && tok6.symbol == ")"
+                                return PathTracer(scene.world, b_color, num_rays, max_depth, rr_limit, new_PCG(UInt64(seed), UInt64(sequence)))
+                            else
+                                throw(GrammarError("Undefined renderer sequence, after $(tok6) expected ',' or ')'"))
+                            end
+                        else
+                            throw(GrammarError("Undefined renderer sequence, after $(tok5) expected ')'"))
+                        end
+                    else
+                        throw(GrammarError("Undefined renderer sequence, after $(tok4) expected ',' or ')'"))
+                    end
+                else
+                    throw(GrammarError("Undefined renderer sequence, after $(tok3) expected ',' or ')'"))
+                end
+            else
+                throw(GrammarError("Undefined renderer sequence, after $(tok2) expected ',' or ')'"))
+            end
+        else
+            throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+        end
+    elseif type_kw == POINTLIGHT
+        tok_1 = read_token(input_file)
+        if tok_1 isa SymbolToken && tok_1.symbol == ")"
+            return PointLightRenderer(scene.w)
+        elseif tok_1 isa SymbolToken && tok_!.symbol == ","
+            b_col = parse_color(input_file, scene)
+            tok_2 = read_token(input_file)
+            if tok_2 isa SymbolToken && tok_2.symbol == ")"
+                return PointLightRenderer(scene.w, b_col)
+            elseif tok_2 isa SymbolToken && tok_2.symbol == ","
+                a_color = parse_color(input_file, scene)
+                tok_3 = read_token(input_file)
+                if tok_3 isa SymbolToken && tok_3.symbol == ")"
+                    return PointLightRenderer(scene.w, b_col, a_color)
+                else
+                    throw(GrammarError("Undefined renderer sequence, after $(tok_3) expected ')'"))
+                end
+            else
+                throw(GrammarError("Undefined renderer sequence, after $(tok_2) expected ',' or ')'"))
+            end
+        else
+            throw(GrammarError("Undefined renderer sequence, after $(tok_1) expected ',' or ')'"))
+        end
+    else
+        throw(GrammarError("Invalid $(type_kw) renderer, expected flat, path or point_light"))
+    end
+end
+
 """Parse a Scene object from tokens"""
 function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=Dict{String, Float64}())::Scene
 
@@ -902,9 +1028,9 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
         elseif what.keyword == MATERIAL
             name, material = parse_material(input_file, scene)
             scene.materials[name] = material
-        elseif what.keyword == POINT_LIGHT
-            point_light = parse_point_light(input_file, scene)
-            push!(scene.world.lights, point_light)
+        elseif what.keyword == LIGHT
+            point_light = parse_light(input_file, scene)
+            push!(scene.world._lights, point_light)
         else
             throw(GrammarError(what.location, "At $(what.location): Unexpected token $(what)"))
         end

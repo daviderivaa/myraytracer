@@ -88,7 +88,7 @@ IT = ImageTracer(img, Cam)
 
 pcg = new_PCG()
 
-RND = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 2, 3, 2)
+RND = PathTracer(w, RGB(0.0, 0.0, 0.0), 2, 3, 2, pcg)
 
 enable_profile = "--profile" in ARGS
 if enable_profile

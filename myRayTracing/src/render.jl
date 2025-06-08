@@ -77,21 +77,21 @@ It's a recursive algorithm which stops thank to the Russian Roulette.
 
 - w::World --> contains the scene
 - b_color::RGB --> background color of the scene
-- pcg::PCG --> random number generator
 - num_rays::Int64 --> number of rays thrown at each iteration
 - max_depth::Int64 --> maximun number number of iteration for each ray
 - rr_limit::Int64 --> Russian Roulette limit
+- pcg::PCG --> random number generator
 """
 struct PathTracer <: Renderer
 
     w::World
     b_color::RGB
-    pcg::PCG
     num_rays::Int64
     max_depth::Int64
     rr_limit::Int64
+    pcg::PCG
 
-    function PathTracer(w::World, b_color::RGB = RGB(0.0, 0.0, 0.0), pcg::PCG = new_PCG(), num_rays::Int64 = 10, max_depth::Int64 = 10, rr_limit::Int64 = 3)
+    function PathTracer(w::World, b_color::RGB = RGB(0.0, 0.0, 0.0), num_rays::Int64 = 10, max_depth::Int64 = 10, rr_limit::Int64 = 3, pcg::PCG = new_PCG())
         new(w, b_color, pcg, num_rays, max_depth, rr_limit)
     end
 
