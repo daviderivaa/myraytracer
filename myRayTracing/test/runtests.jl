@@ -507,3 +507,29 @@ end
         @test isapprox(expected, color.b; rtol=0, atol=1e-3)
     end
 end
+
+
+@testset "Point Light Tracing" begin
+
+    # Bidimensional test
+    w = World()
+
+    # red sphere with r = 1 centered in the origin (diffusive BRDF)
+    s = Sphere(Transformation(IDENTITY_MATR4x4), Material(DiffuseBRDF(UniformPigment(RGB(1.0, 0.0, 0.0)))))
+    add_shape!(w, s)
+
+    # Light source with 45° angle with observer 
+    PL = PointLight(Point(-2.0, -1.0, 0.0), RGB(1.0, 1.0, 0.0), 0.0)
+    add_light!(w, PL)
+
+    RND = PointLightRenderer(w, RGB(0.0, 0.0, 0.0), RGB(0.0, 1.0, 1.0))
+
+    # ray starting from observer and directed to the sphere
+    ray = Ray(Point(-2.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
+    color = RND(ray)
+    expected = (RND.ambient_color + RGB(1.0, 0.0, 0.0) * RGB(1.0, 1.0, 0.0) * cos(π/4.0) * (1.0 / π))
+
+    @test isapprox(expected.r, color.r; rtol=0, atol=1e-3)
+    @test isapprox(expected.g, color.g; rtol=0, atol=1e-3)
+    @test isapprox(expected.b, color.b; rtol=0, atol=1e-3)
+end

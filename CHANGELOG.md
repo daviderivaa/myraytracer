@@ -1,8 +1,9 @@
 # HEAD
 
+- Add **Point-light Tracing** algorithm for diffusive objects. pointlight: [PR #14](https://github.com/daviderivaa/myraytracer/pull/14)
 - Update profiling of `fire_all_rays` method with [PProf](https://github.com/JuliaPerf/PProf.jl). antialiasing: [PR #9](https://github.com/daviderivaa/myraytracer/pull/9)
 - Fix CSG [bug #11](https://github.com/daviderivaa/myraytracer/issues/11). fix#11: [PR #12](https://github.com/daviderivaa/myraytracer/pull/12)
-- Add Antialiasing in [`demo_path.jl`](./demo_path.jl). antialiasing: [PR #9](https://github.com/daviderivaa/myraytracer/pull/9)
+- Add **Antialiasing** in [`demo_path.jl`](./demo_path.jl). antialiasing: [PR #9](https://github.com/daviderivaa/myraytracer/pull/9)
 - Fix PathTracer [bug #7](https://github.com/daviderivaa/myraytracer/issues/7), started as furnace test failure. fix#7: [PR #8](https://github.com/daviderivaa/myraytracer/pull/8)
 
 ## VERSION 0.4.0
