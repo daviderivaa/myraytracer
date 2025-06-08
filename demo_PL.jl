@@ -67,16 +67,16 @@ material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
 material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
 
 s = Sphere(traslation(Vec(0.0, 1.3, -0.7))(scaling(0.3)), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0)))))
-s1 = Sphere(traslation(Vec(0.0, -1.3, -0.5))(scaling(0.5)), Material(DiffuseBRDF(UniformPigment(RGB(1.0, 1.0, 0.0)))))
+s1 = Sphere(traslation(Vec(0.0, 0.0, -0.5))(scaling(0.5)), Material(DiffuseBRDF(UniformPigment(RGB(0.8, 0.8, 0.0)))))
 sky = Sphere(scaling(15.0), Material(DiffuseBRDF(UniformPigment(RGB(0.58, 0.56, 0.6)), 0.0), UniformPigment(RGB(0.58, 0.56, 0.6))))
 p2 = Plane(traslation(Vec(0.0, 0.0, -1.0)), material1)
 
-add_shape!(w, s)
+#add_shape!(w, s)
 add_shape!(w, s1)
 add_shape!(w, sky)
 add_shape!(w, p2)
 
-PL = PointLight(Point(0.0, -1.0, 12.0), RGB(0.58, 0.56, 0.6), 100.0)
+PL = PointLight(Point(0.0, 10.0, 5.0), RGB(0.58, 0.56, 0.6), 100.0)
 add_light!(w, PL)
 
 img = HdrImage(1600,900)

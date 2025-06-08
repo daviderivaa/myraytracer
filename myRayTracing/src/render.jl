@@ -189,9 +189,8 @@ function (RND::PointLightRenderer)(ray::Ray)
             distance_vec = hit_record.world_point - light.pos
             distance = norm(distance_vec)
             in_dir = normalize(distance_vec)
-            n_ray_dir = normalize(ray.dir)
             n_hit_normal = normalize(hit_record.normal)
-            cos_theta = max(0.0, -(n_ray_dir * n_hit_normal))
+            cos_theta = max(0.0, -(in_dir * n_hit_normal))
 
             if light.linear_radius > 0.0
                 distance_factor = (light.linear_radius / distance)^2
@@ -199,11 +198,8 @@ function (RND::PointLightRenderer)(ray::Ray)
                 distance_factor = 1.0
             end
 
-
             brdf_color = Eval(hit_material.brdf, hit_record.surface_point, hit_record.normal, in_dir, neg(ray.dir))
-
             result_color += brdf_color * light.color * cos_theta * distance_factor
-        
         end
     end
 
