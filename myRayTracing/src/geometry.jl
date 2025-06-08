@@ -219,6 +219,14 @@ function neg(a::Normal)
 end
 
 """
+function neg(a)
+    returns the opposite of a Vec
+"""
+function neg(a::Vec)
+    return Vec(-1*a.x, -1*a.y, -1*a.z)
+end
+
+"""
 function Base.:*(a, b)
     dot product between two Vec or Normal
 """

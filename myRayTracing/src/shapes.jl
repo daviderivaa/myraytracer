@@ -258,14 +258,16 @@ end
 function quick_ray_intersection(shape, r)
     given a plane and a ray, it returns true/false if there is/isn't intersection
 """
-function quick_ray_intersection(shape::Plane, r::Ray)
+function quick_ray_intersection(shape::Plane, r::Ray)::Bool
     inv_r = inverse(shape.T)(r)
 
-    if inv_r.dir.z == 0
+    if abs(inv_r.dir.z) < 1e-5
         return false
-    else 
-        return true
     end
+
+    t = -inv_r.origin.z / inv_r.dir.z
+
+    return inv_r.tmin < t < inv_r.tmax
 end
 
 #################################################################################
