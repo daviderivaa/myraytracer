@@ -580,15 +580,14 @@ function parse_pigment(input_file::InputStream, scene::Scene)::Pigment
         expect_symbol(input_file, ",")
         color2 = parse_color(input_file, scene)
         expect_symbol(input_file, ",")
-        num_of_steps = Int(expect_number(input_file, scene))
+        num_of_steps = Int64(expect_number(input_file, scene))
         result = CheckeredPigment(color1, color2, num_of_steps)
 
     elseif keyword == IMAGE
         file_name = expect_string(input_file)
-        image = open(file_name, "r") do f
-            read_pfm_image(f)
-        end
-        result = ImagePigment(image)
+        format, width, height, endianness, pixel_data = read_pfm(file_name)
+        img = HdrImage(pixel_data, width, height)
+        result = ImagePigment(img)
     end
 
     expect_symbol(input_file, ")")
