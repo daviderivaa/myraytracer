@@ -54,6 +54,7 @@ struct FlatRenderer <: Renderer
     function FlatRenderer(wor::World, back_col = RGB(0.0, 0.0, 0.0))
         new(wor, back_col)
     end
+
 end
 
 """
@@ -68,6 +69,7 @@ function (RND::FlatRenderer)(ray::Ray)
     else 
         return (Eval(hit.s.material.brdf, hit.surface_point) + get_color(hit.s.material.emitted_radiance, hit.surface_point))
     end
+    
 end
 
 

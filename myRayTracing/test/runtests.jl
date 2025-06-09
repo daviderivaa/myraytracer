@@ -495,7 +495,7 @@ end
 
         add_shape!(w, Sphere(Transformation(IDENTITY_MATR4x4), furnace_material))
 
-        path_tracer = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 1, 100, 101)
+        path_tracer = PathTracer(w, RGB(0.0, 0.0, 0.0), 1, 100, 101, pcg)
         ray = Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0))
         color = path_tracer(ray)
 
@@ -506,7 +506,6 @@ end
         @test isapprox(expected, color.b; rtol=0, atol=1e-3)
     end
 end
-
 
 @testset "Check InputStream" begin
     i_stream = InputStream(IOBuffer("Abc \t \nd\neF"))
@@ -554,7 +553,6 @@ end
     @test i_stream.location.line_num == 3
     @test i_stream.location.col_num == 3
 end
-
 
 @testset "Check Lexer" begin
     i_buff = IOBuffer("#Comment 1\n#Comment 2\nmaterial sphere_material(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.5, 0.0>))")
@@ -647,4 +645,38 @@ end
     @test isapprox(expected.r, color.r; rtol=0, atol=1e-3)
     @test isapprox(expected.g, color.g; rtol=0, atol=1e-3)
     @test isapprox(expected.b, color.b; rtol=0, atol=1e-3)
+end
+
+@testset "Check Parser" begin
+
+    i_buff = IOBuffer("material mat1(diffuse(uniform(<0.0, 1.0, 1.0>)), uniform(<0.0, 0.0, 0.0>))\nmaterial mat2(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))\nmaterial sky_material(diffuse(uniform(<0.58, 0.56, 0.6>)), uniform(<0.58, 0.56, 0.6>))\nplane(sky_material, translation[{0.0, 0.0, 100.0}])\nbox(2, 2, 2, mat1, rotation_x[1])\nsphere(mat2, translation[{0.0, 2.0, 0.0}] * scaling[0.5])\ncamera(perspective, translation[{-1.0, 0.0, 1.0}], 1.8, 6.0)\nintersection(sphere(mat1, translation[{0.0, 0.5, 0.0}]), sphere(mat2, translation[{0.0, -0.5, 0.0}]), translation[{0.0, 0.0, 5.0}])\nlight({0.0, 10.0, 5.0}, <0.58, 0.56, 0.6>, 100.0)")
+
+    i_stream = InputStream(i_buff)
+
+    scene = parse_scene(i_stream)
+
+    w = World()
+    sky_material = Material(DiffuseBRDF(UniformPigment(RGB(0.58, 0.56, 0.6))), UniformPigment(RGB(0.58, 0.56, 0.6)))
+    mat1 = Material(DiffuseBRDF(UniformPigment(RGB(0.0, 1.0, 1.0))))
+    mat2 = Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0))))
+
+    sky = Plane(translation(Vec(0.0, 0.0, 100.0)), sky_material)
+    b = Box(2.0, 2.0, 2.0, rotation("x", 1), mat1)
+    s = Sphere(translation(Vec(0.0, 2.0, 0.0))(scaling(0.5)), mat2)
+    Cam = PerspectiveCamera(6.0, 1.8, translation(Vec(-1.0, 0.0, 1.0)))
+
+    s1 = Sphere(translation(Vec(0.0, 0.5, 0.0)), mat1)
+    s2 = Sphere(translation(Vec(0.0, -0.5, 0.0)), mat2)
+    int = intersec_shape(s1, s2, translation(Vec(0.0, 0.0, 5.0)))
+    PL = PointLight(Point(0.0, 10.0, 5.0), RGB(0.58, 0.56, 0.6), 100.0)
+
+    add_shape!(w, sky)
+    add_shape!(w, b)
+    add_shape!(w, s)
+    add_shape!(w, int)
+    add_light!(w, PL)
+
+    @test string(scene.world) == string(w)
+    @test string(scene.camera) == string(Cam)
+    
 end

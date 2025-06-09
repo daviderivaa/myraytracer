@@ -869,6 +869,7 @@ function parse_light(input_file::InputStream, scene::Scene)::PointLight
     expect_symbol(input_file, ")")
 
     return PointLight(origin, color, linear_radius)
+    
 end
 
 """Parse a renderer from tokens"""
@@ -962,6 +963,7 @@ function parse_renderer(input_file::InputStream, scene::Scene)::Renderer
     else
         throw(GrammarError("Invalid $(type_kw) renderer, expected flat, path or point_light"))
     end
+
 end
 
 """Parse a Scene object from tokens"""
