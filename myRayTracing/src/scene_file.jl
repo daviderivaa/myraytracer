@@ -939,17 +939,17 @@ function parse_renderer(input_file::InputStream, scene::Scene)::Renderer
     elseif type_kw == POINTLIGHT
         tok_1 = read_token(input_file)
         if tok_1 isa SymbolToken && tok_1.symbol == ")"
-            return PointLightRenderer(scene.w)
+            return PointLightRenderer(scene.world)
         elseif tok_1 isa SymbolToken && tok_!.symbol == ","
             b_col = parse_color(input_file, scene)
             tok_2 = read_token(input_file)
             if tok_2 isa SymbolToken && tok_2.symbol == ")"
-                return PointLightRenderer(scene.w, b_col)
+                return PointLightRenderer(scene.world, b_col)
             elseif tok_2 isa SymbolToken && tok_2.symbol == ","
                 a_color = parse_color(input_file, scene)
                 tok_3 = read_token(input_file)
                 if tok_3 isa SymbolToken && tok_3.symbol == ")"
-                    return PointLightRenderer(scene.w, b_col, a_color)
+                    return PointLightRenderer(scene.world, b_col, a_color)
                 else
                     throw(GrammarError("Undefined renderer sequence, after $(tok_3) expected ')'"))
                 end
@@ -1020,7 +1020,7 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
             scene.materials[name] = material
         elseif what.keyword == LIGHT
             point_light = parse_light(input_file, scene)
-            push!(scene.world._lights, point_light)
+            push!(scene.world._point_lights, point_light)
         elseif what.keyword == RENDERER
             if !isempty(scene.world._shapes)
                 scene.renderer = parse_renderer(input_file, scene)

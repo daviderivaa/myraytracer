@@ -118,7 +118,7 @@ abstract type BRDF
 end
 
 """Abstarct method for eval"""
-function Eval(brdf::BRDF, uv::Vec2d, normal::Normal=nothing, in_dir::Vec=nothing, out_dir::Vec=nothing)
+function Eval(brdf::BRDF, uv::Vec2d, normal::Union{Normal, Nothing}=nothing, in_dir::Union{Vec, Nothing}=nothing, out_dir::Union{Vec, Nothing}=nothing)
     throw(Type_error("get_color method not implemented for $(typeof(brdf))"))
 end
 
