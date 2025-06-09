@@ -20,7 +20,7 @@ struct InvalidARGS <: Exception
 end
 
 if length(ARGS) < 1 || length(ARGS) > 2
-    throw(InvalidARGS("Required julia main.jl <text file> <profile(optional)>"))
+    throw(InvalidARGS("Required julia main.jl <text filename> <profile(optional)>"))
 end
 
 txt_file = "./examples/" * ARGS[1] * ".txt"
@@ -36,9 +36,9 @@ scene = read_txt(txt_file)
 
 println("Scene parsed successfully!")
 
-path = "./demo_scene/"
-pfm_filename_and_path = "./demo_scene/demo_scene" * ".pfm"
-filename = "demo_scene"
+path = "./examples_img/"
+pfm_filename_and_path = "./examples_img/" * ARGS[1] * ".pfm"
+filename = ARGS[1]
 Cam = scene.camera
 
 w = scene.world

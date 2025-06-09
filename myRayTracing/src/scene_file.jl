@@ -858,7 +858,7 @@ function parse_camera(input_file::InputStream, scene::Scene)::Camera
 end
 
 """Parse a light source for Point Light tracing from tokens"""
-function parse_light(input_file::InputStream, scene::Scene)
+function parse_light(input_file::InputStream, scene::Scene)::PointLight
 
     expect_symbol(input_file, "(")
     origin = parse_point(input_file, scene)
@@ -900,24 +900,24 @@ function parse_renderer(input_file::InputStream, scene::Scene)::Renderer
                 num_rays = expect_number(input_file, scene)
                 tok3 = read_token(input_file)
                 if tok3 isa SymbolToken && tok3.symbol == ")"
-                    return PathTracer(scene.world, b_color, num_rays)
+                    return PathTracer(scene.world, b_color, Int64(num_rays))
                 elseif tok3 isa SymbolToken && tok3.symbol == ","
                     max_depth = expect_number(input_file, scene)
                     tok4 = read_token(input_file)
                     if tok4 isa SymbolToken && tok4.symbol == ")"
-                        return PathTracer(scene.world, b_color, num_rays, max_depth)
+                        return PathTracer(scene.world, b_color, Int64(num_rays), Int64(max_depth))
                     elseif tok4 isa SymbolToken && tok4.symbol == ","
                         rr_limit = expect_number(input_file, scene)
                         tok5 = read_token(input_file)
                         if tok5 isa SymbolToken && tok5.symbol == ")"
-                            return PathTracer(scene.world, b_color, num_rays, max_depth, rr_limit)
+                            return PathTracer(scene.world, b_color, Int64(num_rays), Int64(max_depth), Int64(rr_limit))
                         elseif tok5 isa SymbolToken && tok5.symbol == ","
                             seed = expect_number(input_file, scene)
                             expect_symbol(input_file, ",")
                             sequence = expect_number(input_file, scene)
                             tok6 = read_token(input_file)
                             if tok6 isa SymbolToken && tok6.symbol == ")"
-                                return PathTracer(scene.world, b_color, num_rays, max_depth, rr_limit, new_PCG(UInt64(seed), UInt64(sequence)))
+                                return PathTracer(scene.world, b_color, Int64(num_rays), Int64(max_depth), Int64(rr_limit), new_PCG(UInt64(seed), UInt64(sequence)))
                             else
                                 throw(GrammarError("Undefined renderer sequence, after $(tok6) expected ',' or ')'"))
                             end
