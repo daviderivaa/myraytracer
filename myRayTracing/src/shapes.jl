@@ -910,15 +910,15 @@ function all_ray_intersection(cone::Cone, r::Ray)
     inv_r = inverse(cone.T)(r)
 
     if inv_r.dir.x == 0.0 && inv_r.dir.y == 0.0
-        r = √(inv_r.origin.x^2 + inv_r.origin.y^2)
+        r_xy = √(inv_r.origin.x^2 + inv_r.origin.y^2)
 
-        if r >= cone.R
+        if r_xy >= cone.R
             return hits
         elseif inv_r.dir.z > 0.0
-            z_hit = cone.H * (1 - r/cone.R)
+            z_hit = cone.H * (1 - r_xy/cone.R)
             int_xy = (-Inf, (z_hit-inv_r.origin.z)/inv_r.dir.z)
         else
-            z_hit = cone.H * (1 - r/cone.R)
+            z_hit = cone.H * (1 - r_xy/cone.R)
             int_xy = ((z_hit-inv_r.origin.z)/inv_r.dir.z, Inf)
         end
 
@@ -937,33 +937,34 @@ function all_ray_intersection(cone::Cone, r::Ray)
                 int_xy = (t_single_hit, Inf)
             else
                 int_xy = (-Inf, t_single_hit)
-            end
-        end
-
-        delta = b*b - a*c #it's delta/4
-
-        if delta <= 0
-            return hits
+            end        
         else
-            sqrt_delta = √(delta)
-            t_xy_1 = min( (-b-sqrt_delta)/a, (-b+sqrt_delta)/a )
-            t_xy_2 = max( (-b-sqrt_delta)/a, (-b+sqrt_delta)/a )
 
-            test_point_1 = at(inv_r, t_xy_1)
-            test_point_2 = at(inv_r, t_xy_2)
+            delta = b*b - a*c #it's delta/4
 
-            if test_point_1.z < cone.H
-                if test_point_2.z < cone.H
-                    int_xy = (t_xy_1, t_xy_2)
-                else 
-                    int_xy = (-Inf, t_xy_1)
-                end
-            elseif test_point_2.z < cone.H
-                int_xy = (t_xy_2, Inf)
-            else
+            if delta <= 0
                 return hits
-            end
-        end     
+            else
+                sqrt_delta = √(delta)
+                t_xy_1 = min( (-b-sqrt_delta)/a, (-b+sqrt_delta)/a )
+                t_xy_2 = max( (-b-sqrt_delta)/a, (-b+sqrt_delta)/a )
+
+                test_point_1 = at(inv_r, t_xy_1)
+                test_point_2 = at(inv_r, t_xy_2)
+
+                if test_point_1.z < cone.H
+                    if test_point_2.z < cone.H
+                        int_xy = (t_xy_1, t_xy_2)
+                    else 
+                        int_xy = (-Inf, t_xy_1)
+                    end
+                elseif test_point_2.z < cone.H
+                    int_xy = (t_xy_2, Inf)
+                else
+                    return hits
+                end
+            end 
+        end    
     end
 
     if inv_r.dir.z == 0.0
