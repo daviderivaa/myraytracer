@@ -46,9 +46,20 @@ w = scene.world
 img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
 
-pcg = new_PCG()
+if isnothing(scene.renderer)
+    println("Calling default renderer: PathTracer(\n 
+                                    b_color::RGB = RGB(0.0, 0.0, 0.0),\n
+                                    num_rays = 2,\n
+                                    max_depth = 3,\n 
+                                    rr_limit = 2,\n 
+                                    pcg = new_PCG()\n
+                                    )")
+    RND = PathTracer(w)
+else
+    RND = scene.renderer
+end
 
-RND = PathTracer(w, RGB(0.0, 0.0, 0.0), pcg, 2, 3, 2)
+pcg = new_PCG(UInt64(78), UInt64(24)) #for antialiasing
 
 enable_profile = "--profile" in ARGS
 if enable_profile

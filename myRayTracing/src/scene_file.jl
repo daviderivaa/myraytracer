@@ -436,9 +436,9 @@ mutable struct Scene
     camera::Union{Camera, Nothing}
     float_variables::Dict{String, Float64}
     overridden_variables::Set{String}
-    renderer::Renderer
+    renderer::Union{Renderer, Nothing}
 
-    function Scene(mat::Dict{String, Material}=Dict{String, Material}(), w::World=World(), cam::Union{Camera, Nothing}=nothing, fl_v::Dict{String, Float64}=Dict{String, Float64}(), ov_v::Set{String}=Set{String}(), renderer::Renderer=nothing)
+    function Scene(mat::Dict{String, Material}=Dict{String, Material}(), w::World=World(), cam::Union{Camera, Nothing}=nothing, fl_v::Dict{String, Float64}=Dict{String, Float64}(), ov_v::Set{String}=Set{String}(), renderer::Union{Renderer, Nothing}=nothing)
         new(mat, w, cam, fl_v, ov_v, renderer)
     end
 
@@ -857,29 +857,19 @@ function parse_camera(input_file::InputStream, scene::Scene)::Camera
 
 end
 
-# """Parse a light source for Point Light tracing from tokens"""
-# function parse_light(input_file::InputStream, scene::Scene)
+"""Parse a light source for Point Light tracing from tokens"""
+function parse_light(input_file::InputStream, scene::Scene)
 
-#     expect_symbol(input_file, "(")
-#     type_kw = expect_keywords(input_file, [PERSPECTIVE, ORTHOGONAL])
-#     expect_symbol(input_file, ",")
-#     transformation = parse_transformation(input_file, scene)
-#     expect_symbol(input_file, ",")
-#     aspect_ratio = expect_number(input_file, scene)
+    expect_symbol(input_file, "(")
+    origin = parse_point(input_file, scene)
+    expect_symbol(input_file, ",")
+    color = parse_color(input_file, scene)
+    expect_symbol(input_file, ",")
+    linear_radius = expect_number(input_file, scene)
+    expect_symbol(input_file, ")")
 
-#     if type_kw == PERSPECTIVE
-#         expect_symbol(input_file, ",")
-#         distance = expect_number(input_file, scene)
-#         expect_symbol(input_file, ")")
-#         return PerspectiveCamera(distance, aspect_ratio, transformation)
-#     elseif type_kw == ORTHOGONAL
-#         expect_symbol(input_file, ")")
-#         return OrthogonalCamera(aspect_ratio, transformation)
-#     else
-#         throw(GrammarError("Invalid $(type_kw) camera type, expected perspective or orthogonal"))
-#     end
-
-# end
+    return PointLight(origin, color, linear_radius)
+end
 
 """Parse a renderer from tokens"""
 function parse_renderer(input_file::InputStream, scene::Scene)::Renderer
@@ -1031,6 +1021,12 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
         elseif what.keyword == LIGHT
             point_light = parse_light(input_file, scene)
             push!(scene.world._lights, point_light)
+        elseif what.keyword == RENDERER
+            if !isempty(scene.world._shapes)
+                scene.renderer = parse_renderer(input_file, scene)
+            else
+                throw(GrammarError("Renderer before shapes (and lights if calling point-light). Call renderer at the end."))
+            end
         else
             throw(GrammarError(what.location, "At $(what.location): Unexpected token $(what)"))
         end

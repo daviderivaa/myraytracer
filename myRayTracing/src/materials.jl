@@ -157,7 +157,7 @@ function eval(brdf::DiffuseBRDF, uv::Vec2d)
     evaluates the brdf in a specific point given pigment at a given reflectance
 end
 """
-function Eval(brdf::DiffuseBRDF, uv::Vec2d, normal::Normal=nothing, in_dir::Vec=nothing, out_dir::Vec=nothing)
+function Eval(brdf::DiffuseBRDF, uv::Vec2d, normal::Union{Normal, Nothing}=nothing, in_dir::Union{Vec, Nothing}=nothing, out_dir::Union{Vec, Nothing}=nothing)
 
     return get_color(brdf.pigment, uv) * (brdf.reflectance / π)
 

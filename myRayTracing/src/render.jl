@@ -91,8 +91,8 @@ struct PathTracer <: Renderer
     rr_limit::Int64
     pcg::PCG
 
-    function PathTracer(w::World, b_color::RGB = RGB(0.0, 0.0, 0.0), num_rays::Int64 = 10, max_depth::Int64 = 10, rr_limit::Int64 = 3, pcg::PCG = new_PCG())
-        new(w, b_color, pcg, num_rays, max_depth, rr_limit)
+    function PathTracer(w::World, b_color::RGB = RGB(0.0, 0.0, 0.0), num_rays::Int64 = 2, max_depth::Int64 = 3, rr_limit::Int64 = 2, pcg::PCG = new_PCG())
+        new(w, b_color, num_rays, max_depth, rr_limit, pcg)
     end
 
 end
