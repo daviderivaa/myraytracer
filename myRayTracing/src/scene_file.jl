@@ -638,15 +638,15 @@ function parse_transformation(input_file::InputStream, scene::Scene)::Transforma
             expect_symbol(input_file, "]")
         elseif kw == ROTATION_X
             expect_symbol(input_file, "[")
-            result = result(rotation("x", expect_number(input_file, scene)))
+            result = result(rotation("x", expect_number(input_file, scene) * π/180.0))
             expect_symbol(input_file, "]")
         elseif kw == ROTATION_Y
             expect_symbol(input_file, "[")
-            result = result(rotation("y", expect_number(input_file, scene)))
+            result = result(rotation("y", expect_number(input_file, scene) * π/180.0))
             expect_symbol(input_file, "]")
         elseif kw == ROTATION_Z
             expect_symbol(input_file, "[")
-            result = result(rotation("z", expect_number(input_file, scene)))
+            result = result(rotation("z", expect_number(input_file, scene) * π/180.0))
             expect_symbol(input_file, "]")
         elseif kw == SCALING
             expect_symbol(input_file, "[")
