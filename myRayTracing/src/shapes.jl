@@ -1043,15 +1043,15 @@ function quick_ray_intersection(cone::Cone, r::Ray)
     inv_r = inverse(cone.T)(r)
 
     if abs(inv_r.dir.x) < 1e-6 && abs(inv_r.dir.y) < 1e-6
-        r = √(inv_r.origin.x^2 + inv_r.origin.y^2)
+        r_xy = √(inv_r.origin.x^2 + inv_r.origin.y^2)
 
-        if r >= cone.R
+        if r_xy >= cone.R
             return false
         elseif inv_r.dir.z > 0.0
-            z_hit = cone.H * (1 - r/cone.R)
+            z_hit = cone.H * (1 - r_xy/cone.R)
             int_xy = (-Inf, (z_hit-inv_r.origin.z)/inv_r.dir.z)
         else
-            z_hit = cone.H * (1 - r/cone.R)
+            z_hit = cone.H * (1 - r_xy/cone.R)
             int_xy = ((z_hit-inv_r.origin.z)/inv_r.dir.z, Inf)
         end
 
