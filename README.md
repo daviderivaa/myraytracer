@@ -73,8 +73,8 @@ In `myraytracer/demo/` creates a `pfm` file and the corresponding `png` image.
 
 ## <span style="color: green;">DEMO GIF</span>
 
-<img src="orthogonal.gif" alt="GIF 1" width="500" style="display:inline-block; margin-right:10px;">
-<img src="perspective_c.gif" alt="GIF 2" width="500" style="display:inline-block;">
+<img src="./script_examples/orthogonal.gif" alt="GIF 1" width="500" style="display:inline-block; margin-right:10px;">
+<img src="./script_examples/perspective_c.gif" alt="GIF 2" width="500" style="display:inline-block;">
 
 Before executing [demo_gif.jl](./demo_gif.jl), you need to install [ffmpeg](https://ffmpeg.org/):
 - Ubuntu / Debian bash:
