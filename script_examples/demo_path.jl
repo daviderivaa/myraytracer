@@ -1,7 +1,7 @@
 #DEMO PROJECT
 
 using Pkg
-Pkg.activate("myRayTracing")
+Pkg.activate("../myRayTracing")
 using Images
 using Colors
 using myRayTracing
@@ -52,7 +52,7 @@ color1 = RGB(1.0, 0.0, 0.0) #RED
 color2 = RGB(0.0, 1.0, 0.0) #GREEN
 color3 = RGB(0.0, 0.0, 1.0) #BLUE
 
-format, width, height, endianness, pixel_data = read_pfm("./PFM_input/pigsky.pfm")
+format, width, height, endianness, pixel_data = read_pfm("../PFM_input/pigsky.pfm")
 
 starsky = HdrImage(pixel_data, width, height)
 
@@ -62,9 +62,9 @@ pigsky = ImagePigment(starsky)
 material1 = Material(DiffuseBRDF(pig1, 0.5))
 
 s = Sphere(translation(Vec(0.0, 0.0, -0.7))(scaling(0.3)), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0)))))
-s1 = Sphere(translation(Vec(0.0, -1.3, -0.5))(scaling(0.5)), Material(DiffuseBRDF(UniformPigment(RGB(1.0, 1.0, 0.0)))))
-sky = Sphere(scaling(15.0), Material(DiffuseBRDF(UniformPigment(RGB(0.58, 0.56, 0.6)), 0.0), UniformPigment(RGB(0.58, 0.56, 0.6))))
-#sky = Sphere(scaling(10.0), Material(DiffuseBRDF(pigsky), pigsky))
+s1 = Sphere(translation(Vec(0.0, -1.3, -0.5))(scaling(0.5)), Material(SpecularBRDF(UniformPigment(RGB(1.0, 1.0, 0.0)))))
+#sky = Sphere(scaling(15.0), Material(DiffuseBRDF(UniformPigment(RGB(0.58, 0.56, 0.6)), 0.0), UniformPigment(RGB(0.58, 0.56, 0.6))))
+sky = Sphere(scaling(10.0), Material(DiffuseBRDF(pigsky), pigsky))
 p2 = Plane(translation(Vec(0.0, 0.0, -1.0)), material1)
 
 add_shape!(w, s)
@@ -72,18 +72,18 @@ add_shape!(w, s1)
 add_shape!(w, sky)
 add_shape!(w, p2)
 
-img = HdrImage(160,90)
+img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
 
 pcg = new_PCG()
 
-RND = PathTracer(w, RGB(0.0, 0.0, 0.0), 2, 3, 2, pcg)
+RND = PathTracer(w, RGB(0.0, 0.0, 0.0), 3, 4, 3, pcg)
 
 enable_profile = "--profile" in ARGS
 if enable_profile
-    @pprof fire_all_rays!(IT, RND, pcg, 2)
+    @pprof fire_all_rays!(IT, RND, pcg, 5)
 else
-    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND, pcg, 2)
+    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND, pcg, 5)
     println("Profiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
     println("For a complete profiling use --profile flag")
 end

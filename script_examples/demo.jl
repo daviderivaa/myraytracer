@@ -1,7 +1,7 @@
 #DEMO PROJECT
 
 using Pkg
-Pkg.activate("myRayTracing")
+Pkg.activate("../myRayTracing")
 using Images
 using Colors
 using myRayTracing
