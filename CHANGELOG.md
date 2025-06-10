@@ -1,5 +1,7 @@
 # HEAD
 
+- Add `Cylinder` shape in [`shapes.jl`](./myRayTracing/src/shapes.jl). newshapes: [PR #13](https://github.com/daviderivaa/myraytracer/pull/13).
+- Add `Cone` shape in [`shapes.jl`](./myRayTracing/src/shapes.jl). newshapes: [PR #13](https://github.com/daviderivaa/myraytracer/pull/13).
 - Add **Point-light Tracing** algorithm for diffusive objects. pointlight: [PR #14](https://github.com/daviderivaa/myraytracer/pull/14)
 - Update profiling of `fire_all_rays` method with [PProf](https://github.com/JuliaPerf/PProf.jl). antialiasing: [PR #9](https://github.com/daviderivaa/myraytracer/pull/9)
 - Fix CSG [bug #11](https://github.com/daviderivaa/myraytracer/issues/11). fix#11: [PR #12](https://github.com/daviderivaa/myraytracer/pull/12)

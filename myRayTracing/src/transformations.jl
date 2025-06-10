@@ -143,7 +143,7 @@ function (T::Tranformation)(a::Point)
     allows to apply the transformation on a point by using " T(a) "
 """
 function (T::Transformation)(a::Point)
-    if ((a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3] + T.m[4,4]) == 1.0)
+    if abs(a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3] + T.m[4,4] - 1.0) < 1e-6
         return Point((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3] + T.m[1,4]), 
                      (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3] + T.m[2,4]), 
                      (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3] + T.m[3,4]))
@@ -157,7 +157,7 @@ function (T::Transformation)(a::Vec)
     allows to apply the transformation on a vector by using " T(a) "
 """
 function (T::Transformation)(a::Vec)
-    if ((a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3]) == 0.0)
+    if abs(a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3]) < 1e-6
         return Vec((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3]), 
                    (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3]), 
                    (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3]))
