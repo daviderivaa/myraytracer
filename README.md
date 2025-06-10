@@ -167,3 +167,7 @@ where:
 - `--profile` prints a complete profiling of `fire_all_rays` method.
 
 In `myraytracer/demo_path/` creates a `pfm` file and the corresponding `png` image.
+
+Here's an example:
+
+<img src="./examples_img/demo_path_perspective_z3_y3_g1.0a0.5.png" alt="Demo Path example" width="500">
