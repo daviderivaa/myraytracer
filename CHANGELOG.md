@@ -5,6 +5,8 @@
 - Fix CSG [bug #11](https://github.com/daviderivaa/myraytracer/issues/11). fix#11: [PR #12](https://github.com/daviderivaa/myraytracer/pull/12)
 - Add **Antialiasing** in [`demo_path.jl`](./demo_path.jl). antialiasing: [PR #9](https://github.com/daviderivaa/myraytracer/pull/9)
 - Fix PathTracer [bug #7](https://github.com/daviderivaa/myraytracer/issues/7), started as furnace test failure. fix#7: [PR #8](https://github.com/daviderivaa/myraytracer/pull/8)
+- Add `Cylinder` shape in [`shapes.jl`](./myRayTracing/src/shapes.jl). newshapes: [PR #13](https://github.com/daviderivaa/myraytracer/pull/13).
+- Add `Cone` shape in [`shapes.jl`](./myRayTracing/src/shapes.jl). newshapes: [PR #13](https://github.com/daviderivaa/myraytracer/pull/13).
 
 ## VERSION 0.4.0
 - Add profiling and time evaluation in [`demo_path.jl`](./demo_path.jl), [`box.jl`](./box.jl), [`check_csg.jl`](./check_csg.jl). pathtracing: [PR #6](https://github.com/daviderivaa/myraytracer/pull/6). 

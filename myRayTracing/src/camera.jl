@@ -24,7 +24,10 @@ struct OrthogonalCamera <: Camera
     aspect_ratio::Float64
     transformation::Transformation
 
-    function OrthogonalCamera(aspect_ratio, transformation::Transformation)
+    function OrthogonalCamera(aspect_ratio, transformation::Transformation=Transformation(Matrix{Float64}(I(4))))
+        if aspect_ratio <= 0.0
+            throw(ArgumentError("aspect ratio has to be positive"))
+        end
         new(aspect_ratio, transformation)
     end
 
@@ -60,6 +63,9 @@ struct PerspectiveCamera <: Camera
     transformation::Transformation
 
     function PerspectiveCamera(distance, aspect_ratio, transformation::Transformation)
+        if distance <= 0.0 || aspect_ratio <= 0.0
+            throw(ArgumentError("both distance and aspect ratio have to be positive")) 
+        end
         new(distance, aspect_ratio, transformation)
     end
 

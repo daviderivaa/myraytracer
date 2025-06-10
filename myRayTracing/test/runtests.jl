@@ -300,6 +300,7 @@ end
     ray_2 = Ray(Point(0.0, 0.0, -3.0), Vec(1.0, 1.0, 1.0))
     ray_3 = Ray(Point(0.0, 0.0, 1.0), Vec(1.0, 0.0, 0.0))
     ray_4 = Ray(Point(0.0, 0.0, 1.0), Vec(0.0, 1.0, 0.0))
+    ray_5 = Ray(Point(0.0, 0.0, 2.0), Vec(0.0, 0.0, 1.0))
 
     @test quick_ray_intersection(pl_1, ray_1) == true
     @test quick_ray_intersection(pl_1, ray_2) == true
@@ -309,6 +310,8 @@ end
     @test quick_ray_intersection(pl_3, ray_1) == true
     @test quick_ray_intersection(pl_3, ray_3) == false
     @test quick_ray_intersection(pl_3, ray_4) == true
+    @test quick_ray_intersection(pl_1, ray_5) == false
+    @test quick_ray_intersection(pl_2, ray_5) == true
 
     hr_11 = ray_intersection(pl_1, ray_1)
     hr_12 = ray_intersection(pl_1, ray_2) 
@@ -325,6 +328,273 @@ end
     @test is_close(hr_21, HRtest_21)
     @test is_close(hr_34, HRtest_34)
 
+end
+
+@testset "Check box methods" begin
+    box1 = Box(1.0, 2.0, 3.0)
+    box2 = Box(1.0, 2.0, 3.0, traslation(Vec(0.0,0.0,10.0)))
+    box3 = Box(1.0, 2.0, 3.0, rotation("z", π/2))
+
+    ray_1 = Ray(Point(-2.0, -1.0, -3.0), Vec(3.0, 1.0, 5.0))
+    ray_2 = Ray(Point(-1.0, 0.5, 2.0), Vec(1.0, 0.0, 0.0))
+    ray_3 = Ray(Point(-5.0, 0.5, 1.0), Vec(1.0, 0.0, 0.0))
+    ray_4 = Ray(Point(0.5, 4.0, 1.5), Vec(0.0, -1.0, 0.0))
+    ray_5 = Ray(Point(0.5, 1.0, 5.0), Vec(0.0, 0.0, 1.0))
+    ray_6 = Ray(Point(0.5, 1.0, 5.0), Vec(0.0, 0.0, -1.0))
+
+    @test quick_ray_intersection(box1, ray_1) == false
+    @test ray_intersection(box1, ray_1) === nothing
+    @test quick_ray_intersection(box2, ray_1) == false
+    @test ray_intersection(box2, ray_1) === nothing
+    @test quick_ray_intersection(box3, ray_1) == false
+    @test ray_intersection(box3, ray_1) === nothing
+
+    @test quick_ray_intersection(box1, ray_2) == true
+    hr12 = ray_intersection(box1, ray_2)
+    @test abs(hr12.t - 1.0) < 1e-6
+    @test is_close(hr12.world_point, Point(0.0, 0.5, 2.0))
+    @test quick_ray_intersection(box2, ray_2) == false
+    @test ray_intersection(box2, ray_2) === nothing
+    @test quick_ray_intersection(box3, ray_2) == true
+    hr32 = ray_intersection(box3, ray_2)
+    @test abs(hr32.t - 1.0) < 1e-6
+    @test is_close(hr32.normal, Normal(-1.0, 0.0, 0.0))
+
+    @test quick_ray_intersection(box1, ray_3) == true
+    hr13 = ray_intersection(box1, ray_3)
+    @test abs(hr13.t - 5.0) < 1e-6
+    @test quick_ray_intersection(box2, ray_3) == false
+    @test ray_intersection(box2, ray_3) === nothing
+    @test quick_ray_intersection(box3, ray_3) == true
+    hr33 = ray_intersection(box3, ray_3)
+    @test abs(hr33.t - 3.0) < 1e-6
+
+    @test quick_ray_intersection(box1, ray_4) == true
+    @test ray_intersection(box1, ray_4) !== nothing
+    @test quick_ray_intersection(box2, ray_4) == false
+    @test ray_intersection(box2, ray_4) === nothing
+    @test quick_ray_intersection(box3, ray_4) == false
+    @test ray_intersection(box3, ray_4) === nothing
+
+    @test quick_ray_intersection(box1, ray_5) == false
+    @test ray_intersection(box1, ray_5) === nothing
+    @test quick_ray_intersection(box2, ray_5) == true
+    hr25 = ray_intersection(box2, ray_5)
+    @test abs(hr25.t - 5.0) < 1e-6
+    @test quick_ray_intersection(box3, ray_5) == false
+    @test ray_intersection(box3, ray_5) === nothing
+
+    @test quick_ray_intersection(box1, ray_6) == true
+    hr16 = ray_intersection(box1, ray_6)
+    @test abs(hr16.t - 2.0) < 1e-6
+    @test quick_ray_intersection(box2, ray_6) == false
+    @test ray_intersection(box2, ray_6) === nothing
+    @test quick_ray_intersection(box3, ray_6) == false
+    @test ray_intersection(box3, ray_6) === nothing
+end
+
+@testset "Check cylinder methods" begin
+    cyl1 = Cylinder(1.0,1.0)
+    cyl2 = Cylinder(1.0,2.0)
+    cyl3 = Cylinder(1.0,2.0, traslation(Vec(-1.0,-1.0))(rotation("x", π/2)))
+
+    ray1 = Ray(Point(-2.0,0.0,0.5), Vec(1.0,0.0,0.0))
+    ray2 = Ray(Point(-2.0,0.0,1.5), Vec(1.0,0.0,0.0))
+    ray3 = Ray(Point(-3.0,2.0,-7.0), Vec(1.0,-2.0,3.0))
+    ray4 = Ray(Point(0.0,0.0,1.5), Vec(0.0,0.0,-1.0))
+
+    @test quick_ray_intersection(cyl1, ray1) == true
+    @test ray_intersection(cyl1, ray1) !== nothing
+    @test quick_ray_intersection(cyl2, ray1) == true
+    @test ray_intersection(cyl2, ray1) !== nothing
+    @test quick_ray_intersection(cyl3, ray1) == false
+    @test ray_intersection(cyl3, ray1) === nothing
+
+    @test quick_ray_intersection(cyl1, ray2) == false
+    @test ray_intersection(cyl1, ray2) === nothing
+    @test quick_ray_intersection(cyl2, ray2) == true
+    @test ray_intersection(cyl2, ray2) !== nothing
+    @test quick_ray_intersection(cyl3, ray2) == false
+    @test ray_intersection(cyl3, ray2) === nothing
+
+    @test quick_ray_intersection(cyl1, ray3) == false
+    @test ray_intersection(cyl1, ray3) === nothing
+    @test quick_ray_intersection(cyl2, ray3) == false
+    @test ray_intersection(cyl2, ray3) === nothing
+    @test quick_ray_intersection(cyl3, ray3) == true
+    @test ray_intersection(cyl3, ray3) !== nothing
+
+    @test quick_ray_intersection(cyl1, ray4) == true
+    hr14 = ray_intersection(cyl1, ray4)
+    @test abs(hr14.t - 0.5) < 1e-6
+    @test is_close(hr14.normal, Normal(0.0, 0.0, 1.0))
+    @test quick_ray_intersection(cyl2, ray4) == true
+    hr24 = ray_intersection(cyl2, ray4)
+    @test abs(hr24.t - 1.5) < 1e-6
+    @test is_close(hr24.normal, Normal(0.0, 0.0, 1.0))
+    @test quick_ray_intersection(cyl3, ray4) == false
+    @test ray_intersection(cyl3, ray4) === nothing
+end
+
+@testset "Check cone methods" begin
+    con1 = Cone(1.0, 2.0)
+    con2 = Cone(1.0, 2.0, traslation(Vec(0.0, 0.0, 2.0))(rotation("y", π)))
+    con3 = Cone(2.0, 3.0, rotation("x", π/2))
+
+    ray1 = Ray(Point(0.0, -1.0, 1.0), Vec(0.0, 1.0, 0.0))
+    ray2 = Ray(Point(-2.0, 0.5, 1.9), Vec(1.0, 0.0, 0.0))
+    ray3 = Ray(Point(0.0, 0.1, 3.0), Vec(0.0, 0.0, -1.0))
+    ray4 = Ray(Point(4.0, 5.0, -6.0), Vec(0.0, 0.0, 1.0))
+
+    @test quick_ray_intersection(con1, ray1) == true
+    @test ray_intersection(con1, ray1) !== nothing
+    @test quick_ray_intersection(con2, ray1) == true
+    @test ray_intersection(con2, ray1) !== nothing
+    @test quick_ray_intersection(con3, ray1) == true
+    @test ray_intersection(con3, ray1) !== nothing
+
+    @test quick_ray_intersection(con1, ray2) == false
+    @test ray_intersection(con1, ray2) === nothing
+    @test quick_ray_intersection(con2, ray2) == true
+    @test ray_intersection(con2, ray2) !== nothing
+    @test quick_ray_intersection(con3, ray2) == false
+    @test ray_intersection(con3, ray2) === nothing
+
+    @test quick_ray_intersection(con1, ray3) == true
+    @test ray_intersection(con1, ray3) !== nothing
+    @test quick_ray_intersection(con2, ray3) == true
+    @test ray_intersection(con2, ray3) !== nothing
+    @test quick_ray_intersection(con3, ray3) == false
+    @test ray_intersection(con3, ray3) === nothing
+
+    cone = Cone(2.0, 2.0, rotation("z", π/2))
+    ray = Ray(Point(0.0, 3.0, 3.0), Vec(0.0, -1/√2, -1/√2))
+    hr = ray_intersection(cone, ray)
+    hr_test = HitRecord(Point(0.0, 1.0, 1.0),
+                        Normal(0.0, 1/√2, 1/√2),
+                        Vec2d(0.5, 0.5),
+                        2√2,
+                        ray,
+                        cone)
+    @test is_close(hr, hr_test)
+end
+
+@testset "Check csg (union) methods" begin
+    box = Box(2.0, 2.0, 2.0)
+    sphere = Sphere(traslation(Vec(1.0, 0.0, 1.0)))
+    cylinder = Cylinder(0.5, 4.0)
+    cone = Cone(1.0, 1.0001, traslation(Vec(0.0001, 1.0, 1.0))(rotation("y", -π/2)))
+    u1 = union_shape(box, cone)
+    u2 = union_shape(sphere, cylinder, traslation(Vec(1.0, 1.0, 0.0)))
+    final = union_shape(u1, u2)
+
+    ray1 = Ray(Point(1.0, 3.0, 3.0), Vec(0.0, -1.0, 0.0))
+    ray2 = Ray(Point(1.0, 1.0, 1.0), Vec(0.0, 1.0, 0.0))
+    ray3 = Ray(Point(-0.5, 1.0, 1.0), Vec(1.0, 0.0, 0.0))
+    ray4 = Ray(Point(-0.5, -1.0, 1.0), Vec(0.0, 1.0, 0.0))
+    ray5 = Ray(Point(-3.0, -1.0, -2.0), Vec(1.0, 2.0, 3.0))
+
+    @test quick_ray_intersection(final, ray1) == true
+    hr1 = ray_intersection(final, ray1)
+    @test abs(hr1.t - 1.5) < 1e-6
+    @test hr1.s == cylinder
+    
+
+    @test quick_ray_intersection(final, ray2) == true
+    hr2 = ray_intersection(final, ray2)
+    @test abs(hr2.t - 1.0) < 1e-6
+    @test hr2.s == box
+
+    @test quick_ray_intersection(final, ray3) == true
+    hr3 = ray_intersection(final, ray3)
+    @test abs(hr3.t - 3.5) < 1e-6
+    @test hr3.s == sphere
+
+    @test quick_ray_intersection(final, ray4) == true
+    hr4 = ray_intersection(final, ray4)
+    @test abs(hr4.t - 1.5) < 1e-4
+    @test hr4.s == cone
+
+    @test quick_ray_intersection(final, ray5) == false
+end
+
+@testset "Check csg (intersection) methods" begin
+    box = Box(3.0, 3.0, 3.0)
+    sphere = Sphere(traslation(Vec(0.0, 3.0, 0.0))(scaling(2.0)))
+    final = intersec_shape(box, sphere, traslation(Vec(4.0, -5.0, 1.0))(rotation("z", -π/2)))
+
+    ray1 = Ray(Point(2.0, -6.0, 2.0), Vec(1.0, 0.0, 0.0))
+    ray2 = Ray(Point(2.5, -1.0, 1.0), Vec(0.0, 1.0, 0.0))
+    ray3 = final.T(ray2)
+    ray4 = Ray(Point(6.0, 1.0, 1.5), Vec(0.0, -1.0, 0.0))
+    ray5 = Ray(Point(6.5, -5.5, 10.0), Vec(0.0, 0.0, -1.0))
+
+    @test quick_ray_intersection(final, ray1) == true
+    hr1 = ray_intersection(final, ray1)
+    @test hr1.s == sphere
+    
+    @test quick_ray_intersection(box, ray2) == true
+    @test quick_ray_intersection(sphere, ray2) == false
+    @test quick_ray_intersection(final, ray3) == false
+
+    @test quick_ray_intersection(final, ray4) == true
+    hr4 = ray_intersection(final, ray4)
+    @test abs(hr4.t - 6.0) < 1e-6
+    @test hr4.s == box
+
+    @test quick_ray_intersection(final, ray5) == true
+    hr5 = ray_intersection(final, ray5)
+    @test hr5.s == sphere
+end
+
+@testset "Check csg (difference) methods" begin
+    bigbox = Box(4.0, 4.0, 4.0)
+    smallbox = Box(2.0, 2.1, 2.0, traslation(Vec(1.0, -0.1, 0.0)))
+    sphere = Sphere(scaling(2.0))
+    cylinder = Cylinder(0.5, 6.0, traslation(Vec(-1.0, 3.0, 2.0))(rotation("y", π/2)))
+    d1 = diff_shape(bigbox, smallbox)
+    d2 = diff_shape(d1, sphere)
+    final = diff_shape(d2, cylinder)
+
+    ray1 = Ray(Point(-2.0, 1.0, 1.0), Vec(1.0, 0.0, 0.0))
+    ray2 = Ray(Point(-3.0, 3.0, 2.0), Vec(1.0, 0.0, 0.0))
+    ray3 = Ray(Point(2.0, -3.0, 1.0), Vec(0.0, 1.0, 0.0))
+    ray4 = Ray(Point(2.0, 1.0, 5.0), Vec(0.0, 0.0, -1.0))
+    ray5 = Ray(Point(2.0, 1.0, -5.0), Vec(0.0, 0.0, 1.0))
+    ray6 = Ray(Point(2.0, 5.0, 3.0), Vec(1.0, -1.0, 2.0))
+
+    @test quick_ray_intersection(d1, ray1) == true
+    hr11 = ray_intersection(d1, ray1)
+    @test abs(hr11.t - 2.0) < 1e-6
+    @test hr11.s == bigbox
+    @test quick_ray_intersection(final, ray1) == true
+    hr12 = ray_intersection(final, ray1)
+    @test abs(hr12.t - 5.0) < 1e-6
+    @test hr12.s == smallbox
+
+    @test quick_ray_intersection(d2, ray2) == true
+    @test quick_ray_intersection(cylinder, ray2) == true
+    @test quick_ray_intersection(final, ray2) == false
+    @test ray_intersection(final, ray2) === nothing
+
+    @test quick_ray_intersection(bigbox, ray3) == true
+    @test quick_ray_intersection(final, ray3) == true
+    hr3 = ray_intersection(final, ray3)
+    @test abs(hr3.t - 5.0) < 1e-6
+    @test hr3.s == smallbox
+
+    @test quick_ray_intersection(final, ray4) == true
+    hr4 = ray_intersection(final, ray4)
+    @test abs(hr4.t - 1.0) < 1e-6
+    @test hr4.s == bigbox
+
+    @test quick_ray_intersection(final, ray5) == true
+    hr5 = ray_intersection(final, ray5)
+    @test abs(hr5.t - 7.0) < 1e-6
+    @test hr5.s == smallbox
+
+    @test quick_ray_intersection(final, ray6) == false
+    @test ray_intersection(final, ray6) === nothing
 end
 
 @testset "Check world methods" begin
