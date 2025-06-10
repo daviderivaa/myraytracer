@@ -139,3 +139,70 @@ function (RND::PathTracer)(ray::Ray)
     return (emitted_radiance + cum_radiance * (1.0 / (RND.num_rays)))
 
 end
+
+
+############################################################################################
+
+# POINT LIGHT TRACING
+
+"""
+Renderer for PointLight Tracing algorithm.
+    - w::World --> world variable which contains shapes and light sources.
+    - b_color::RGB --> background color (default is black).
+    - ambient_color::RGB --> ambient color (default is not black but close in order to avoid low luminosity).
+"""
+struct PointLightRenderer <: Renderer
+
+    w::World
+    b_color::RGB
+    ambient_color::RGB
+
+    function PointLightRenderer(w::World, b_color::RGB=RGB(0.0, 0.0, 0.0), ambient_color::RGB=RGB(0.1, 0.1, 0.1))
+        if isempty(w._point_lights)
+            throw(Type_error("For PointLight Tracer use at least 1 light source"))
+        end
+        new(w, b_color, ambient_color)
+    end
+
+end
+
+"""
+PointLight Tracing algorithm
+"""
+function (RND::PointLightRenderer)(ray::Ray)
+
+    hit_record = ray_intersection(RND.w, ray)
+
+    if hit_record === nothing
+        return RND.b_color
+    end
+
+    hit_material = hit_record.s.material
+    emitted_color = get_color(hit_material.emitted_radiance, hit_record.surface_point)
+
+    result_color = RND.ambient_color + emitted_color
+
+    for light in get_lights(RND.w)
+
+        if is_point_visible(RND.w, light.pos, hit_record.world_point)
+
+            distance_vec = hit_record.world_point - light.pos
+            distance = norm(distance_vec)
+            in_dir = normalize(distance_vec)
+            n_hit_normal = normalize(hit_record.normal)
+            cos_theta = max(0.0, -(in_dir * n_hit_normal))
+
+            if light.linear_radius > 0.0
+                distance_factor = (light.linear_radius / distance)^2
+            else
+                distance_factor = 1.0
+            end
+
+            brdf_color = Eval(hit_material.brdf, hit_record.surface_point, hit_record.normal, in_dir, neg(ray.dir))
+            result_color += brdf_color * light.color * cos_theta * distance_factor
+        end
+    end
+
+    return result_color
+
+end

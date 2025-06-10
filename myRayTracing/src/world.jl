@@ -6,11 +6,14 @@ struct World
 """
 struct World
     _shapes::Vector{Shape}
+    _point_lights::Vector{PointLight}
 
     function World()
-        new(Shape[])
+        new(Shape[], PointLight[])
     end
 end
+
+# SHAPES
 
 """
 function add_shape!(w::World, s::Shape)
@@ -33,6 +36,31 @@ function get_single_shape(w::World, i::Int64)
 """
 function get_single_shape(w::World, i::Int64)
     return w._shapes[i]
+end
+
+#POINTLIGHT
+
+"""
+function add_light!(w::World, pl::PointLight)
+    inplace method to add a point light to the list
+"""
+function add_light!(w::World, pl::PointLight)
+    push!(w._point_lights, pl)
+end
+
+"""
+function get_lights(w::World)
+    returns the whole _point_lights vector
+"""
+function get_lights(w::World)
+    return w._point_lights
+end
+"""
+function get_single_light(w::World, i::Int64)
+    returns the i-th _point_lights vector element
+"""
+function get_single_light(w::World, i::Int64)
+    return w._point_lights[i]
 end
 
 #Compute ray ray_intersection
