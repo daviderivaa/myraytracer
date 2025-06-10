@@ -5,7 +5,6 @@ Pkg.activate("myRayTracing")
 using Images
 using Colors
 using myRayTracing
-using LinearAlgebra
 using Profile
 using PProf
 

@@ -6,7 +6,7 @@ using myRayTracing
 using Profile
 using PProf
 
-include("pfm2png.jl")
+include("../pfm2png.jl")
 
 #Error definition
 """
@@ -21,7 +21,7 @@ if length(ARGS) < 3 || length(ARGS) > 4
 end
 
 if ARGS[1] == "perspective"
-    path = "./CSG/"
+    path = "../CSG/"
     pfm_filename_and_path = "./CSG/box_perspective_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
     filename = "box_perspective_z" * ARGS[2] * "_y" * ARGS[3]
     angle_z = parse(Float64, ARGS[2])
@@ -31,8 +31,8 @@ if ARGS[1] == "perspective"
     Cam = PerspectiveCamera(1.0, 16.0/9.0, rot1(rot2(translation(Vec(1.0, 0.0, 0.0)))))
 
 elseif ARGS[1] == "orthogonal"
-    path = "./CSG/"
-    pfm_filename_and_path = "./CSG/box_orthogonal_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
+    path = "../CSG/"
+    pfm_filename_and_path = "../CSG/box_orthogonal_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
     filename = "box_orthogonal_z" * ARGS[2] * "_y" * ARGS[3]
     angle_z = parse(Float64, ARGS[2])
     angle_y = parse(Float64, ARGS[3])

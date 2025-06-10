@@ -6,7 +6,7 @@ using Images
 using Colors
 using myRayTracing
 
-include("pfm2png.jl")
+include("../pfm2png.jl")
 
 #Error definition
 """
@@ -22,16 +22,16 @@ if length(ARGS) != 3
 end
 
 if ARGS[1] == "perspective"
-    path = "./demo/"
-    pfm_filename_and_path = "./demo/demo_perspective_" * ARGS[2] * ".pfm"
+    path = "../demo/"
+    pfm_filename_and_path = "../demo/demo_perspective_" * ARGS[2] * ".pfm"
     filename = "demo_perspective_" * ARGS[2]
     angle = parse(Float64, ARGS[2])
     rot1 = rotation("z", angle*π/180.0)
     Cam = PerspectiveCamera(6.0, 16.0/9.0, rot1(translation(Vec(-1.0, 0.0, 0.0))))
 
 elseif ARGS[1] == "orthogonal"
-    path = "./demo/"
-    pfm_filename_and_path = "./demo/demo_orthogonal_" * ARGS[2] * ".pfm"
+    path = "../demo/"
+    pfm_filename_and_path = "../demo/demo_orthogonal_" * ARGS[2] * ".pfm"
     filename = "demo_orthogonal_" * ARGS[2]
     angle = parse(Float64, ARGS[2])
     rot1 = rotation("z", angle*π/180.0)

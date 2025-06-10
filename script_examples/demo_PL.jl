@@ -8,7 +8,7 @@ using myRayTracing
 using Profile
 using PProf
 
-include("pfm2png.jl")
+include("../pfm2png.jl")
 
 #Error definition
 """
@@ -23,8 +23,8 @@ if length(ARGS) < 3 || length(ARGS) > 4
 end
 
 if ARGS[1] == "perspective"
-    path = "./demo_PL/"
-    pfm_filename_and_path = "./demo_PL/demo_PL_perspective_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
+    path = "../demo_PL/"
+    pfm_filename_and_path = "../demo_PL/demo_PL_perspective_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
     filename = "demo_PL_perspective_z" * ARGS[2] * "_y" * ARGS[3]
     angle_z = parse(Float64, ARGS[2])
     angle_y = parse(Float64, ARGS[3])
@@ -33,8 +33,8 @@ if ARGS[1] == "perspective"
     Cam = PerspectiveCamera(6.0, 16.0/9.0, rot1(rot2(translation(Vec(-1.0, 0.0, 0.0)))))
 
 elseif ARGS[1] == "orthogonal"
-    path = "./demo_PL/"
-    pfm_filename_and_path = "./demo_PL/demo_path_orthogonal_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
+    path = "../demo_PL/"
+    pfm_filename_and_path = "../demo_PL/demo_path_orthogonal_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
     filename = "demo_PL_orthogonal_z" * ARGS[2] * "_y" * ARGS[3]
     angle_z = parse(Float64, ARGS[2])
     angle_y = parse(Float64, ARGS[3])
@@ -51,27 +51,15 @@ w = World()
 color1 = RGB(1.0, 0.0, 0.0) #RED 
 color2 = RGB(0.0, 1.0, 0.0) #GREEN
 color3 = RGB(0.0, 0.0, 1.0) #BLUE
-color4 = RGB(0.0, 1.0, 1.0) #CYAN
-color5 = RGB(0.1, 0.0, 1.0) #PURPLE
 
 pig1 = CheckeredPigment(color2, color3, 10)
-pig2 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color1, 10)
-pig3 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color2, 10)
-pig4 = CheckeredPigment(RGB(1.0, 1.0, 1.0), color5, 10)
-pig5 = CheckeredPigment(RGB(0.0, 0.0, 0.0), color3, 10)
 
 material1 = Material(DiffuseBRDF(pig1, 0.5))
-material2 = Material(DiffuseBRDF(pig2, 0.5), pig2)
-material3 = Material(DiffuseBRDF(pig3, 0.5), pig3)
-material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
-material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
 
-s = Sphere(translation(Vec(0.0, 1.3, -0.7))(scaling(0.3)), Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0)))))
 s1 = Sphere(translation(Vec(0.0, 0.0, -0.5))(scaling(0.5)), Material(DiffuseBRDF(UniformPigment(RGB(0.8, 0.8, 0.0)))))
 sky = Sphere(scaling(15.0), Material(DiffuseBRDF(UniformPigment(RGB(0.58, 0.56, 0.6)), 0.0), UniformPigment(RGB(0.58, 0.56, 0.6))))
 p2 = Plane(translation(Vec(0.0, 0.0, -1.0)), material1)
 
-#add_shape!(w, s)
 add_shape!(w, s1)
 add_shape!(w, sky)
 add_shape!(w, p2)
@@ -79,7 +67,7 @@ add_shape!(w, p2)
 PL = PointLight(Point(0.0, 10.0, 5.0), RGB(0.58, 0.56, 0.6), 100.0)
 add_light!(w, PL)
 
-img = HdrImage(1600,900)
+img = HdrImage(160,90)
 IT = ImageTracer(img, Cam)
 
 pcg = new_PCG()

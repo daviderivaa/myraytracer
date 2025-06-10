@@ -4,7 +4,7 @@ using Images
 using Colors
 using myRayTracing
 
-include("pfm2png.jl")
+include("../pfm2png.jl")
 
 #Error definition
 """
@@ -19,8 +19,8 @@ if length(ARGS) != 3
 end
 
 if ARGS[1] == "perspective"
-    path = "./CSG/"
-    pfm_filename_and_path = "./CSG/csg_perspective_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
+    path = "../CSG/"
+    pfm_filename_and_path = "../CSG/csg_perspective_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
     filename = "csg_perspective_z" * ARGS[2] * "_y" * ARGS[3]
     angle_z = parse(Float64, ARGS[2])
     angle_y = parse(Float64, ARGS[3])
@@ -29,8 +29,8 @@ if ARGS[1] == "perspective"
     Cam = PerspectiveCamera(1.0, 16.0/9.0, rot1(rot2(translation(Vec(1.0, 0.0, 0.0)))))
 
 elseif ARGS[1] == "orthogonal"
-    path = "./CSG/"
-    pfm_filename_and_path = "./CSG/csg_orthogonal_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
+    path = "../CSG/"
+    pfm_filename_and_path = "../CSG/csg_orthogonal_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
     filename = "csg_orthogonal_z" * ARGS[2] * "_y" * ARGS[3]
     angle_z = parse(Float64, ARGS[2])
     angle_y = parse(Float64, ARGS[3])
@@ -102,25 +102,16 @@ final = union_shape(diff,sphere, translation(Vec(-1.0,-2.0,-2.0)))
 
 check_sphere = Sphere(translation(Vec(2.3,-1.3,0.0))(scaling(0.05)), material5)
 
-cylinder = Cylinder(2.0,4.0,traslation(Vec(-1.0,0.0,0.0))(rotation("y", π/2)),material5)
+cylinder = Cylinder(2.0,4.0,translation(Vec(-1.0,0.0,0.0))(rotation("y", π/2)),material5)
 
 sph = Sphere((scaling(2.0)), material5)
-cyl = Cylinder(1.0,6.0,traslation(Vec(-2.0,0.0,0.0))(rotation("y", π/2)), material2)
-d = diff_shape(sph, cyl, traslation(Vec(4.0,0.0,0.0))(rotation("z", π/10)))
+cyl = Cylinder(1.0,6.0,translation(Vec(-2.0,0.0,0.0))(rotation("y", π/2)), material2)
+d = diff_shape(sph, cyl, translation(Vec(4.0,0.0,0.0))(rotation("z", π/10)))
 
 add_shape!(w, d)
-
 #add_shape!(w, U)
 #add_shape!(w, I)
 #add_shape!(w, D)
-
-# add_shape!(w, s1)
-# add_shape!(w, r1)
-# add_shape!(w, r2)
-# add_shape!(w, r3)
-# add_shape!(w, r4)
-# add_shape!(w, r5)
-#add_shape!(w, p1)
 
 img = HdrImage(1600,900)
 IT = ImageTracer(img, Cam)
