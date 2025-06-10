@@ -46,7 +46,7 @@ struct Sphere <: Shape
     T::Transformation
     material::Material
 
-    function Sphere(T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+    function Sphere(T::Transformation=Transformation(), material::Material=Material())
         new(T, material)
     end
 
@@ -196,7 +196,7 @@ struct Plane <: Shape
     T::Transformation
     material::Material
 
-    function Plane(T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+    function Plane(T::Transformation=Transformation(), material::Material=Material())
         new(T, material)
     end
 
@@ -287,7 +287,7 @@ struct Rectangle <: Shape
     material::Material --> the material of the rectangle
     T::Transformation --> global transformation
 
-    function Rectangle(origin::Point, edge1::Vec, edge2::Vec, T::Transformation, material::Material=Material())
+    function Rectangle(origin::Point, edge1::Vec, edge2::Vec, T::Transformation = IDENTITY_MATR4x4, material::Material=Material())
         n = normalize(cross(edge1, edge2)) |> Normal
         new(origin, edge1, edge2, n, T, material)
     end
@@ -301,7 +301,7 @@ struct Rectangle <: Shape
     T::Transformation
     material::Material
 
-    function Rectangle(origin::Point, edge1::Vec, edge2::Vec, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+    function Rectangle(origin::Point, edge1::Vec, edge2::Vec, T::Transformation=Transformation(), material::Material=Material())
         n = Vec_to_Normal(normalize(cross(edge1, edge2)))
         new(origin, edge1, edge2, n, T, material)
     end
@@ -406,7 +406,7 @@ struct Box <: Shape
     T::Transformation --> The transformation applied to the box
     material::Material --> the material of the box
 
-    function Box(X::Float64, Y::Float64, Z::Float64, T::Transformation, material::Material=Material())
+    function Box(X::Float64, Y::Float64, Z::Float64, T::Transformation = IDENTITY_MATR4x4, material::Material=Material())
         new(X, Y, Z, T, material)
     end
 end
@@ -419,7 +419,7 @@ struct Box <: Shape
     T::Transformation
     material::Material
 
-    function Box(X::Float64, Y::Float64, Z::Float64, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+    function Box(X::Float64, Y::Float64, Z::Float64, T::Transformation=Transformation(), material::Material=Material())
         if X <= 0.0 || Y <= 0.0 || Z <= 0.0
             throw(ArgumentError("Box.X, .Y and .Z must be positives"))
         end
@@ -630,7 +630,7 @@ struct Cylinder <: Shape
     T::Transformation --> The transformation applied to the cylinder
     material::Material --> the material of the cylinder
 
-    function Cylinder(R::Float64, H::Float64, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+    function Cylinder(R::Float64, H::Float64, T::Transformation=IDENTITY_MATR4x4, material::Material=Material())
         new(R, H, T, material)
     end
 end
@@ -642,7 +642,7 @@ struct Cylinder <: Shape
     T::Transformation
     material::Material
 
-    function Cylinder(R::Float64, H::Float64, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+    function Cylinder(R::Float64, H::Float64, T::Transformation=Transformation(), material::Material=Material())
         if R <= 0.0 || H <= 0.0
             throw(ArgumentError("Cylinder's Radius and Height must be positives"))
         end
@@ -843,7 +843,7 @@ struct Cone <: Shape
     T::Transformation --> The transformation applied to the cone
     material::Material --> the material of the cone
 
-    function Cone(R::Float64, H::Float64, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+    function Cone(R::Float64, H::Float64, T::Transformation=IDENTITY_MATR4x4, material::Material=Material())
         new(R, H, T, material)
     end
 end
@@ -854,7 +854,7 @@ struct Cone <: Shape
     T::Transformation
     material::Material
 
-    function Cone(R::Float64, H::Float64, T::Transformation=Transformation(Matrix{Float64}(I(4))), material::Material=Material())
+    function Cone(R::Float64, H::Float64, T::Transformation=Transformation(), material::Material=Material())
         if R <= 0.0 || H <= 0.0
             throw(ArgumentError("Cone's Radius and Height must be positives"))
         end
@@ -1311,7 +1311,7 @@ struct union_shape <: Shape
     s2::Shape
     T::Transformation
 
-    function union_shape(s1, s2, T::Transformation=Transformation(IDENTITY_MATR4x4))
+    function union_shape(s1, s2, T::Transformation=Transformation())
         new(s1, s2, T)
     end
 
@@ -1391,7 +1391,7 @@ struct intersec_shape <: Shape
     s2::Shape
     T::Transformation
 
-    function intersec_shape(s1::Shape, s2::Shape, T::Transformation=Transformation(IDENTITY_MATR4x4))
+    function intersec_shape(s1::Shape, s2::Shape, T::Transformation=Transformation())
         new(s1, s2, T)
     end
 
@@ -1468,7 +1468,7 @@ struct diff_shape <: Shape
     s2::Shape
     T::Transformation
 
-    function diff_shape(s1::Shape, s2::Shape, T::Transformation=Transformation(IDENTITY_MATR4x4))
+    function diff_shape(s1::Shape, s2::Shape, T::Transformation=Transformation())
         new(s1, s2, T)
     end
 

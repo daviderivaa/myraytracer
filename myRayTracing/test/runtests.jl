@@ -331,7 +331,7 @@ end
 
 @testset "Check box methods" begin
     box1 = Box(1.0, 2.0, 3.0)
-    box2 = Box(1.0, 2.0, 3.0, traslation(Vec(0.0,0.0,10.0)))
+    box2 = Box(1.0, 2.0, 3.0, translation(Vec(0.0,0.0,10.0)))
     box3 = Box(1.0, 2.0, 3.0, rotation("z", π/2))
 
     ray_1 = Ray(Point(-2.0, -1.0, -3.0), Vec(3.0, 1.0, 5.0))
@@ -395,7 +395,7 @@ end
 @testset "Check cylinder methods" begin
     cyl1 = Cylinder(1.0,1.0)
     cyl2 = Cylinder(1.0,2.0)
-    cyl3 = Cylinder(1.0,2.0, traslation(Vec(-1.0,-1.0))(rotation("x", π/2)))
+    cyl3 = Cylinder(1.0,2.0, translation(Vec(-1.0,-1.0))(rotation("x", π/2)))
 
     ray1 = Ray(Point(-2.0,0.0,0.5), Vec(1.0,0.0,0.0))
     ray2 = Ray(Point(-2.0,0.0,1.5), Vec(1.0,0.0,0.0))
@@ -437,7 +437,7 @@ end
 
 @testset "Check cone methods" begin
     con1 = Cone(1.0, 2.0)
-    con2 = Cone(1.0, 2.0, traslation(Vec(0.0, 0.0, 2.0))(rotation("y", π)))
+    con2 = Cone(1.0, 2.0, translation(Vec(0.0, 0.0, 2.0))(rotation("y", π)))
     con3 = Cone(2.0, 3.0, rotation("x", π/2))
 
     ray1 = Ray(Point(0.0, -1.0, 1.0), Vec(0.0, 1.0, 0.0))
@@ -480,11 +480,11 @@ end
 
 @testset "Check csg (union) methods" begin
     box = Box(2.0, 2.0, 2.0)
-    sphere = Sphere(traslation(Vec(1.0, 0.0, 1.0)))
+    sphere = Sphere(translation(Vec(1.0, 0.0, 1.0)))
     cylinder = Cylinder(0.5, 4.0)
-    cone = Cone(1.0, 1.0001, traslation(Vec(0.0001, 1.0, 1.0))(rotation("y", -π/2)))
+    cone = Cone(1.0, 1.0001, translation(Vec(0.0001, 1.0, 1.0))(rotation("y", -π/2)))
     u1 = union_shape(box, cone)
-    u2 = union_shape(sphere, cylinder, traslation(Vec(1.0, 1.0, 0.0)))
+    u2 = union_shape(sphere, cylinder, translation(Vec(1.0, 1.0, 0.0)))
     final = union_shape(u1, u2)
 
     ray1 = Ray(Point(1.0, 3.0, 3.0), Vec(0.0, -1.0, 0.0))
@@ -519,8 +519,8 @@ end
 
 @testset "Check csg (intersection) methods" begin
     box = Box(3.0, 3.0, 3.0)
-    sphere = Sphere(traslation(Vec(0.0, 3.0, 0.0))(scaling(2.0)))
-    final = intersec_shape(box, sphere, traslation(Vec(4.0, -5.0, 1.0))(rotation("z", -π/2)))
+    sphere = Sphere(translation(Vec(0.0, 3.0, 0.0))(scaling(2.0)))
+    final = intersec_shape(box, sphere, translation(Vec(4.0, -5.0, 1.0))(rotation("z", -π/2)))
 
     ray1 = Ray(Point(2.0, -6.0, 2.0), Vec(1.0, 0.0, 0.0))
     ray2 = Ray(Point(2.5, -1.0, 1.0), Vec(0.0, 1.0, 0.0))
@@ -548,9 +548,9 @@ end
 
 @testset "Check csg (difference) methods" begin
     bigbox = Box(4.0, 4.0, 4.0)
-    smallbox = Box(2.0, 2.1, 2.0, traslation(Vec(1.0, -0.1, 0.0)))
+    smallbox = Box(2.0, 2.1, 2.0, translation(Vec(1.0, -0.1, 0.0)))
     sphere = Sphere(scaling(2.0))
-    cylinder = Cylinder(0.5, 6.0, traslation(Vec(-1.0, 3.0, 2.0))(rotation("y", π/2)))
+    cylinder = Cylinder(0.5, 6.0, translation(Vec(-1.0, 3.0, 2.0))(rotation("y", π/2)))
     d1 = diff_shape(bigbox, smallbox)
     d2 = diff_shape(d1, sphere)
     final = diff_shape(d2, cylinder)
