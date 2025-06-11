@@ -41,6 +41,25 @@ Optional:
 ```
 
 # <span style="color: red;">**USAGE**</span>
+In the main directory run:
+
+```shell
+julia -t <n_threads> main.jl <scene>
+```
+where:
+- `<n_threads> = auto` allows to use all available threads (hint: use half of your available threads for a better performance)
+- `<n_threads> = 1` means not using multi-threading.
+- `<scene>` is a txt filename in [examples/](./examples/) directory.
+
+You can create your own scene in [examples/](./examples/) directory, learn sintax by looking at some examples in the same directory. Output images will be shown in [examples_img/](./examples_img/) named as `<scene>_g1.0a0.5.png` with the corresponding PFM file `<scene>.pfm`.
+
+### Tone mapping
+You can modify *Tone mapping* parameters in [main](./main.jl) method `convert_pfm_to_png()` (see [pfm2png.jl](./pfm2png.jl) and [LdrImage.jl](./myRayTracing/src/LdrImage.jl) for more informations). 
+
+Default values are:
+- $\gamma=1.0$
+- $\alpha=0.5$
+
 
 # <span style="color: red;">**HISTORY**</span>
 See [CHANGELOG](./CHANGELOG.md) file.
