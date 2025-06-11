@@ -118,6 +118,8 @@ Process(`/home/alberto/.julia/artifacts/579b2972c1e7b798ee4281dd37d60a362be0e1f5
 ```
 Then open `http://localhost:57599`.
 
+***
+
 # <span style="color: red;">**SCRIPT EXAMPLES**</span>
 # <span style="color: blue;">DEMO</span>
 ## <span style="color: green;">DEMO SINGLE IMAGE (WITH ON/OFF-RENDERER OR FLAT-RENDERER)</span>
@@ -150,9 +152,6 @@ where:
 In `myraytracer/demo/` creates a `pfm` file and the corresponding `png` image.
 
 ## <span style="color: green;">DEMO GIF (WITH ON/OFF-RENDERER OR FLAT-RENDERER)</span>
-
-<img src="./script_examples/orthogonal.gif" alt="GIF 1" width="500" style="display:inline-block; margin-right:10px;">
-<img src="./script_examples/perspective_c.gif" alt="GIF 2" width="500" style="display:inline-block;">
 
 Before executing [demo_gif.jl](./demo_gif.jl), you need to install [ffmpeg](https://ffmpeg.org/):
 - Ubuntu / Debian bash:
@@ -192,6 +191,11 @@ where:
 - `<n_threads> = 1` means not using multi-threading.
 - `<w_colors> = "yes"` makes 2 colored spheres. A GIF file called `<camera_type>_c.gif` will appear in `myraytracer/script_examples/`.
 - `<w_colors> = "no"` makes only white spheres. A GIF file called `<camera_type>.gif` will appear in `myraytracer/script_examples/`.
+
+Here are two examples:
+
+<img src="./script_examples/orthogonal.gif" alt="GIF 1" width="500" style="display:inline-block; margin-right:10px;">
+<img src="./script_examples/perspective_c.gif" alt="GIF 2" width="500" style="display:inline-block;">
 
 ## <span style="color: green;">DEMO (WITH PATHTRACING ALGORITHM)</span>
 
@@ -254,7 +258,11 @@ where:
 
 In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
 
-# <span style="color: blue;">DRAW BOX (WITH ON/OFF-RENDERER OR FLAT-RENDERER)</span>
+Here's an example:
+
+<img src="./examples_img/csg_perspective_z45_y45_g1.0a0.7.png" alt="CSG example" width="500">
+
+# <span style="color: blue;">DRAW OPEN BOX (WITH ON/OFF-RENDERER OR FLAT-RENDERER)</span>
 
 If `myraytracer/CSG/` directory doesn't exist, in `myraytracer/` run:
 ```shell
