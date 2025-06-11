@@ -1,0 +1,33 @@
+material lego(diffuse(uniform(<1.0, 1.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))
+material shirt(diffuse(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))
+material floor_material(diffuse(checkered(<1.0, 1.0, 1.0>, <0.0, 0.0, 1.0>, 10)), uniform(<0.0, 0.0, 0.0>))
+material sky_material(diffuse(uniform(<0.58, 0.56, 0.6>)), uniform(<0.58, 0.56, 0.6>))
+material lego_floor(diffuse(image("/home/davide/Fotorealistiche/blue-lego-baseplate-texture-rwtax6ezf4lvqckc.pfm")), uniform(<0.0, 0.0, 0.0>))
+
+plane(sky_material, translation[{0.0, 0.0, 20.0}])
+plane(lego_floor, scaling[20] * rotation_z[145])
+
+box(5.12, 7.17, 10.76, lego, scaling[0.04] * rotation_z[-35] * translation[{2.05, 0.0, 3.19}])
+box(10.76, 7.17, 5.12, lego, scaling[0.04] * rotation_z[-35] * translation[{-3.49, 7.98, 8.83}])
+cylinder(2.62, 15.15, lego, scaling[0.04] * rotation_z[-35] * translation[{4.25, 0.0, 11.33}] * rotation_x[-90])
+
+difference(box(7.17, 7.17, 3.19, lego, scaling[1.0]), box(4.77, 4.77, 1.595, lego, translation[{1.2, 1.2, 0.0}]), scaling[0.04] * rotation_z[-35])
+difference(box(7.17, 7.17, 3.19, lego, scaling[1.0]), box(4.77, 4.77, 1.595, lego, translation[{1.2, 1.2, 0.0}]), scaling[0.04] * rotation_z[-35] * translation[{-6.68, 7.98, 16.0}] * rotation_y[90])
+
+box(7.17, 15.15, 3.02, lego, scaling[0.04] * rotation_z[-35] * translation[{0.0, 0.0, 13.95}])
+difference(difference(box(7.17, 15.15, 12.76, shirt, translation[{0.0, 0.0, 0.0}]), box(7.17, 15.15, 15, shirt, rotation_x[-9.85] * translation[{0.0, -15.15, 0.0}]), translation[{0.0, 0.0, 0.0}]), box(7.17, 15.15, 15, shirt, rotation_x[9.85] * translation[{0.0, 15.15, 0.0}]), scaling[0.04] * rotation_z[-35] * translation[{0.0, 0.0, 16.97}])
+
+cylinder(3.5, 1.5, lego, scaling[0.04] * rotation_z[-35] * translation[{3.585, 7.575, 29.73}])
+cylinder(5.04, 7, lego, scaling[0.04] * rotation_z[-35] * translation[{3.585, 7.575, 31.23}])
+
+difference(cylinder(3.08, 2, lego, scaling[1.0]), cylinder(2.0, 2, lego, scaling[1.0]), scaling[0.04] * rotation_z[-35] * translation[{3.585, 7.575, 38.23}])
+
+cylinder(2.5, 12, lego, scaling[0.04] * rotation_z[-35] * translation[{3.585, -6.0, 20.0}] * rotation_x[-60])
+cylinder(1.5, 1, lego, scaling[0.04] * rotation_z[-35] * translation[{3.585, -6.0, 20.0}] * rotation_x[-60] * translation[{0.0, 0.0, -1.0}])
+cylinder(2.5, 12, lego, scaling[0.04] * rotation_z[-35] * translation[{3.585, 21.15, 20.0}] * rotation_x[60])
+cylinder(1.5, 1, lego, scaling[0.04] * rotation_z[-35] * translation[{3.585, 21.15, 20.0}] * rotation_x[60] * translation[{0.0, 0.0, -1.0}])
+
+difference(difference(cylinder(3.0, 6, lego, translation[{3.0, 0.0, -3.0}] * rotation_y[-90]), cylinder(2.0, 8, lego, translation[{4.0, 0.0, -3.0}] * rotation_y[-90]), scaling[1.0]), cylinder(2.0, 8, lego, translation[{4.0, 0.0, -6.5}] * rotation_y[-90]), scaling[0.04] * rotation_z[-35] * translation[{3.585, -6.0, 20.0}] * rotation_x[-60])
+difference(difference(cylinder(3.0, 6, lego, translation[{3.0, 0.0, -3.0}] * rotation_y[-90]), cylinder(2.0, 8, lego, translation[{4.0, 0.0, -3.0}] * rotation_y[-90]), scaling[1.0]), cylinder(2.0, 8, lego, translation[{4.0, 0.0, -6.5}] * rotation_y[-90]), scaling[0.04] * rotation_z[-35] * translation[{3.585, 21.15, 20.0}] * rotation_x[60])
+
+camera(perspective, translation[{-1.0, 0.0, 1.0}], 1.8, 6.0)
