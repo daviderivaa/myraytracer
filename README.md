@@ -6,6 +6,8 @@
 
 Repository of "Tecniche Numeriche per la Generazione di Immagini Fotorealistiche" course by Professor Maurizio Tomasi (AY 2024/25). This code has been implemented in `Julia` and has the intent to create photorealistic images.
 
+<img src="./examples_img/lego_g1.0a0.5.png" alt="Lego man" width="600">
+
 </div>
 
 # <span style="color: red;">**INSTALLATION**</span>

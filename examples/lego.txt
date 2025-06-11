@@ -2,7 +2,7 @@ material lego(diffuse(uniform(<1.0, 1.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))
 material shirt(diffuse(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))
 material floor_material(diffuse(checkered(<1.0, 1.0, 1.0>, <0.0, 0.0, 1.0>, 10)), uniform(<0.0, 0.0, 0.0>))
 material sky_material(diffuse(uniform(<0.58, 0.56, 0.6>)), uniform(<0.58, 0.56, 0.6>))
-material lego_floor(diffuse(image("/home/davide/Fotorealistiche/blue-lego-baseplate-texture-rwtax6ezf4lvqckc.pfm")), uniform(<0.0, 0.0, 0.0>))
+material lego_floor(diffuse(image("./PFM_input/blue-lego-baseplate-texture-rwtax6ezf4lvqckc.pfm")), uniform(<0.0, 0.0, 0.0>))
 
 plane(sky_material, translation[{0.0, 0.0, 20.0}])
 plane(lego_floor, scaling[20] * rotation_z[145])
