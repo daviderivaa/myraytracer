@@ -1,5 +1,7 @@
 # HEAD
 
+- Add scene examples with images. scene: [PR #10](https://github.com/daviderivaa/myraytracer/pull/10)
+- Add lexer and parser for scene definition to render with [main](./main.jl). scene: [PR #10](https://github.com/daviderivaa/myraytracer/pull/10)
 - Add `Cylinder` shape in [`shapes.jl`](./myRayTracing/src/shapes.jl). newshapes: [PR #13](https://github.com/daviderivaa/myraytracer/pull/13).
 - Add `Cone` shape in [`shapes.jl`](./myRayTracing/src/shapes.jl). newshapes: [PR #13](https://github.com/daviderivaa/myraytracer/pull/13).
 - Add **Point-light Tracing** algorithm for diffusive objects. pointlight: [PR #14](https://github.com/daviderivaa/myraytracer/pull/14)

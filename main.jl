@@ -62,9 +62,9 @@ pcg = new_PCG(UInt64(78), UInt64(24)) #for antialiasing
 
 enable_profile = "--profile" in ARGS
 if enable_profile
-    @pprof fire_all_rays!(IT, RND, pcg, 2)
+    @pprof fire_all_rays!(IT, RND, pcg, 5)
 else
-    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND, pcg, 2)
+    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND, pcg, 5)
     println("Profiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
     println("For a complete profiling use --profile flag")
 end
