@@ -812,15 +812,15 @@ function parse_union(input_file::InputStream, scene::Scene)::union_shape
         s2 = parse_box(input_file, scene)
     elseif what2.keyword == RECTANGLE
         s2 = parse_rectangle(input_file, scene)
-    elseif what.keyword == CYLINDER
+    elseif what2.keyword == CYLINDER
         s2 = parse_cylinder(input_file, scene)
-    elseif what.keyword == CONE
+    elseif what2.keyword == CONE
         s2 = parse_cone(input_file, scene)
-    elseif what.keyword == UNION
+    elseif what2.keyword == UNION
         s2 = parse_union(input_file, scene)
-    elseif what.keyword == INTERSECTION
+    elseif what2.keyword == INTERSECTION
         s2 = parse_intersec(input_file, scene)
-    elseif what.keyword == DIFFERENCE
+    elseif what2.keyword == DIFFERENCE
         s2 = parse_diff(input_file, scene)
     end
     expect_symbol(input_file, ",")
@@ -864,15 +864,15 @@ function parse_intersec(input_file::InputStream, scene::Scene)::intersec_shape
         s2 = parse_box(input_file, scene)
     elseif what2.keyword == RECTANGLE
         s2 = parse_rectangle(input_file, scene)
-    elseif what.keyword == CYLINDER
+    elseif what2.keyword == CYLINDER
         s2 = parse_cylinder(input_file, scene)
-    elseif what.keyword == CONE
+    elseif what2.keyword == CONE
         s2 = parse_cone(input_file, scene)
-    elseif what.keyword == UNION
+    elseif what2.keyword == UNION
         s2 = parse_union(input_file, scene)
-    elseif what.keyword == INTERSECTION
+    elseif what2.keyword == INTERSECTION
         s2 = parse_intersec(input_file, scene)
-    elseif what.keyword == DIFFERENCE
+    elseif what2.keyword == DIFFERENCE
         s2 = parse_diff(input_file, scene)
     end
     expect_symbol(input_file, ",")
@@ -916,15 +916,15 @@ function parse_diff(input_file::InputStream, scene::Scene)::diff_shape
         s2 = parse_box(input_file, scene)
     elseif what2.keyword == RECTANGLE
         s2 = parse_rectangle(input_file, scene)
-    elseif what.keyword == CYLINDER
+    elseif what2.keyword == CYLINDER
         s2 = parse_cylinder(input_file, scene)
-    elseif what.keyword == CONE
+    elseif what2.keyword == CONE
         s2 = parse_cone(input_file, scene)
-    elseif what.keyword == UNION
+    elseif what2.keyword == UNION
         s2 = parse_union(input_file, scene)
-    elseif what.keyword == INTERSECTION
+    elseif what2.keyword == INTERSECTION
         s2 = parse_intersec(input_file, scene)
-    elseif what.keyword == DIFFERENCE
+    elseif what2.keyword == DIFFERENCE
         s2 = parse_diff(input_file, scene)
     end
     expect_symbol(input_file, ",")
