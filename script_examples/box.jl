@@ -22,13 +22,13 @@ end
 
 if ARGS[1] == "perspective"
     path = "../CSG/"
-    pfm_filename_and_path = "./CSG/box_perspective_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
+    pfm_filename_and_path = "../CSG/box_perspective_z" * ARGS[2] * "_y" * ARGS[3] * ".pfm"
     filename = "box_perspective_z" * ARGS[2] * "_y" * ARGS[3]
     angle_z = parse(Float64, ARGS[2])
     angle_y = parse(Float64, ARGS[3])
     rot1 = rotation("z", angle_z*π/180.0)
     rot2 = rotation("y", angle_y*π/180.0)
-    Cam = PerspectiveCamera(1.0, 16.0/9.0, rot1(rot2(translation(Vec(1.0, 0.0, 0.0)))))
+    Cam = PerspectiveCamera(2.0, 16.0/9.0, rot1(rot2(translation(Vec(-1.0, 0.0, 0.5)))))
 
 elseif ARGS[1] == "orthogonal"
     path = "../CSG/"
@@ -65,10 +65,9 @@ material4 = Material(DiffuseBRDF(pig4, 0.5), pig4)
 material5 = Material(DiffuseBRDF(pig5, 0.5), pig5)
 
 s1 = Sphere(translation(Vec(0.1, 0.0, 0.5))(scaling(0.3)), material5) #creates a sphere with radius = 0.1
-s2 = Sphere(translation(Vec(0.5, -0.12, 0.0))(scaling(0.3)), material2)
 
 r1 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), translation(Vec(0.0, 0.0, 0.1)), material3) #Rectangle
-r2 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(0.0, 0.0, 1.0), Vec(0.0, 1.0, 0.0), translation(Vec(0.0, 0.0, 0.1)), material1) #Rectangle
+r2 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(0.0, 0.0, 1.0), Vec(0.0, 1.0, 0.0), translation(Vec(1.0, 0.0, 0.1)), material1) #Rectangle
 r3 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(0.0, 1.0, 0.0), Vec(1.0, 0.0, 0.0), translation(Vec(0.0, 0.0, 1.1)), material3) #Rectangle
 r4 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 0.0, 1.0), translation(Vec(0.0, 0.0, 0.1)), material2) #Rectangle
 r5 = Rectangle(Point(-0.5, -0.5, 0.0), Vec(1.0, 0.0, 0.0), Vec(0.0, 0.0, 1.0), translation(Vec(0.0, 1.0, 0.1)), material2) #Rectangle

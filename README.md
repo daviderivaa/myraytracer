@@ -42,7 +42,7 @@ Then open `http://localhost:57599`.
 
 # <span style="color: red;">**SCRIPT EXAMPLES**</span>
 # <span style="color: blue;">DEMO</span>
-## <span style="color: green;">DEMO SINGLE IMAGE</span>
+## <span style="color: green;">DEMO SINGLE IMAGE (WITH ON/OFF-RENDERER OR FLAT-RENDERER)</span>
 
 If `myraytracer/demo/` directory doesn't exist, in `myraytracer/` run:
 ```shell
@@ -71,7 +71,7 @@ where:
 
 In `myraytracer/demo/` creates a `pfm` file and the corresponding `png` image.
 
-## <span style="color: green;">DEMO GIF</span>
+## <span style="color: green;">DEMO GIF (WITH ON/OFF-RENDERER OR FLAT-RENDERER)</span>
 
 <img src="./script_examples/orthogonal.gif" alt="GIF 1" width="500" style="display:inline-block; margin-right:10px;">
 <img src="./script_examples/perspective_c.gif" alt="GIF 2" width="500" style="display:inline-block;">
@@ -115,42 +115,7 @@ where:
 - `<w_colors> = "yes"` makes 2 colored spheres. A GIF file called `<camera_type>_c.gif` will appear in `myraytracer/script_examples/`.
 - `<w_colors> = "no"` makes only white spheres. A GIF file called `<camera_type>.gif` will appear in `myraytracer/script_examples/`.
 
-# <span style="color: blue;">CHECK CSG (*CONSTRUCTIVE SOLID GEOMETRY*)</span>
-
-If `myraytracer/CSG/` directory doesn't exist, in `myraytracer/` run:
-```shell
-mkdir CSG
-```
-
-In `myraytracer/script_examples/` run:
-```shell
-julia -t <n_threads> check_csg.jl <camera_type> <angle_z> <angle_y> 
-```
-where:
-- `<n_threads> = auto` allows to use all available threads.
-- `<n_threads> = 1` means not using multi-threading.
-
-In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
-
-# <span style="color: blue;">DRAW BOX</span>
-
-If `myraytracer/CSG/` directory doesn't exist, in `myraytracer/` run:
-```shell
-mkdir CSG
-```
-
-In `myraytracer/script_examples/` run:
-```shell
-julia -t <n_threads> box.jl <camera_type> <angle_z> <angle_y> --profile(optional)
-```
-where:
-- `<n_threads> = auto` allows to use all available threads.
-- `<n_threads> = 1` means not using multi-threading.
-- `--profile` prints a complete profiling of `fire_all_rays` method.
-
-In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
-
-# <span style="color: blue;">DEMO (WITH PATHTRACING ALGORITHM)</span>
+## <span style="color: green;">DEMO (WITH PATHTRACING ALGORITHM)</span>
 
 If `myraytracer/` directory doesn't exist, in `myraytracer/` run:
 ```shell
@@ -171,3 +136,64 @@ In `myraytracer/demo_path/` creates a `pfm` file and the corresponding `png` ima
 Here's an example:
 
 <img src="./examples_img/demo_path_perspective_z3_y3_g1.0a0.5.png" alt="Demo Path example" width="500">
+
+## <span style="color: green;">DEMO (WITH POINTLIGHT-TRACING ALGORITHM)</span>
+
+If `myraytracer/` directory doesn't exist, in `myraytracer/` run:
+```shell
+mkdir demo_PL
+```
+
+Then in `myraytracer/script_examples/` run:
+```shell
+julia -t <n_threads> demo_PL.jl <camera_type> <angle_z> <angle_y> --profile(optional)
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+- `--profile` prints a complete profiling of `fire_all_rays` method.
+
+In `myraytracer/demo_PL/` creates a `pfm` file and the corresponding `png` image.
+
+Here's an example:
+
+<img src="./examples_img/demo_PL_perspective_z0_y3_g1.0a0.3.png" alt="Demo PL example" width="500">
+
+# <span style="color: blue;">CHECK CSG (*CONSTRUCTIVE SOLID GEOMETRY*)</span>
+
+If `myraytracer/CSG/` directory doesn't exist, in `myraytracer/` run:
+```shell
+mkdir CSG
+```
+
+In `myraytracer/script_examples/` run:
+```shell
+julia -t <n_threads> check_csg.jl <camera_type> <angle_z> <angle_y> 
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+
+In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
+
+# <span style="color: blue;">DRAW BOX (WITH ON/OFF-RENDERER OR FLAT-RENDERER)</span>
+
+If `myraytracer/CSG/` directory doesn't exist, in `myraytracer/` run:
+```shell
+mkdir CSG
+```
+
+In `myraytracer/script_examples/` run:
+```shell
+julia -t <n_threads> box.jl <camera_type> <angle_z> <angle_y> --profile(optional)
+```
+where:
+- `<n_threads> = auto` allows to use all available threads.
+- `<n_threads> = 1` means not using multi-threading.
+- `--profile` prints a complete profiling of `fire_all_rays` method.
+
+In `myraytracer/CSG/` creates a `pfm` file and the corresponding `png` image.
+
+Here's an example:
+
+<img src="./examples_img/box_perspective_z0_y0_g1.0a0.3.png" alt="Box example" width="500">
