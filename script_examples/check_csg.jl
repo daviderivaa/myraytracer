@@ -54,13 +54,13 @@ material3 = Material(DiffuseBRDF(UniformPigment(color3)))
 
 material4 = Material(DiffuseBRDF(CheckeredPigment(RGB(1.0, 1.0, 1.0), color3)))
 
-s = Sphere(translation(Vec(0.0, 0.0, 0.0))(scaling(0.65)), material3) 
+s = Sphere(translation(Vec(0.0, 0.0, 0.0))(scaling(0.7)), material3) 
 b = Box(1.0, 1.0, 1.0, translation(Vec(-0.5, -0.5, -0.5)), material1)
 I1 = intersec_shape(b, s, translation(Vec(0.0, 0.0, 0.0)))
 
-c1 = Cylinder(0.3, 1.05, translation(Vec(-0.5, 0.0, 0.5))(rotation("y", π/2)), material2)
-c2 = Cylinder(0.3, 1.05, translation(Vec(0.0, 0.0, 0.0)), material2)
-c3 = Cylinder(0.3, 1.05, rotation("z", π/2)(translation(Vec(-0.5, 0.0, 0.0))(rotation("y", π/2))), material2)
+c1 = Cylinder(0.35, 1.05, translation(Vec(-0.51, 0.0, 0.5))(rotation("y", π/2)), material2)
+c2 = Cylinder(0.35, 1.05, translation(Vec(0.0, 0.0, -0.01)), material2)
+c3 = Cylinder(0.35, 1.05, rotation("z", π/2)(translation(Vec(-0.51, 0.0, 0.0))(rotation("y", π/2))), material2)
 U1 = union_shape(c1, c2, translation(Vec(0.0, 0.0, -0.5)))
 U2 = union_shape(U1, c3)
 
