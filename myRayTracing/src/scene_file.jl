@@ -76,6 +76,8 @@ end
     FLAT = 27
     PATH = 28
     POINTLIGHT = 29
+    CYLINDER = 30
+    CONE = 31
 
 end
 
@@ -109,7 +111,9 @@ const KEYWORDS = Dict{String, KeywordEnum}(
     "renderer" => RENDERER,
     "flat" => FLAT,
     "path" => PATH,
-    "point_light" => POINTLIGHT
+    "point_light" => POINTLIGHT,
+    "cylinder" => CYLINDER,
+    "cone" => CONE
 
 )
 
@@ -736,6 +740,44 @@ function parse_rectangle(input_file::InputStream, scene::Scene)::Rectangle
 
 end
 
+"""Parse a Cylinder object from tokens"""
+function parse_cylinder(input_file::InputStream, scene::Scene)::Cylinder
+
+    expect_symbol(input_file, "(")
+    r = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    h = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    material_name = expect_identifier(input_file)
+    if !(haskey(scene.materials, material_name))
+        throw(GrammarError(input_file.location, "unknown material $material_name"))
+    end
+    expect_symbol(input_file, ",")
+    transformation = parse_transformation(input_file, scene)
+    expect_symbol(input_file, ")")
+    return Cylinder(r, h, transformation, scene.materials[material_name])
+
+end
+
+"""Parse a Cone object from tokens"""
+function parse_cone(input_file::InputStream, scene::Scene)::Cone
+
+    expect_symbol(input_file, "(")
+    r = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    h = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    material_name = expect_identifier(input_file)
+    if !(haskey(scene.materials, material_name))
+        throw(GrammarError(input_file.location, "unknown material $material_name"))
+    end
+    expect_symbol(input_file, ",")
+    transformation = parse_transformation(input_file, scene)
+    expect_symbol(input_file, ")")
+    return Cone(r, h, transformation, scene.materials[material_name])
+
+end
+
 """Parse a Union object from tokens"""
 function parse_union(input_file::InputStream, scene::Scene)::union_shape
 
@@ -749,6 +791,16 @@ function parse_union(input_file::InputStream, scene::Scene)::union_shape
         s1 = parse_box(input_file, scene)
     elseif what.keyword == RECTANGLE
         s1 = parse_rectangle(input_file, scene)
+    elseif what.keyword == CYLINDER
+        s1 = parse_cylinder(input_file, scene)
+    elseif what.keyword == CONE
+        s1 = parse_cone(input_file, scene)
+    elseif what.keyword == UNION
+        s1 = parse_union(input_file, scene)
+    elseif what.keyword == INTERSECTION
+        s1 = parse_intersec(input_file, scene)
+    elseif what.keyword == DIFFERENCE
+        s1 = parse_diff(input_file, scene)
     end
     expect_symbol(input_file, ",")
     what2 = read_token(input_file)
@@ -760,6 +812,16 @@ function parse_union(input_file::InputStream, scene::Scene)::union_shape
         s2 = parse_box(input_file, scene)
     elseif what2.keyword == RECTANGLE
         s2 = parse_rectangle(input_file, scene)
+    elseif what.keyword == CYLINDER
+        s2 = parse_cylinder(input_file, scene)
+    elseif what.keyword == CONE
+        s2 = parse_cone(input_file, scene)
+    elseif what.keyword == UNION
+        s2 = parse_union(input_file, scene)
+    elseif what.keyword == INTERSECTION
+        s2 = parse_intersec(input_file, scene)
+    elseif what.keyword == DIFFERENCE
+        s2 = parse_diff(input_file, scene)
     end
     expect_symbol(input_file, ",")
     transformation = parse_transformation(input_file, scene)
@@ -781,6 +843,16 @@ function parse_intersec(input_file::InputStream, scene::Scene)::intersec_shape
         s1 = parse_box(input_file, scene)
     elseif what.keyword == RECTANGLE
         s1 = parse_rectangle(input_file, scene)
+    elseif what.keyword == CYLINDER
+        s1 = parse_cylinder(input_file, scene)
+    elseif what.keyword == CONE
+        s1 = parse_cone(input_file, scene)
+    elseif what.keyword == UNION
+        s1 = parse_union(input_file, scene)
+    elseif what.keyword == INTERSECTION
+        s1 = parse_intersec(input_file, scene)
+    elseif what.keyword == DIFFERENCE
+        s1 = parse_diff(input_file, scene)
     end
     expect_symbol(input_file, ",")
     what2 = read_token(input_file)
@@ -792,6 +864,16 @@ function parse_intersec(input_file::InputStream, scene::Scene)::intersec_shape
         s2 = parse_box(input_file, scene)
     elseif what2.keyword == RECTANGLE
         s2 = parse_rectangle(input_file, scene)
+    elseif what.keyword == CYLINDER
+        s2 = parse_cylinder(input_file, scene)
+    elseif what.keyword == CONE
+        s2 = parse_cone(input_file, scene)
+    elseif what.keyword == UNION
+        s2 = parse_union(input_file, scene)
+    elseif what.keyword == INTERSECTION
+        s2 = parse_intersec(input_file, scene)
+    elseif what.keyword == DIFFERENCE
+        s2 = parse_diff(input_file, scene)
     end
     expect_symbol(input_file, ",")
     transformation = parse_transformation(input_file, scene)
@@ -813,6 +895,16 @@ function parse_diff(input_file::InputStream, scene::Scene)::diff_shape
         s1 = parse_box(input_file, scene)
     elseif what.keyword == RECTANGLE
         s1 = parse_rectangle(input_file, scene)
+    elseif what.keyword == CYLINDER
+        s1 = parse_cylinder(input_file, scene)
+    elseif what.keyword == CONE
+        s1 = parse_cone(input_file, scene)
+    elseif what.keyword == UNION
+        s1 = parse_union(input_file, scene)
+    elseif what.keyword == INTERSECTION
+        s1 = parse_intersec(input_file, scene)
+    elseif what.keyword == DIFFERENCE
+        s1 = parse_diff(input_file, scene)
     end
     expect_symbol(input_file, ",")
     what2 = read_token(input_file)
@@ -824,6 +916,16 @@ function parse_diff(input_file::InputStream, scene::Scene)::diff_shape
         s2 = parse_box(input_file, scene)
     elseif what2.keyword == RECTANGLE
         s2 = parse_rectangle(input_file, scene)
+    elseif what.keyword == CYLINDER
+        s2 = parse_cylinder(input_file, scene)
+    elseif what.keyword == CONE
+        s2 = parse_cone(input_file, scene)
+    elseif what.keyword == UNION
+        s2 = parse_union(input_file, scene)
+    elseif what.keyword == INTERSECTION
+        s2 = parse_intersec(input_file, scene)
+    elseif what.keyword == DIFFERENCE
+        s2 = parse_diff(input_file, scene)
     end
     expect_symbol(input_file, ",")
     transformation = parse_transformation(input_file, scene)
@@ -1005,6 +1107,10 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
             push!(scene.world._shapes, parse_box(input_file, scene))
         elseif what.keyword == RECTANGLE
             push!(scene.world._shapes, parse_rectangle(input_file, scene))
+        elseif what.keyword == CYLINDER
+            push!(scene.world._shapes, parse_cylinder(input_file, scene))
+        elseif what.keyword == CONE
+            push!(scene.world._shapes, parse_cone(input_file, scene))
         elseif what.keyword == UNION
             push!(scene.world._shapes, parse_union(input_file, scene))
         elseif what.keyword == INTERSECTION

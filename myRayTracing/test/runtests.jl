@@ -919,7 +919,7 @@ end
 
 @testset "Check Parser" begin
 
-    i_buff = IOBuffer("material mat1(diffuse(uniform(<0.0, 1.0, 1.0>)), uniform(<0.0, 0.0, 0.0>))\nmaterial mat2(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))\nmaterial sky_material(diffuse(uniform(<0.58, 0.56, 0.6>)), uniform(<0.58, 0.56, 0.6>))\nplane(sky_material, translation[{0.0, 0.0, 100.0}])\nbox(2, 2, 2, mat1, rotation_x[1])\nsphere(mat2, translation[{0.0, 2.0, 0.0}] * scaling[0.5])\ncamera(perspective, translation[{-1.0, 0.0, 1.0}], 1.8, 6.0)\nintersection(sphere(mat1, translation[{0.0, 0.5, 0.0}]), sphere(mat2, translation[{0.0, -0.5, 0.0}]), translation[{0.0, 0.0, 5.0}])\nlight({0.0, 10.0, 5.0}, <0.58, 0.56, 0.6>, 100.0)")
+    i_buff = IOBuffer("material mat1(diffuse(uniform(<0.0, 1.0, 1.0>)), uniform(<0.0, 0.0, 0.0>))\nmaterial mat2(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))\nmaterial sky_material(diffuse(uniform(<0.58, 0.56, 0.6>)), uniform(<0.58, 0.56, 0.6>))\nplane(sky_material, translation[{0.0, 0.0, 100.0}])\nbox(2, 2, 2, mat1, rotation_x[180])\nsphere(mat2, translation[{0.0, 2.0, 0.0}] * scaling[0.5])\ncamera(perspective, translation[{-1.0, 0.0, 1.0}], 1.8, 6.0)\nintersection(sphere(mat1, translation[{0.0, 0.5, 0.0}]), sphere(mat2, translation[{0.0, -0.5, 0.0}]), translation[{0.0, 0.0, 5.0}])\nlight({0.0, 10.0, 5.0}, <0.58, 0.56, 0.6>, 100.0)")
 
     i_stream = InputStream(i_buff)
 
@@ -931,7 +931,7 @@ end
     mat2 = Material(SpecularBRDF(UniformPigment(RGB(1.0, 0.0, 0.0))))
 
     sky = Plane(translation(Vec(0.0, 0.0, 100.0)), sky_material)
-    b = Box(2.0, 2.0, 2.0, rotation("x", 1), mat1)
+    b = Box(2.0, 2.0, 2.0, rotation("x", 180.0*π/180.0), mat1)
     s = Sphere(translation(Vec(0.0, 2.0, 0.0))(scaling(0.5)), mat2)
     Cam = PerspectiveCamera(6.0, 1.8, translation(Vec(-1.0, 0.0, 1.0)))
 
