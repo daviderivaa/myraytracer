@@ -8,6 +8,65 @@ Repository of "Tecniche Numeriche per la Generazione di Immagini Fotorealistiche
 
 </div>
 
+# <span style="color: red;">**INSTALLATION**</span>
+
+In order to use this repository, `Julia v1.11` is required (see [Julia GitHub](https://github.com/JuliaLang/julia)).
+In your `Julia enviroment` then clone this repository or download ZIP at [this link](https://github.com/daviderivaa/myraytracer.git):
+
+```shell
+git clone https://github.com/daviderivaa/myraytracer.git
+```
+
+Before getting started you need to activate `myRayTracing` module and install dependences.
+
+If you want to get the latest versions, accoring to [Project.toml](./myRayTracing/Project.toml), you can either delete [Manifest.toml](./myRayTracing/Manifest.toml) or keep it and update packages.
+
+Once you've cloned this repository, open **Julia REPL** and run:
+
+```shell
+julia> ]
+```
+
+```shell
+(@v1.11) pkg> activate myRayTracing/
+```
+
+```shell
+(myRayTracing) pkg> instantiate
+```
+
+Optional:
+```shell
+(myRayTracing) pkg> update
+```
+
+# <span style="color: red;">**USAGE**</span>
+
+# <span style="color: red;">**HISTORY**</span>
+See [CHANGELOG](./CHANGELOG.md) file.
+
+# <span style="color: red;">**LICENSE**</span>
+This project is under MIT License. See [LICENSE](./LICENSE.md) for more informations.
+
+# <span style="color: red;">**TESTS AND CONTRIBUTING**</span>
+To run tests, in **Julia REPL** run:
+
+```shell
+julia> ]
+```
+
+```shell
+(@v1.11) pkg> activate myRayTracing/
+```
+
+```shell
+(myRayTracing) pkg> test
+```
+
+This code provides [CI Builds](./.github/workflows/ci.yml): tests will be executed at every commit or merge with `main` branch.
+
+Open a PR for changes and improvements. Open Issue for bugs. Before asking for merge, update or implement tests, make sure they pass.
+
 # <span style="color: red;">**PROFILING**</span>
 From [Version 0.4.0](https://github.com/daviderivaa/myraytracer/releases/tag/v0.4.0) you can profile `fire_all_rays` method.
 
