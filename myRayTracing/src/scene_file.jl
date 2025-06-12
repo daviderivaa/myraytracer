@@ -625,10 +625,16 @@ function parse_material(input_file::InputStream, scene::Scene)::Tuple{String, Ma
     name = expect_identifier(input_file)
     expect_symbol(input_file, "(")
     brdf = parse_brdf(input_file, scene)
-    expect_symbol(input_file, ",")
-    emitted_radiance = parse_pigment(input_file, scene)
-    expect_symbol(input_file, ")")
-    return (name, Material(brdf, emitted_radiance))
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        return (name, Material(brdf))
+    elseif tok isa SymbolToken && tok.symbol == ","
+        emitted_radiance = parse_pigment(input_file, scene)
+        expect_symbol(input_file, ")")
+        return (name, Material(brdf, emitted_radiance))
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
 
 end
 
