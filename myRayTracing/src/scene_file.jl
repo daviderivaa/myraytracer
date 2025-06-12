@@ -565,23 +565,31 @@ function parse_pigment(input_file::InputStream, scene::Scene)::Pigment
     if keyword == UNIFORM
         color = parse_color(input_file, scene)
         result = UniformPigment(color)
+        expect_symbol(input_file, ")")
 
     elseif keyword == CHECKERED
         color1 = parse_color(input_file, scene)
         expect_symbol(input_file, ",")
         color2 = parse_color(input_file, scene)
-        expect_symbol(input_file, ",")
-        num_of_steps = Int64(expect_number(input_file, scene))
-        result = CheckeredPigment(color1, color2, num_of_steps)
+        tok = read_token(input_file)
+        if tok isa SymbolToken && tok.symbol == ")"
+            result = CheckeredPigment(color1, color2)
+        elseif tok isa SymbolToken && tok.symbol == ","
+            num_of_steps = Int64(expect_number(input_file, scene))
+            expect_symbol(input_file, ")")
+            result = CheckeredPigment(color1, color2, num_of_steps)
+        else
+            throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+        end
 
     elseif keyword == IMAGE
         file_name = expect_string(input_file)
         format, width, height, endianness, pixel_data = read_pfm(file_name)
         img = HdrImage(pixel_data, width, height)
         result = ImagePigment(img)
+        expect_symbol(input_file, ")")
     end
-
-    expect_symbol(input_file, ")")
+    
     return result
 
 end
