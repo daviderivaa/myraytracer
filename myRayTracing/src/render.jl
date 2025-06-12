@@ -54,6 +54,7 @@ struct FlatRenderer <: Renderer
     function FlatRenderer(wor::World, back_col = RGB(0.0, 0.0, 0.0))
         new(wor, back_col)
     end
+
 end
 
 """
@@ -68,6 +69,7 @@ function (RND::FlatRenderer)(ray::Ray)
     else 
         return (Eval(hit.s.material.brdf, hit.surface_point) + get_color(hit.s.material.emitted_radiance, hit.surface_point))
     end
+    
 end
 
 
@@ -77,22 +79,22 @@ It's a recursive algorithm which stops thank to the Russian Roulette.
 
 - w::World --> contains the scene
 - b_color::RGB --> background color of the scene
-- pcg::PCG --> random number generator
 - num_rays::Int64 --> number of rays thrown at each iteration
 - max_depth::Int64 --> maximun number number of iteration for each ray
 - rr_limit::Int64 --> Russian Roulette limit
+- pcg::PCG --> random number generator
 """
 struct PathTracer <: Renderer
 
     w::World
     b_color::RGB
-    pcg::PCG
     num_rays::Int64
     max_depth::Int64
     rr_limit::Int64
+    pcg::PCG
 
-    function PathTracer(w::World, b_color::RGB = RGB(0.0, 0.0, 0.0), pcg::PCG = new_PCG(), num_rays::Int64 = 10, max_depth::Int64 = 10, rr_limit::Int64 = 3)
-        new(w, b_color, pcg, num_rays, max_depth, rr_limit)
+    function PathTracer(w::World, b_color::RGB = RGB(0.0, 0.0, 0.0), num_rays::Int64 = 2, max_depth::Int64 = 3, rr_limit::Int64 = 2, pcg::PCG = new_PCG())
+        new(w, b_color, num_rays, max_depth, rr_limit, pcg)
     end
 
 end

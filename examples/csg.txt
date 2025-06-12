@@ -1,0 +1,28 @@
+#Hierarchic figure composition with pathtracing renderer
+
+material sphere_mat(diffuse(uniform(<0.0,0.0,1.0>)), uniform(<0.0, 0.0, 0.0>))
+material box_mat(diffuse(uniform(<1.0,0.0,0.0>)), uniform(<0.0, 0.0, 0.0>))
+material cylinder_mat(diffuse(uniform(<0.0,1.0,0.0>)), uniform(<0.0, 0.0, 0.0>))
+material floor_material(diffuse(checkered(<1.0, 1.0, 1.0>, <0.0, 0.0, 1.0>, 10)), uniform(<0.0, 0.0, 0.0>))
+material sky_material(diffuse(uniform(<0.58, 0.56, 0.6>)), uniform(<0.58, 0.56, 0.6>))
+
+plane(sky_material, translation[{0.0, 0.0, 100.0}])
+plane(floor_material, translation[{0.0, 0.0, -1.5}])
+
+#SHAPE DEFINITION ORDER
+# 1 STEP # sphere(sphere_mat, scaling[0.65])
+# 2 STEP # box(1.0,1.0,1.0,box_mat,translation[{-0.5, -0.5, -0.5}])
+# 3 STEP # intersection(sphere(sphere_mat, scaling[0.65]),box(1.0,1.0,1.0,box_mat,translation[{-0.5, -0.5, -0.5}]),translation[{0.0,0.0,0.0}])
+# 4 STEP # cylinder(0.3,1.05,cylinder_mat, translation[{-0.5, 0.0, 0.5}]*rotation_y[90.0])
+# 5 STEP # cylinder(0.3,1.05,cylinder_mat, translation[{0.0, 0.0, 0.0}])
+# 6 STEP # union(cylinder(0.3,1.05,cylinder_mat, translation[{-0.5, 0.0, 0.5}]*rotation_y[90.0]),cylinder(0.3,1.05,cylinder_mat, translation[{0.0, 0.0, 0.0}]),translation[{0.0,0.0,-0.5}])
+# 7 STEP # cylinder(0.3,1.05,cylinder_mat, rotation_z[90]*translation[{-0.5, 0.0, 0.0}]*rotation_y[90.0])
+# 8 STEP # union(cylinder(0.3,1.05,cylinder_mat, rotation_z[90]*translation[{-0.5, 0.0, 0.0}]*rotation_y[90.0]),union(cylinder(0.3,1.05,cylinder_mat, translation[{-0.5, 0.0, 0.5}]*rotation_y[90.0]),cylinder(0.3,1.05,cylinder_mat, translation[{0.0, 0.0, 0.0}]),translation[{0.0,0.0,-0.5}]), translation[{0.0,0.0,0.0}])
+# 9 STEP #
+difference(intersection(sphere(sphere_mat, scaling[0.65]),box(1.0,1.0,1.0,box_mat,translation[{-0.5, -0.5, -0.5}]),translation[{0.0,0.0,0.0}]),union(cylinder(0.3,1.05,cylinder_mat, rotation_z[90]*translation[{-0.5, 0.0, 0.0}]*rotation_y[90.0]),union(cylinder(0.3,1.05,cylinder_mat, translation[{-0.5, 0.0, 0.5}]*rotation_y[90.0]),cylinder(0.3,1.05,cylinder_mat, translation[{0.0, 0.0, 0.0}]),translation[{0.0,0.0,-0.5}]), translation[{0.0,0.0,0.0}]),translation[{0.0, 0.0, 0.0}])
+
+camera(perspective, rotation_z[45.0]*rotation_y[15.0]*translation[{-1.0, 0.0, 0.0}] , 1.8, 2.0)
+
+renderer(path, <0.0, 0.0, 0.0>, 2, 3, 2)
+
+#eof
