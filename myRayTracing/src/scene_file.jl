@@ -78,6 +78,7 @@ end
     POINTLIGHT = 29
     CYLINDER = 30
     CONE = 31
+    IMAGE = 32
 
 end
 
@@ -113,7 +114,8 @@ const KEYWORDS = Dict{String, KeywordEnum}(
     "path" => PATH,
     "point_light" => POINTLIGHT,
     "cylinder" => CYLINDER,
-    "cone" => CONE
+    "cone" => CONE,
+    "image" => IMAGE
 
 )
 
@@ -232,23 +234,6 @@ function update_pos!(input::InputStream, ch::Char)
 end
 
 """Read a character"""
-#=function read_char(input::InputStream)::Union{Char, Nothing}
-
-    if input.saved_char !== nothing
-        ch = input.saved_char
-        input.saved_char = nothing
-    else
-        bytes = read(input.stream, Char)
-        ch = isempty(bytes) ? nothing : bytes[1]
-    end
-
-    input.saved_location = input.location
-    if ch !== nothing
-        update_pos!(input, ch)
-    end
-    return ch
-
-end=#
 function read_char(input::InputStream)::Union{Char, Nothing}
     if input.saved_char !== nothing
         ch = input.saved_char
@@ -441,6 +426,8 @@ mutable struct Scene
     float_variables::Dict{String, Float64}
     overridden_variables::Set{String}
     renderer::Union{Renderer, Nothing}
+    img::Union{ImageTracer,Nothing}
+    antial_n_rays::Union{Int64, Nothing}
 
     function Scene(mat::Dict{String, Material}=Dict{String, Material}(), w::World=World(), cam::Union{Camera, Nothing}=nothing, fl_v::Dict{String, Float64}=Dict{String, Float64}(), ov_v::Set{String}=Set{String}(), renderer::Union{Renderer, Nothing}=nothing)
         new(mat, w, cam, fl_v, ov_v, renderer)
