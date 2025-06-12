@@ -589,7 +589,7 @@ function parse_pigment(input_file::InputStream, scene::Scene)::Pigment
         result = ImagePigment(img)
         expect_symbol(input_file, ")")
     end
-    
+
     return result
 
 end
@@ -600,12 +600,21 @@ function parse_brdf(input_file::InputStream, scene::Scene)::BRDF
     brdf_kw = expect_keywords(input_file, [DIFFUSE, SPECULAR])
     expect_symbol(input_file, "(")
     pigment = parse_pigment(input_file, scene)
-    expect_symbol(input_file, ")")
-
+    
     if brdf_kw == DIFFUSE
+        expect_symbol(input_file, ")")
         return DiffuseBRDF(pigment)
     elseif brdf_kw == SPECULAR
-        return SpecularBRDF(pigment)
+        tok = read_token(input_file)
+        if tok isa SymbolToken && tok.symbol == ")"
+            return SpecularBRDF(pigment)
+        elseif tok isa SymbolToken && tok.symbol == ","
+            reflectance = expect_number(input_file, scene)
+            expect_symbol(input_file, ")")
+            return SpecularBRDF(pigment, reflectance*π/180.0)
+        else
+            throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+        end
     end
 
 end
