@@ -78,7 +78,7 @@ end
     POINTLIGHT = 29
     CYLINDER = 30
     CONE = 31
-    IMAGE = 32
+    HDR_IMAGE = 32
 
 end
 
@@ -115,7 +115,7 @@ const KEYWORDS = Dict{String, KeywordEnum}(
     "point_light" => POINTLIGHT,
     "cylinder" => CYLINDER,
     "cone" => CONE,
-    "image" => IMAGE
+    "hdr_image" => HDR_IMAGE
 
 )
 
@@ -426,11 +426,11 @@ mutable struct Scene
     float_variables::Dict{String, Float64}
     overridden_variables::Set{String}
     renderer::Union{Renderer, Nothing}
-    img::Union{ImageTracer,Nothing}
+    img::Union{HdrImage,Nothing}
     antial_n_rays::Union{Int64, Nothing}
 
-    function Scene(mat::Dict{String, Material}=Dict{String, Material}(), w::World=World(), cam::Union{Camera, Nothing}=nothing, fl_v::Dict{String, Float64}=Dict{String, Float64}(), ov_v::Set{String}=Set{String}(), renderer::Union{Renderer, Nothing}=nothing)
-        new(mat, w, cam, fl_v, ov_v, renderer)
+    function Scene(mat::Dict{String, Material}=Dict{String, Material}(), w::World=World(), cam::Union{Camera, Nothing}=nothing, fl_v::Dict{String, Float64}=Dict{String, Float64}(), ov_v::Set{String}=Set{String}(), renderer::Union{Renderer, Nothing}=nothing, img::Union{HdrImage,Nothing}=HdrImage(1600, 900), antial_n_rays::Union{Int64, Nothing}=4)
+        new(mat, w, cam, fl_v, ov_v, renderer, img, antial_n_rays)
     end
 
 end
@@ -1054,6 +1054,26 @@ function parse_renderer(input_file::InputStream, scene::Scene)::Renderer
 
 end
 
+"""
+Parse image definition and number of rays per pixel column and row (i.e. total numebr of rays per pixel is antial_n_rays^2) for antialiasing from token
+"""
+function parse_image(input_file::InputStream, scene::Scene)
+    expect_symbol(input_file, "(")
+    width = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    heigth = expect_number(input_file, scene)
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        return HdrImage(Int64(width), Int64(heigth))
+    elseif tok isa SymbolToken && tok.symbol == ","
+        scene.antial_n_rays = Int64(expect_number(input_file, scene))
+        expect_symbol(input_file, ")")
+        return HdrImage(Int64(width), Int64(heigth))
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
+end
+
 """Parse a Scene object from tokens"""
 function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=Dict{String, Float64}())::Scene
 
@@ -1121,6 +1141,8 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
             else
                 throw(GrammarError("Renderer before shapes (and lights if calling point-light). Call renderer at the end."))
             end
+        elseif what.keyword == HDR_IMAGE
+            scene.img = parse_image(input_file, scene)
         else
             throw(GrammarError(what.location, "At $(what.location): Unexpected token $(what)"))
         end
