@@ -62,6 +62,8 @@ Default values are:
 - $\gamma=1.0$
 - $\alpha=0.5$
 
+In scene definition when you define an **RGB color use only numbers in [0, 1]**
+
 
 # <span style="color: red;">**HISTORY**</span>
 See [CHANGELOG](./CHANGELOG.md) file.
