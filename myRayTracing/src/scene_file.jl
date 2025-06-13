@@ -78,6 +78,7 @@ end
     POINTLIGHT = 29
     CYLINDER = 30
     CONE = 31
+    HDR_IMAGE = 32
 
 end
 
@@ -113,7 +114,8 @@ const KEYWORDS = Dict{String, KeywordEnum}(
     "path" => PATH,
     "point_light" => POINTLIGHT,
     "cylinder" => CYLINDER,
-    "cone" => CONE
+    "cone" => CONE,
+    "hdr_image" => HDR_IMAGE
 
 )
 
@@ -232,23 +234,6 @@ function update_pos!(input::InputStream, ch::Char)
 end
 
 """Read a character"""
-#=function read_char(input::InputStream)::Union{Char, Nothing}
-
-    if input.saved_char !== nothing
-        ch = input.saved_char
-        input.saved_char = nothing
-    else
-        bytes = read(input.stream, Char)
-        ch = isempty(bytes) ? nothing : bytes[1]
-    end
-
-    input.saved_location = input.location
-    if ch !== nothing
-        update_pos!(input, ch)
-    end
-    return ch
-
-end=#
 function read_char(input::InputStream)::Union{Char, Nothing}
     if input.saved_char !== nothing
         ch = input.saved_char
@@ -441,9 +426,11 @@ mutable struct Scene
     float_variables::Dict{String, Float64}
     overridden_variables::Set{String}
     renderer::Union{Renderer, Nothing}
+    img::Union{HdrImage,Nothing}
+    antial_n_rays::Union{Int64, Nothing}
 
-    function Scene(mat::Dict{String, Material}=Dict{String, Material}(), w::World=World(), cam::Union{Camera, Nothing}=nothing, fl_v::Dict{String, Float64}=Dict{String, Float64}(), ov_v::Set{String}=Set{String}(), renderer::Union{Renderer, Nothing}=nothing)
-        new(mat, w, cam, fl_v, ov_v, renderer)
+    function Scene(mat::Dict{String, Material}=Dict{String, Material}(), w::World=World(), cam::Union{Camera, Nothing}=nothing, fl_v::Dict{String, Float64}=Dict{String, Float64}(), ov_v::Set{String}=Set{String}(), renderer::Union{Renderer, Nothing}=nothing, img::Union{HdrImage,Nothing}=HdrImage(1600, 900), antial_n_rays::Union{Int64, Nothing}=4)
+        new(mat, w, cam, fl_v, ov_v, renderer, img, antial_n_rays)
     end
 
 end
@@ -578,23 +565,31 @@ function parse_pigment(input_file::InputStream, scene::Scene)::Pigment
     if keyword == UNIFORM
         color = parse_color(input_file, scene)
         result = UniformPigment(color)
+        expect_symbol(input_file, ")")
 
     elseif keyword == CHECKERED
         color1 = parse_color(input_file, scene)
         expect_symbol(input_file, ",")
         color2 = parse_color(input_file, scene)
-        expect_symbol(input_file, ",")
-        num_of_steps = Int64(expect_number(input_file, scene))
-        result = CheckeredPigment(color1, color2, num_of_steps)
+        tok = read_token(input_file)
+        if tok isa SymbolToken && tok.symbol == ")"
+            result = CheckeredPigment(color1, color2)
+        elseif tok isa SymbolToken && tok.symbol == ","
+            num_of_steps = Int64(expect_number(input_file, scene))
+            expect_symbol(input_file, ")")
+            result = CheckeredPigment(color1, color2, num_of_steps)
+        else
+            throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+        end
 
     elseif keyword == IMAGE
         file_name = expect_string(input_file)
         format, width, height, endianness, pixel_data = read_pfm(file_name)
         img = HdrImage(pixel_data, width, height)
         result = ImagePigment(img)
+        expect_symbol(input_file, ")")
     end
 
-    expect_symbol(input_file, ")")
     return result
 
 end
@@ -605,12 +600,21 @@ function parse_brdf(input_file::InputStream, scene::Scene)::BRDF
     brdf_kw = expect_keywords(input_file, [DIFFUSE, SPECULAR])
     expect_symbol(input_file, "(")
     pigment = parse_pigment(input_file, scene)
-    expect_symbol(input_file, ")")
-
+    
     if brdf_kw == DIFFUSE
+        expect_symbol(input_file, ")")
         return DiffuseBRDF(pigment)
     elseif brdf_kw == SPECULAR
-        return SpecularBRDF(pigment)
+        tok = read_token(input_file)
+        if tok isa SymbolToken && tok.symbol == ")"
+            return SpecularBRDF(pigment)
+        elseif tok isa SymbolToken && tok.symbol == ","
+            reflectance = expect_number(input_file, scene)
+            expect_symbol(input_file, ")")
+            return SpecularBRDF(pigment, reflectance*π/180.0)
+        else
+            throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+        end
     end
 
 end
@@ -621,10 +625,16 @@ function parse_material(input_file::InputStream, scene::Scene)::Tuple{String, Ma
     name = expect_identifier(input_file)
     expect_symbol(input_file, "(")
     brdf = parse_brdf(input_file, scene)
-    expect_symbol(input_file, ",")
-    emitted_radiance = parse_pigment(input_file, scene)
-    expect_symbol(input_file, ")")
-    return (name, Material(brdf, emitted_radiance))
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        return (name, Material(brdf))
+    elseif tok isa SymbolToken && tok.symbol == ","
+        emitted_radiance = parse_pigment(input_file, scene)
+        expect_symbol(input_file, ")")
+        return (name, Material(brdf, emitted_radiance))
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
 
 end
 
@@ -676,9 +686,17 @@ function parse_sphere(input_file::InputStream, scene::Scene)::Sphere
     if !(haskey(scene.materials, material_name))
         throw(GrammarError(input_file.location, "unknown material $material_name"))
     end
-    expect_symbol(input_file, ",")
-    transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, ")")
+
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        transformation = Transformation()
+    elseif tok isa SymbolToken && tok.symbol == ","
+        transformation = parse_transformation(input_file, scene)
+        expect_symbol(input_file, ")")
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
+
     return Sphere(transformation, scene.materials[material_name])
 
 end
@@ -691,9 +709,17 @@ function parse_plane(input_file::InputStream, scene::Scene)::Plane
     if !(haskey(scene.materials, material_name))
         throw(GrammarError(input_file.location, "unknown material $material_name"))
     end
-    expect_symbol(input_file, ",")
-    transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, ")")
+
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        transformation = Transformation()
+    elseif tok isa SymbolToken && tok.symbol == ","
+        transformation = parse_transformation(input_file, scene)
+        expect_symbol(input_file, ")")
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
+
     return Plane(transformation, scene.materials[material_name])
 
 end
@@ -712,9 +738,17 @@ function parse_box(input_file::InputStream, scene::Scene)::Box
     if !(haskey(scene.materials, material_name))
         throw(GrammarError(input_file.location, "unknown material $material_name"))
     end
-    expect_symbol(input_file, ",")
-    transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, ")")
+
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        transformation = Transformation()
+    elseif tok isa SymbolToken && tok.symbol == ","
+        transformation = parse_transformation(input_file, scene)
+        expect_symbol(input_file, ")")
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
+
     return Box(x, y, z, transformation, scene.materials[material_name])
 
 end
@@ -733,9 +767,17 @@ function parse_rectangle(input_file::InputStream, scene::Scene)::Rectangle
     if !(haskey(scene.materials, material_name))
         throw(GrammarError(input_file.location, "unknown material $material_name"))
     end
-    expect_symbol(input_file, ",")
-    transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, ")")
+
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        transformation = Transformation()
+    elseif tok isa SymbolToken && tok.symbol == ","
+        transformation = parse_transformation(input_file, scene)
+        expect_symbol(input_file, ")")
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
+
     return Rectangle(p, v1, v2, transformation, scene.materials[material_name])
 
 end
@@ -752,9 +794,17 @@ function parse_cylinder(input_file::InputStream, scene::Scene)::Cylinder
     if !(haskey(scene.materials, material_name))
         throw(GrammarError(input_file.location, "unknown material $material_name"))
     end
-    expect_symbol(input_file, ",")
-    transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, ")")
+
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        transformation = Transformation()
+    elseif tok isa SymbolToken && tok.symbol == ","
+        transformation = parse_transformation(input_file, scene)
+        expect_symbol(input_file, ")")
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
+
     return Cylinder(r, h, transformation, scene.materials[material_name])
 
 end
@@ -771,9 +821,17 @@ function parse_cone(input_file::InputStream, scene::Scene)::Cone
     if !(haskey(scene.materials, material_name))
         throw(GrammarError(input_file.location, "unknown material $material_name"))
     end
-    expect_symbol(input_file, ",")
-    transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, ")")
+
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        transformation = Transformation()
+    elseif tok isa SymbolToken && tok.symbol == ","
+        transformation = parse_transformation(input_file, scene)
+        expect_symbol(input_file, ")")
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
+
     return Cone(r, h, transformation, scene.materials[material_name])
 
 end
@@ -823,9 +881,17 @@ function parse_union(input_file::InputStream, scene::Scene)::union_shape
     elseif what2.keyword == DIFFERENCE
         s2 = parse_diff(input_file, scene)
     end
-    expect_symbol(input_file, ",")
-    transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, ")")
+
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        transformation = Transformation()
+    elseif tok isa SymbolToken && tok.symbol == ","
+        transformation = parse_transformation(input_file, scene)
+        expect_symbol(input_file, ")")
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
+
     return union_shape(s1, s2, transformation)
 
 end
@@ -875,9 +941,17 @@ function parse_intersec(input_file::InputStream, scene::Scene)::intersec_shape
     elseif what2.keyword == DIFFERENCE
         s2 = parse_diff(input_file, scene)
     end
-    expect_symbol(input_file, ",")
-    transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, ")")
+
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        transformation = Transformation()
+    elseif tok isa SymbolToken && tok.symbol == ","
+        transformation = parse_transformation(input_file, scene)
+        expect_symbol(input_file, ")")
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
+
     return intersec_shape(s1, s2, transformation)
 
 end
@@ -927,9 +1001,17 @@ function parse_diff(input_file::InputStream, scene::Scene)::diff_shape
     elseif what2.keyword == DIFFERENCE
         s2 = parse_diff(input_file, scene)
     end
-    expect_symbol(input_file, ",")
-    transformation = parse_transformation(input_file, scene)
-    expect_symbol(input_file, ")")
+    
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        transformation = Transformation()
+    elseif tok isa SymbolToken && tok.symbol == ","
+        transformation = parse_transformation(input_file, scene)
+        expect_symbol(input_file, ")")
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
+
     return diff_shape(s1, s2, transformation)
 
 end
@@ -1067,6 +1149,26 @@ function parse_renderer(input_file::InputStream, scene::Scene)::Renderer
 
 end
 
+"""
+Parse image definition and number of rays per pixel column and row (i.e. total numebr of rays per pixel is antial_n_rays^2) for antialiasing from token
+"""
+function parse_image(input_file::InputStream, scene::Scene)
+    expect_symbol(input_file, "(")
+    width = expect_number(input_file, scene)
+    expect_symbol(input_file, ",")
+    heigth = expect_number(input_file, scene)
+    tok = read_token(input_file)
+    if tok isa SymbolToken && tok.symbol == ")"
+        return HdrImage(Int64(width), Int64(heigth))
+    elseif tok isa SymbolToken && tok.symbol == ","
+        scene.antial_n_rays = Int64(expect_number(input_file, scene))
+        expect_symbol(input_file, ")")
+        return HdrImage(Int64(width), Int64(heigth))
+    else
+        throw(GrammarError("Undefined renderer sequence, after $(tok) expected ',' or ')'"))
+    end
+end
+
 """Parse a Scene object from tokens"""
 function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=Dict{String, Float64}())::Scene
 
@@ -1134,6 +1236,8 @@ function parse_scene(input_file::InputStream, variables::Dict{String, Float64}=D
             else
                 throw(GrammarError("Renderer before shapes (and lights if calling point-light). Call renderer at the end."))
             end
+        elseif what.keyword == HDR_IMAGE
+            scene.img = parse_image(input_file, scene)
         else
             throw(GrammarError(what.location, "At $(what.location): Unexpected token $(what)"))
         end

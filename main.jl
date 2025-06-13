@@ -38,12 +38,9 @@ println("Scene parsed successfully!")
 path = "./examples_img/"
 pfm_filename_and_path = "./examples_img/" * ARGS[1] * ".pfm"
 filename = ARGS[1]
-Cam = scene.camera
 
 w = scene.world
-
-img = HdrImage(1600,900)
-IT = ImageTracer(img, Cam)
+IT = ImageTracer(scene.img, scene.camera)
 
 if isnothing(scene.renderer)
     println("Calling default renderer: PathTracer(\n 
@@ -62,9 +59,9 @@ pcg = new_PCG(UInt64(78), UInt64(24)) #for antialiasing
 
 enable_profile = "--profile" in ARGS
 if enable_profile
-    @pprof fire_all_rays!(IT, RND, pcg, 5)
+    @pprof fire_all_rays!(IT, RND, pcg, scene.antial_n_rays)
 else
-    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND, pcg, 5)
+    val, t, bytes, gctime, gcstats = @timed fire_all_rays!(IT, RND, pcg, scene.antial_n_rays)
     println("Profiling fire_all_rays method:\nTime: $t s\nAllocated memory: $(bytes/1_000_000) MB\nGC: $gctime s")
     println("For a complete profiling use --profile flag")
 end
