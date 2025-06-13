@@ -1220,14 +1220,14 @@ function _intersect_intervals(intervals_a::Vector{Tuple{HitRecord, HitRecord}}, 
         interval_a = intervals_a[i]
         interval_b = intervals_b[j]
 
-        start_hit = (interval_a[1].t >= interval_b[1].t) ? interval_a[1] : interval_b[1]
-        end_hit = (interval_b[2].t >= interval_a[2].t) ? interval_a[2] : interval_b[2]
+        start_hit = (interval_a[1].t > interval_b[1].t +1e-6) ? interval_a[1] : interval_b[1]
+        end_hit = (interval_b[2].t > interval_a[2].t +1e-6) ? interval_a[2] : interval_b[2]
 
         if start_hit.t < end_hit.t
             push!(intersected, (start_hit, end_hit))
         end
 
-        if interval_a[2].t < interval_b[2].t
+        if interval_a[2].t < interval_b[2].t -1e-6
             i += 1
         else
             j += 1
@@ -1265,13 +1265,13 @@ function _subtract_intervals(intervals_a::Vector{Tuple{HitRecord, HitRecord}}, i
         interval_b = intervals_b[j]
 
         # Case 1: B before A
-        if interval_b[2].t <= interval_a[1].t
+        if interval_b[2].t < interval_a[1].t +1e-6
             j += 1
             continue
         end
 
         # Case 2: B after A
-        if interval_a[2].t <= interval_b[1].t
+        if interval_a[2].t < interval_b[1].t +1e-6
             push!(subtracted, interval_a)
             i += 1
             interval_a = (i <= length(intervals_a)) ? intervals_a[i] : nothing
@@ -1281,12 +1281,12 @@ function _subtract_intervals(intervals_a::Vector{Tuple{HitRecord, HitRecord}}, i
         # Case 3: Sovrapposition or A in B
         
         # Beginning of A
-        if interval_a[1].t < interval_b[1].t
+        if interval_a[1].t < interval_b[1].t -1e-6
             push!(subtracted, (interval_a[1], interval_b[1]))
         end
 
         # End of A
-        if interval_a[2].t > interval_b[2].t
+        if interval_a[2].t > interval_b[2].t +1e-6
             interval_a = (interval_b[2], interval_a[2])
             j += 1 
         else 
