@@ -1194,8 +1194,8 @@ function _merge_intervals(intervals::Vector{Tuple{HitRecord, HitRecord}})
         current_interval = intervals[i]
         last_merged_interval = merged[end]
  
-        if current_interval[1].t <= last_merged_interval[2].t
-            if last_merged_interval[2].t < current_interval[2].t
+        if current_interval[1].t < last_merged_interval[2].t +1e-6
+            if last_merged_interval[2].t < current_interval[2].t -1e-6
             merged[end] = (last_merged_interval[1], current_interval[2])
             end
         else #no overlap
@@ -1223,7 +1223,7 @@ function _intersect_intervals(intervals_a::Vector{Tuple{HitRecord, HitRecord}}, 
         start_hit = (interval_a[1].t > interval_b[1].t +1e-6) ? interval_a[1] : interval_b[1]
         end_hit = (interval_b[2].t > interval_a[2].t +1e-6) ? interval_a[2] : interval_b[2]
 
-        if start_hit.t < end_hit.t
+        if start_hit.t < end_hit.t -1e-6
             push!(intersected, (start_hit, end_hit))
         end
 
