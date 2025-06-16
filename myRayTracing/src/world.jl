@@ -79,7 +79,7 @@ function ray_intersection(w::World, r::Ray)
             continue
         end
 
-        if closest === nothing || intersection.t < closest.t
+        if closest === nothing || intersection.t < closest.t -1e-6
             closest = intersection
         end
     end
