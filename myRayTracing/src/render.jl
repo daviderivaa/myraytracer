@@ -130,7 +130,7 @@ function (RND::PathTracer)(ray::Ray)
 
     cum_radiance = RGB(0.0, 0.0, 0.0)
 
-    if hit_color_lum > 0.0
+    if hit_color_lum > 1e-6
         for ray_index in 1:RND.num_rays
             new_ray = scatter_ray(hit_material.brdf, RND.pcg, hit_record.ray.dir, hit_record.world_point, hit_record.normal, ray.depth + 1)
             new_radiance = RND(new_ray)
@@ -194,7 +194,7 @@ function (RND::PointLightRenderer)(ray::Ray)
             n_hit_normal = normalize(hit_record.normal)
             cos_theta = max(0.0, -(in_dir * n_hit_normal))
 
-            if light.linear_radius > 0.0
+            if light.linear_radius > 1e-6
                 distance_factor = (light.linear_radius / distance)^2
             else
                 distance_factor = 1.0
