@@ -919,7 +919,7 @@ end
 
 @testset "Check Parser" begin
 
-    i_buff = IOBuffer("material mat1(diffuse(uniform(<0.0, 1.0, 1.0>)), uniform(<0.0, 0.0, 0.0>))\nmaterial mat2(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))\nmaterial sky_material(diffuse(uniform(<0.58, 0.56, 0.6>)), uniform(<0.58, 0.56, 0.6>))\nplane(sky_material, translation[{0.0, 0.0, 100.0}])\nbox(2, 2, 2, mat1, rotation_x[180])\nsphere(mat2, translation[{0.0, 2.0, 0.0}] * scaling[0.5])\ncamera(perspective, translation[{-1.0, 0.0, 1.0}], 1.8, 6.0)\nintersection(sphere(mat1, translation[{0.0, 0.5, 0.0}]), sphere(mat2, translation[{0.0, -0.5, 0.0}]), translation[{0.0, 0.0, 5.0}])\nlight({0.0, 10.0, 5.0}, <0.58, 0.56, 0.6>, 100.0)")
+    i_buff = IOBuffer("material mat1(diffuse(uniform(<0.0, 1.0, 1.0>)), uniform(<0.0, 0.0, 0.0>))\nmaterial mat2(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))\nmaterial sky_material(diffuse(uniform(<0.58, 0.56, 0.6>)), uniform(<0.58, 0.56, 0.6>))\nplane(sky_material, translation[{0.0, 0.0, 100.0}])\nbox(2, 2, 2, mat1, rotation_x[180])\nsphere(mat2, translation[{0.0, 2.0, 0.0}] * scaling[0.5])\ncamera(perspective, translation[{-1.0, 0.0, 1.0}], 1.8, 6.0)\nintersection(sphere(mat1, translation[{0.0, 0.5, 0.0}]), sphere(mat2, translation[{0.0, -0.5, 0.0}]), translation[{0.0, 0.0, 5.0}])\nlight({0.0, 10.0, 5.0}, <0.58, 0.56, 0.6>, 100.0)\nhdr_image(800,600, 4)")
 
     i_stream = InputStream(i_buff)
 
@@ -940,6 +940,8 @@ end
     int = intersec_shape(s1, s2, translation(Vec(0.0, 0.0, 5.0)))
     PL = PointLight(Point(0.0, 10.0, 5.0), RGB(0.58, 0.56, 0.6), 100.0)
 
+    image = HdrImage(800,600)
+
     add_shape!(w, sky)
     add_shape!(w, b)
     add_shape!(w, s)
@@ -948,5 +950,7 @@ end
 
     @test string(scene.world) == string(w)
     @test string(scene.camera) == string(Cam)
+    @test string(scene.img) == string(image)
+    @test scene.antial_n_rays == 4
     
 end

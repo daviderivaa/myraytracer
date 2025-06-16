@@ -1,8 +1,12 @@
 #Let's try a comment to begin
 
-material sphere1_material(specular(uniform(<1.0, 0.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))
-material sphere2_material(diffuse(uniform(<1.0, 1.0, 0.0>)), uniform(<0.0, 0.0, 0.0>))
-material floor_material(diffuse(checkered(<1.0, 1.0, 1.0>, <0.0, 0.0, 1.0>, 10)), uniform(<0.0, 0.0, 0.0>))
+# material definition
+# material name(BRDF, emitted_radiance)
+# emitted_radiance default color is BLACK (no emission)
+
+material sphere1_material(specular(uniform(<1.0, 0.0, 0.0>)))
+material sphere2_material(diffuse(uniform(<1.0, 1.0, 0.0>)))
+material floor_material(diffuse(checkered(<1.0, 1.0, 1.0>, <0.0, 0.0, 1.0>)))
 material sky_material(diffuse(uniform(<0.58, 0.56, 0.6>)), uniform(<0.58, 0.56, 0.6>))
 
 plane(sky_material, translation[{0.0, 0.0, 100.0}])
@@ -12,6 +16,8 @@ sphere(sphere2_material, translation[{0.0, -1.3, -0.5}] * scaling[0.5])
 
 
 camera(perspective, translation[{-2.0, 0.0, 0.0}] , 1.8, 6.0)
+
+hdr_image(1600, 900)
 
 renderer(path, <0.0, 0.0, 0.0>, 2, 3, 2)
 
