@@ -58,7 +58,7 @@ function _shape_normal(s, p, r)
 """
 function _shape_normal(s::Sphere, r::Ray, p::Point)
     n = Normal(p.x, p.y, p.z)
-    if (n * r.dir) < 0
+    if (n * r.dir) < 1e-6
         return n
     else
         return neg(n)
@@ -92,7 +92,7 @@ function all_ray_intersection(shape::Sphere, r::Ray)
     c = squared_norm(o_vec) - 1
     delta = b*b - a*c #it's delta/4
 
-    if delta <= 0
+    if delta < 1e-6
         return hits
     end
  
@@ -163,7 +163,7 @@ function quick_ray_intersection(shape::Sphere, r::Ray)
     c = squared_norm(o_vec) - 1
     delta = b*b - a*c #it's delta/4
 
-    if delta <= 0
+    if delta < 1e-6
         return false
     end
  
@@ -207,7 +207,7 @@ function _shape_normal(pl, r, p::Point = nothing)
     it returns the normal to the plane x-y, chosen in order to have the opposite direction of the incoming ray
 """
 function _shape_normal(pl::Plane, r::Ray, p::Point)
-    if (r.dir.z) >= 0
+    if r.dir.z > 1e-6
         return Normal(0.0, 0.0, -1.0)
     else
         return Normal(0.0, 0.0, 1.0)
@@ -312,7 +312,7 @@ function _shape_normal(rect, r, p::Point = nothing)
     it returns the normal to a rectangle, chosen in order to have the opposite direction of the incoming ray
 """
 function _shape_normal(rect::Rectangle, r::Ray, p::Point)
-    if (rect.normal * r.dir) < 0
+    if (rect.normal * r.dir) < 1e-6
         return rect.normal
     else
         return neg(rect.normal)
@@ -328,7 +328,7 @@ function ray_intersection(rect::Rectangle, r::Ray)
     inv_r = inverse(rect.T)(r)
 
     denom = rect.normal * inv_r.dir
-    if abs(denom) < 1e-8
+    if abs(denom) < 1e-6
         return nothing
     end
 
@@ -346,7 +346,7 @@ function ray_intersection(rect::Rectangle, r::Ray)
     u = (v * rect.edge1) / squared_norm(rect.edge1)
     v_ = (v * rect.edge2) / squared_norm(rect.edge2)
 
-    if u < 0 || u > 1 || v_ < 0 || v_ > 1
+    if u < -1e-6 || u > 1 +1e-6 || v_ < -1e-6 || v_ > 1 +1e-6
         return nothing
     end
 
@@ -370,9 +370,9 @@ function quick_ray_intersection(shape, r)
 function quick_ray_intersection(rect::Rectangle, r::Ray)
 
     inv_r = inverse(rect.T)(r)
-
+ 
     denom = dot(rect.normal, inv_r.dir)
-    if abs(denom) < 1e-8
+    if abs(denom) < 1e-6
         return false
     end
 
@@ -389,7 +389,7 @@ function quick_ray_intersection(rect::Rectangle, r::Ray)
     u = dot(v, rect.edge1) / squared_norm(rect.edge1)
     v_ = dot(v, rect.edge2) / squared_norm(rect.edge2)
 
-    return 0 <= u <= 1 && 0 <= v_ <= 1
+    return -1e-6 < u < 1 +1e-6 && -1e-6 < v_ < 1 +1e-6
 
 end
 
@@ -432,16 +432,15 @@ function _shape_normal(box, r, p::Point)
     it returns the normal to the box, depending of the hitten face, chosen in order to have the opposite direction of the incoming ray
 """
 function _shape_normal(box::Box, r::Ray, p::Point)
-    epsilon=1e-6
-    if abs(p.x-0.0) < epsilon || abs(p.x - box.X) < epsilon
+    if abs(p.x-0.0) < 1e-6 || abs(p.x - box.X) < 1e-6
         if sign(r.dir.x) != 0
             return Normal(-sign(r.dir.x), 0.0, 0.0) 
         end
-    elseif abs(p.y-0.0) < epsilon || abs(p.y - box.Y) < epsilon
+    elseif abs(p.y-0.0) < 1e-6 || abs(p.y - box.Y) < 1e-6
         if sign(r.dir.y) != 0
             return Normal(0.0, -sign(r.dir.y), 0.0)
         end
-    elseif abs(p.z-0.0) < epsilon || abs(p.z - box.Z) < epsilon
+    elseif abs(p.z-0.0) < 1e-6 || abs(p.z - box.Z) < 1e-6
         if sign(r.dir.z) != 0
             return Normal(0.0, 0.0, -sign(r.dir.z))
         end
@@ -453,12 +452,11 @@ function _xyz_to _uv(box, p)
     given a point on the box, in returns its (u,v) 2D form
 """
 function _xyz_to_uv(box::Box, p::Point)
-    epsilon=1e-6
-    if abs(p.x-0.0) < epsilon || abs(p.x - box.X) < epsilon
+    if abs(p.x-0.0) < 1e-6 || abs(p.x - box.X) < 1e-6
         return Vec2d(p.y/box.Y, p.z/box.Z)
-    elseif abs(p.y-0.0) < epsilon || abs(p.y - box.Y) < epsilon
+    elseif abs(p.y-0.0) < 1e-6 || abs(p.y - box.Y) < 1e-6
         return Vec2d(p.x/box.X, p.z/box.Z)
-    elseif abs(p.z-0.0) < epsilon || abs(p.z - box.Z) < epsilon
+    elseif abs(p.z-0.0) < 1e-6 || abs(p.z - box.Z) < 1e-6
         return Vec2d(p.x/box.X, p.y/box.Y)
     end
 end
@@ -473,7 +471,7 @@ function all_ray_intersection(box::Box, r::Ray)
     inv_r = inverse(box.T)(r)
 
     if abs(inv_r.dir.x) < 1e-6
-        if (inv_r.origin.x < 0.0 || inv_r.origin.x > box.X)
+        if inv_r.origin.x < -1e-6 || inv_r.origin.x > box.X +1e-6
             return hits
         else
             int_x = (-Inf,Inf)
@@ -485,7 +483,7 @@ function all_ray_intersection(box::Box, r::Ray)
 
 
     if abs(inv_r.dir.y) < 1e-6
-        if (inv_r.origin.y < 0.0 || inv_r.origin.y > box.Y)
+        if inv_r.origin.y < -1e-6 || inv_r.origin.y > box.Y +1e-6
             return hits
         else
             int_y = (-Inf,Inf)
@@ -497,7 +495,7 @@ function all_ray_intersection(box::Box, r::Ray)
 
 
     if abs(inv_r.dir.z) < 1e-6
-        if (inv_r.origin.z < 0.0 || inv_r.origin.z > box.Z)
+        if inv_r.origin.z < -1e-6 || inv_r.origin.z > box.Z +1e-6
             return hits
         else
             int_z = (-Inf,Inf)
@@ -573,7 +571,7 @@ function quick_ray_intersection(box::Box, r::Ray)
     inv_r = inverse(box.T)(r)
 
     if abs(inv_r.dir.x) < 1e-6
-        if (inv_r.origin.x < 0.0 || inv_r.origin.x > box.X)
+        if (inv_r.origin.x < -1e-6 || inv_r.origin.x > box.X +1e-6)
             return false
         else
             int_x = (-Inf,Inf)
@@ -585,7 +583,7 @@ function quick_ray_intersection(box::Box, r::Ray)
 
 
     if abs(inv_r.dir.y) < 1e-6
-        if (inv_r.origin.y < 0.0 || inv_r.origin.y > box.Y)
+        if (inv_r.origin.y < -1e-6 || inv_r.origin.y > box.Y +1e-6)
             return false
         else
             int_y = (-Inf,Inf)
@@ -597,7 +595,7 @@ function quick_ray_intersection(box::Box, r::Ray)
 
 
     if abs(inv_r.dir.z) < 1e-6
-        if (inv_r.origin.z < 0.0 || inv_r.origin.z > box.Z)
+        if (inv_r.origin.z < -1e-6 || inv_r.origin.z > box.Z +1e-6)
             return false
         else
             int_z = (-Inf,Inf)
@@ -655,9 +653,8 @@ function _shape_normal(cyl, p, r)
     it returns the normal to the cylinder surface in a given point, chosen in order to have the opposite direction of the incoming ray.
 """
 function _shape_normal(cyl::Cylinder, r::Ray, p::Point)
-    epsilon = 1e-6
 
-    if abs(p.z - 0.0) < epsilon || abs(p.z - cyl.H) < epsilon
+    if abs(p.z - 0.0) < 1e-6 || abs(p.z - cyl.H) < 1e-6
         n = Normal(0.0, 0.0, 1.0)
     else
         n = normalize(Normal(p.x, p.y, 0.0))
@@ -675,9 +672,8 @@ function _xyz_to_uv(cyl, p)
     given a point on the cylinder, it returns its (u,v) 2D form.
 """
 function _xyz_to_uv(cyl::Cylinder, p::Point)
-    epsilon = 1e-6 
 
-    if abs(p.z - 0.0) < epsilon || abs(p.z - cyl.H) < epsilon
+    if abs(p.z - 0.0) < 1e-6 || abs(p.z - cyl.H) < 1e-6
         u = (p.x + cyl.R) / (2 * cyl.R)
         v = (p.y + cyl.R) / (2 * cyl.R)
     else
@@ -697,7 +693,7 @@ function all_ray_intersection(cyl::Cylinder, r::Ray)
     inv_r = inverse(cyl.T)(r)
 
     if abs(inv_r.dir.x) < 1e-6 && abs(inv_r.dir.y) < 1e-6
-        if √(inv_r.origin.x^2 + inv_r.origin.y^2) >= cyl.R
+        if √(inv_r.origin.x^2 + inv_r.origin.y^2) > cyl.R -1e-6
             return hits
         else
             int_xy = (-Inf,Inf)
@@ -707,7 +703,7 @@ function all_ray_intersection(cyl::Cylinder, r::Ray)
         b = inv_r.origin.x * inv_r.dir.x + inv_r.origin.y * inv_r.dir.y #tecnically is b/2, but we will use delta/4
         c = inv_r.origin.x^2 + inv_r.origin.y^2 - cyl.R^2
         delta = b*b - a*c #it's delta/4
-        if delta <= 0
+        if delta < 1e-6
             return hits
         else
             sqrt_delta = √(delta)
@@ -716,7 +712,7 @@ function all_ray_intersection(cyl::Cylinder, r::Ray)
     end
 
     if abs(inv_r.dir.z) < 1e-6
-        if (inv_r.origin.z < 0.0 || inv_r.origin.z > cyl.H)
+        if inv_r.origin.z < 1e-6 || inv_r.origin.z > cyl.H -1e-6
             return hits
         else
             int_z = (-Inf,Inf)
@@ -791,7 +787,7 @@ function quick_ray_intersection(cyl::Cylinder, r::Ray)
     inv_r = inverse(cyl.T)(r)
 
     if abs(inv_r.dir.x) < 1e-6 && abs(inv_r.dir.y) < 1e-6
-        if √(inv_r.dir.x^2 + inv_r.dir.y^2) >= cyl.R
+        if √(inv_r.dir.x^2 + inv_r.dir.y^2) > cyl.R -1e-6
             return false
         else
             int_xy = (-Inf,Inf)
@@ -801,7 +797,7 @@ function quick_ray_intersection(cyl::Cylinder, r::Ray)
         b = inv_r.origin.x * inv_r.dir.x + inv_r.origin.y * inv_r.dir.y #tecnically is b/2, but we will use delta/4
         c = inv_r.origin.x^2 + inv_r.origin.y^2 - cyl.R^2
         delta = b*b - a*c #it's delta/4
-        if delta <= 0
+        if delta < 1e-6
             return false
         else
             sqrt_delta = √(delta)
@@ -810,7 +806,7 @@ function quick_ray_intersection(cyl::Cylinder, r::Ray)
     end
 
     if abs(inv_r.dir.z) < 1e-6
-        if (inv_r.origin.z < 0.0 || inv_r.origin.z > cyl.H)
+        if inv_r.origin.z < 1e-6 || inv_r.origin.z > cyl.H -1e-6
             return false
         else
             int_z = (-Inf,Inf)
@@ -867,15 +863,14 @@ function _shape_normal(cone, p, r)
     it returns the normal to the cone surface in a given point, chosen in order to have the opposite direction of the incoming ray.
 """
 function _shape_normal(cone::Cone, r::Ray, p::Point)
-    epsilon = 1e-6
 
-    if abs(p.z) < epsilon || abs(p.z - cone.H) < epsilon
+    if abs(p.z) < 1e-6 || abs(p.z - cone.H) < 1e-6
         n = Normal(0.0, 0.0, 1.0)
     else
         n = normalize(Normal(p.x, p.y, cone.R^2/cone.H * (1 - p.z/cone.H)))
     end
 
-    if (n * r.dir) < 0
+    if (n * r.dir) < -1e-6
         return n
     else
         return neg(n)
@@ -887,9 +882,8 @@ function _xyz_to_uv(cone, p)
     given a point on the cone, it returns its (u,v) 2D form.
 """
 function _xyz_to_uv(cone::Cone, p::Point)
-    epsilon = 1e-6 
 
-    if abs(p.z) < epsilon
+    if abs(p.z) < 1e-6
         u = (p.x + cone.R) / (2 * cone.R)
         v = (p.y + cone.R) / (2 * cone.R)
     else
@@ -911,9 +905,9 @@ function all_ray_intersection(cone::Cone, r::Ray)
     if abs(inv_r.dir.x) < 1e-6 && abs(inv_r.dir.y) < 1e-6
         r_xy = √(inv_r.origin.x^2 + inv_r.origin.y^2)
 
-        if r_xy >= cone.R
+        if r_xy > cone.R -1e-6
             return hits
-        elseif inv_r.dir.z > 0.0
+        elseif inv_r.dir.z > 1e-6
             z_hit = cone.H * (1 - r_xy/cone.R)
             int_xy = (-Inf, (z_hit-inv_r.origin.z)/inv_r.dir.z)
         else
@@ -930,9 +924,9 @@ function all_ray_intersection(cone::Cone, r::Ray)
         if abs(a) < 1e-6
             t_single_hit = - c / 2b
             test_point = at(inv_r, t_single_hit)
-            if test_point.z > cone.H
+            if test_point.z > cone.H +1e-6
                 return hits
-            elseif inv_r.dir.z < 0.0
+            elseif inv_r.dir.z < -1e-6
                 int_xy = (t_single_hit, Inf)
             else
                 int_xy = (-Inf, t_single_hit)
@@ -941,7 +935,7 @@ function all_ray_intersection(cone::Cone, r::Ray)
 
             delta = b*b - a*c #it's delta/4
 
-            if delta <= 0
+            if delta < 1e-6
                 return hits
             else
                 sqrt_delta = √(delta)
@@ -951,13 +945,13 @@ function all_ray_intersection(cone::Cone, r::Ray)
                 test_point_1 = at(inv_r, t_xy_1)
                 test_point_2 = at(inv_r, t_xy_2)
 
-                if test_point_1.z < cone.H
-                    if test_point_2.z < cone.H
+                if test_point_1.z < cone.H -1e-6
+                    if test_point_2.z < cone.H -1e-6
                         int_xy = (t_xy_1, t_xy_2)
                     else 
                         int_xy = (-Inf, t_xy_1)
                     end
-                elseif test_point_2.z < cone.H
+                elseif test_point_2.z < cone.H -1e-6
                     int_xy = (t_xy_2, Inf)
                 else
                     return hits
@@ -967,7 +961,7 @@ function all_ray_intersection(cone::Cone, r::Ray)
     end
 
     if abs(inv_r.dir.z) < 1e-6
-        if (inv_r.origin.z < 0.0 || inv_r.origin.z > cone.H)
+        if inv_r.origin.z < -1e-6 || inv_r.origin.z > cone.H +1e-6
             return hits
         else
             int_z = (-Inf,Inf)
@@ -1045,9 +1039,9 @@ function quick_ray_intersection(cone::Cone, r::Ray)
     if abs(inv_r.dir.x) < 1e-6 && abs(inv_r.dir.y) < 1e-6
         r_xy = √(inv_r.origin.x^2 + inv_r.origin.y^2)
 
-        if r_xy >= cone.R
+        if r_xy > cone.R -1e-6
             return false
-        elseif inv_r.dir.z > 0.0
+        elseif inv_r.dir.z > 1e-6
             z_hit = cone.H * (1 - r_xy/cone.R)
             int_xy = (-Inf, (z_hit-inv_r.origin.z)/inv_r.dir.z)
         else
@@ -1064,9 +1058,9 @@ function quick_ray_intersection(cone::Cone, r::Ray)
         if abs(a) < 1e-6
             t_single_hit = - c / b
             test_point = at(inv_r, t_single_hit)
-            if test_point.z > cone.H
+            if test_point.z > cone.H +1e-6
                 return false
-            elseif inv_r.dir.z < 0.0
+            elseif inv_r.dir.z < -1e-6
                 int_xy = (t_single_hit, Inf)
             else
                 int_xy = (-Inf, t_single_hit)
@@ -1075,7 +1069,7 @@ function quick_ray_intersection(cone::Cone, r::Ray)
 
         delta = b*b - a*c #it's delta/4
 
-        if delta <= 0
+        if delta < 1e-6
             return false
         else
             sqrt_delta = √(delta)
@@ -1085,13 +1079,13 @@ function quick_ray_intersection(cone::Cone, r::Ray)
             test_point_1 = at(inv_r, t_xy_1)
             test_point_2 = at(inv_r, t_xy_2)
 
-            if test_point_1.z < cone.H
-                if test_point_2.z < cone.H
+            if test_point_1.z < cone.H -1e-6
+                if test_point_2.z < cone.H -1e-6
                     int_xy = (t_xy_1, t_xy_2)
                 else 
                     int_xy = (-Inf, t_xy_1)
                 end
-            elseif test_point_2.z < cone.H
+            elseif test_point_2.z < cone.H -1e-6
                 int_xy = (t_xy_2, Inf)
             else
                 return false
@@ -1100,7 +1094,7 @@ function quick_ray_intersection(cone::Cone, r::Ray)
     end
 
     if abs(inv_r.dir.z) < 1e-6
-        if (inv_r.origin.z < 0.0 || inv_r.origin.z > cone.H)
+        if inv_r.origin.z < -1e-6 || inv_r.origin.z > cone.H +1e-6
             return false
         else
             int_z = (-Inf,Inf)

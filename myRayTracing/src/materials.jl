@@ -214,7 +214,7 @@ function Eval(brdf::SpecularBRDF, uv::Vec2d, normal::Normal, in_dir::Vec, out_di
     theta_in = acos(n_normal * n_in_dir)
     theta_out = acos(n_normal * n_out_dir)
 
-    if abs(theta_out - theta_in) < brdf.reflectance
+    if abs(theta_out - theta_in) < brdf.reflectance -1e-6
         return get_color(brdf.pigment, uv)
     else
         return RGB(0.0, 0.0, 0.0)
