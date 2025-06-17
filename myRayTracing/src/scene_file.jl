@@ -836,6 +836,8 @@ function parse_cone(input_file::InputStream, scene::Scene)::Cone
 
 end
 
+##REDEFINE CSG COMPOSING MULTIPLE SHAPES
+
 """Parse a Union object from tokens"""
 function parse_union(input_file::InputStream, scene::Scene)::union_shape
 
