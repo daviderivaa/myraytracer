@@ -6,7 +6,7 @@ include("Color_and_HdrImage.jl")
 export RGB, HdrImage, print_image, _read_float, _parse_endianness, _read_line
 
 include("PFMfunctions.jl")
-export read_pfm, InvalidPfmFileFormat, write_pfm
+export read_pfm, InvalidPfmFileFormat, write
 
 include("LdrImage.jl")
 export tone_mapping!, gamma_correction!, read_user_input

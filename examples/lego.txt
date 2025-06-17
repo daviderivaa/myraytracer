@@ -32,6 +32,6 @@ difference(difference(cylinder(3.0, 6, lego, translation[{3.0, 0.0, -3.0}] * rot
 
 camera(perspective, translation[{-1.0, 0.0, 1.0}], 1.8, 6.0)
 
-hdr_image(1600,900, 5)
+hdr_image(1600,900, 3)
 
 renderer(path, <0.0, 0.0, 0.0>, 2, 3, 2)

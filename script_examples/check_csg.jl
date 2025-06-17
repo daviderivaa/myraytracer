@@ -80,7 +80,7 @@ RND2 = FlatRenderer(w)
 fire_all_rays!(IT, RND2)
 
 open(pfm_filename_and_path, "w") do io
-    write_pfm(io, IT.img)
+    write(io, IT.img)
 end
 
 convert_pfm_to_png(path, pfm_filename_and_path, filename, 0.7)

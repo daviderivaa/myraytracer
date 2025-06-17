@@ -110,4 +110,8 @@ box(5, 1, 1, dark_stone, scaling[0.06] * rotation_z[-35] * translation[{0.828427
 box(4, 1, 1, dark_stone, scaling[0.06] * rotation_z[-35] * translation[{0.8284271247, 0.0, -3.8284271247}] * translation[{-5.4852813743, 9.5, 27.485281374}])
 box(1, 1, 1, dark_stone, scaling[0.06] * rotation_z[-35] * translation[{0.8284271247, 0.0, -3.8284271247}] * translation[{-1.4852813743, 9.5, 28.485281374}])
 
+hdr_image(1600, 900, 5)
+
+renderer(path, <0.0, 0.0, 0.0>, 2, 3, 2)
+
 camera(perspective, translation[{-1.0, 0.0, 1.0}], 1.8, 6.0)

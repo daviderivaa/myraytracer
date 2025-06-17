@@ -113,7 +113,7 @@ for angle in 0:360
 
     #write pfm file
     open(pfm_filename_and_path, "w") do io
-        write_pfm(io, IT.img)
+        write(io, IT.img)
     end
 
     convert_pfm_to_png(path,pfm_filename_and_path,filename)

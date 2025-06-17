@@ -115,13 +115,13 @@ function write_pfm_image(io::IO, img::HdrImage, endianness::Bool=true)
     img::HdrImage -->  HDR image that has to be converted in a PFM file
     endianness::Bool --> endianness (default is little-endian)
 """
-function write_pfm(io::IO, img::HdrImage, endianness::Bool=true)
+function write(io::IO, img::HdrImage, endianness::Bool=true)
     endian_str = endianness ? "-1.0" : "1.0"
     header = string("PF\n", img.width, " ", img.height, "\n", endian_str, "\n")
 
     try
         write(io, header)
-    catch e
+    catch
         throw(InvalidPfmFileFormat("Invalid output file"))
     end
 
