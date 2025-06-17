@@ -1,6 +1,6 @@
 name = "myRayTracing"
 uuid = "503b7373-4be2-4089-ac6f-8a401e85b800"
-authors = ["daviderivaa <davide.riva12@studenti.unimi.it>", "Alberto Lazzeri <albilazze2002@gmail.com>", "Riccardo Natale <>"]
+authors = ["daviderivaa <davide.riva12@studenti.unimi.it>", "Alberto Lazzeri <albilazze2002@gmail.com>", "Riccardo Natale <natalericc@gmail.com>"]
 version = "1.0.1"
 
 [deps]
