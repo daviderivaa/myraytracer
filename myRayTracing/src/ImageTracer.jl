@@ -23,15 +23,15 @@ end
 function fire_ray(IT::ImageTracer, col, row, u_pixel=0.5, v_pixel=0.5)
     returns a modified ray
 
-    u = (col + u_pixel) / IT.img.width --> get the point on the screen witha given pixel
-    v = 1.0 - (row + v_pixel) / IT.img.height
+    u = (col-1 + u_pixel) / IT.img.width --> get the point on the screen witha given pixel
+    v = 1.0 - (row-1 + v_pixel) / IT.img.height
     return fire_ray(IT.cam, u, v) --> return the ray
 """
 function fire_ray(IT::ImageTracer, col, row, u_pixel=0.5, v_pixel=0.5)
 
     try
-        u = (col + u_pixel) / IT.img.width
-        v = 1.0 - (row + v_pixel) / IT.img.height
+        u = (col-1 + u_pixel) / IT.img.width
+        v = 1.0 - (row-1 + v_pixel) / IT.img.height
         return fire_single_ray(IT.cam, u, v)
     catch
         throw(Type_error("col and row are incorrect (either type or value out of range)"))
