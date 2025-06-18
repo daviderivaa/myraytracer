@@ -2,47 +2,109 @@ using myRayTracing
 using Test
 using Colors
 
-@testset "Check _read_float" begin
-    
-    @test _read_float(IOBuffer([0xDB,0x0F,0x49,0x40]), -1.0)≈3.14159 #Little-endian 
-    @test _read_float(IOBuffer([0x40,0x49,0x0F,0xDb]), 1.0)≈3.14159 #big-endian
+@testset "Check Color and HdrImage functions" begin
 
-end
+    color1 = RGB(1.0, 2.0, 3.0)
+    color2 = RGB(4.0, 5.0, 6.0)
 
-@testset "Check _parse_endianness" begin
+    @test is_close(color1, RGB(1.0, 2.0, 3.0))
+    @test !is_close(color1, color2)
+    @test is_close(color1*color2, RGB(4.0, 10.0, 18.0))
+    @test !is_close(color1*color2, color1)
 
-    @test _parse_endianness("1")≈1
-    @test _parse_endianness("-1")≈-1
-    
-    @test_throws InvalidPfmFileFormat _parse_endianness("0")
-    @test_throws InvalidPfmFileFormat _parse_endianness("pippo")
-    @test_throws InvalidPfmFileFormat _parse_endianness("0.0")
-    @test_throws InvalidPfmFileFormat _parse_endianness("nan")
+    empty_image = HdrImage(7, 4)
 
-end
-
-@testset "Check _read_line" begin
-    
-    @test _read_line(IOBuffer([0x70, 0x69, 0x70, 0x70, 0x6F, 0x0A]))=="pippo"
-    @test _read_line(IOBuffer([0x70, 0x69, 0x70, 0x70, 0x6F]))=="pippo"
-
-    @test_throws InvalidPfmFileFormat _read_line(IOBuffer([0x0A]))
-
-end
-
-@testset "Check Color_and_HdrImage functions" begin
+    @test empty_image.width == 7
+    @test empty_image.height == 4
+    @test !valid_pixel(empty_image, 0, 0)
+    @test valid_pixel(empty_image, 1, 1)
+    @test valid_pixel(empty_image, 2, 3)
+    @test valid_pixel(empty_image, 7, 4)
+    @test !valid_pixel(empty_image, 0, 1)
+    @test !valid_pixel(empty_image, 1, 0)
+    @test !valid_pixel(empty_image, 8, 4)
+    @test !valid_pixel(empty_image, 7, 5)
+    @test !valid_pixel(empty_image, -1, 1)
+    @test !valid_pixel(empty_image, 1, -1)
 
     mat = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0]
     
     image = HdrImage(mat, 3, 2)
 
-    @test image.pixels[2, 1] == RGB(1.0, 0.0, 0.0)
-    @test image.pixels[2, 2] == RGB(0.0, 1.0, 0.0)
-    @test image.pixels[2, 3] == RGB(0.0, 0.0, 1.0)
-    @test image.pixels[1, 1] == RGB(1.0, 1.0, 0.0)
-    @test image.pixels[1, 2] == RGB(0.5, 0.5, 0.5)
-    @test image.pixels[1, 3] == RGB(0.0, 0.0, 0.0)
+    @test is_close(image.pixels[2, 1], RGB(1.0, 0.0, 0.0))
+    @test is_close(image.pixels[2, 2], RGB(0.0, 1.0, 0.0))
+    @test is_close(image.pixels[2, 3], RGB(0.0, 0.0, 1.0))
+    @test is_close(image.pixels[1, 1], RGB(1.0, 1.0, 0.0))
+    @test is_close(image.pixels[1, 2], RGB(0.5, 0.5, 0.5))
+    @test is_close(image.pixels[1, 3], RGB(0.0, 0.0, 0.0))
 
+end
+
+@testset "Check PFM functions" begin
+    
+    @test _read_float(IOBuffer([0xDB,0x0F,0x49,0x40]), -1.0)≈3.14159 #Little-endian 
+    @test _read_float(IOBuffer([0x40,0x49,0x0F,0xDb]), 1.0)≈3.14159 #big-endian
+
+    @test _read_line(IOBuffer([0x70, 0x69, 0x70, 0x70, 0x6F, 0x0A]))=="pippo"
+    @test _read_line(IOBuffer([0x70, 0x69, 0x70, 0x70, 0x6F]))=="pippo"
+    @test_throws InvalidPfmFileFormat _read_line(IOBuffer([0x0A]))
+
+    @test _parse_endianness("1")≈1
+    @test _parse_endianness("-1")≈-1  
+    @test_throws InvalidPfmFileFormat _parse_endianness("0")
+    @test_throws InvalidPfmFileFormat _parse_endianness("pippo")
+    @test_throws InvalidPfmFileFormat _parse_endianness("0.0")
+    @test_throws InvalidPfmFileFormat _parse_endianness(NaN)
+
+    @test _parse_img_size("3 2") == (3, 2)
+    @test_throws InvalidPfmFileFormat _parse_img_size("3")
+    @test_throws InvalidPfmFileFormat _parse_img_size("3 2 1")
+    @test_throws InvalidPfmFileFormat _parse_img_size("3 -2")
+    @test_throws InvalidPfmFileFormat _parse_img_size("a b")
+
+    form_le, width_le, height_le, endianness_le, pixel_data_le = read_pfm("../PFM_input/reference_le.pfm")
+    @test width_le == 3
+    @test height_le == 2
+    @test endianness_le == -1.0
+    image_le = HdrImage(pixel_data_le, width_le, height_le)
+    @test is_close(image_le.pixels[1,1], RGB(10.0,20.0,30.0))
+    @test is_close(image_le.pixels[1,2], RGB(40.0,50.0,60.0))
+    @test is_close(image_le.pixels[1,3], RGB(70.0,80.0,90.0))
+    @test is_close(image_le.pixels[2,1], RGB(100.0,200.0,300.0))
+    @test is_close(image_le.pixels[2,2], RGB(400.0,500.0,600.0))
+    @test is_close(image_le.pixels[2,3], RGB(700.0,800.0,900.0))
+
+    form_be, width_be, height_be, endianness_be, pixel_data_be = read_pfm("../PFM_input/reference_be.pfm")
+    @test width_be == 3
+    @test height_be == 2
+    @test endianness_be == +1.0
+    image_be = HdrImage(pixel_data_be, width_be, height_be)
+    @test is_close(image_be.pixels[1,1], RGB(10.0,20.0,30.0))
+    @test is_close(image_be.pixels[1,2], RGB(40.0,50.0,60.0))
+    @test is_close(image_be.pixels[1,3], RGB(70.0,80.0,90.0))
+    @test is_close(image_be.pixels[2,1], RGB(100.0,200.0,300.0))
+    @test is_close(image_be.pixels[2,2], RGB(400.0,500.0,600.0))
+    @test is_close(image_be.pixels[2,3], RGB(700.0,800.0,900.0))
+end
+
+@testset "Check LdrImage functions" begin
+    image = HdrImage(2,1)
+    image.pixels[1,1] = RGB(5.0, 10.0, 15.0)
+    image.pixels[1,2] = RGB(500.0, 1000.0, 1500.0)
+
+    @test abs(_luminosity(image.pixels[1,1]) - 10.0) < 1e-6
+    @test abs(_luminosity(image.pixels[1,2]) - 1000.0) < 1e-6
+    @test abs(_average_luminosity(image, 1e-10) - 100.0) < 1e-6
+    @test_throws Value_Error _average_luminosity(image, -1e-4)
+
+    _normalize_image!(image, 100.0, 10.0)
+    @test is_close(image.pixels[1,1], RGB(50.0, 100.0, 150.0))
+    @test is_close(image.pixels[1,2], RGB(5000.0, 10000.0, 15000.0))
+
+    _clamp_image!(image)
+    for p in image.pixels
+        @test ( -1e-6 < p.r < 1 +1e-6 && -1e-6 < p.g < 1 +1e-6 && -1e-6 < p.b < 1 +1e-6 )
+    end
 end
 
 @testset "Check geometry functions" begin
@@ -134,13 +196,20 @@ end
     p = Point(1.0, 2.0, 3.0)
     v = Vec(1.0, 2.0, 3.0)
     r = Ray(p,v)
-    r_2 = Ray(Point(3.0, 6.0, 9.0),v)
-
+    r_2 = Ray(Point(1.0, 2.0, 3.0), Vec(1.0, 2.0, 3.0))
+    r_3 = Ray(Point(3.0, 6.0, 9.0),v)
     rz = rotation("z", pi/2)
     transformed_ray = Ray(Point(-2.0, 1.0, 3.0),Vec(-2.0, 1.0, 3.0))
 
+    @test is_close(r, r_2)
+    @test !is_close(r, r_3)
+
+    @test is_close(at(r,0.0), r.origin)
+    @test is_close(at(r,1.0), Point(2.0, 4.0, 6.0))
     @test is_close(at(r,2.0), Point(3.0, 6.0, 9.0))
-    @test is_close(Ray(at(r, 2.0),v), r_2)
+
+    @test is_close(Ray(at(r, 2.0),v), r_3)
+
     @test is_close(rz(r), transformed_ray)
 
 end
@@ -161,6 +230,38 @@ end
     @test is_close(fire_single_ray(OC, 0.0, 0.0), OCray)
     @test is_close(fire_single_ray(PC, 0.0, 0.0), PCray)
     @test aperture_deg(PC) == 2.0 * atan(9.0/16.0) * 180.0 / π
+
+    oc_ray00 = fire_single_ray(OC, 0.0, 0.0)
+    oc_ray01 = fire_single_ray(OC, 0.0, 1.0)
+    oc_ray10 = fire_single_ray(OC, 1.0, 0.0)
+    oc_ray11 = fire_single_ray(OC, 1.0, 1.0)
+    @test abs(squared_norm(cross(oc_ray00.dir, oc_ray01.dir))) < 1e-6
+    @test abs(squared_norm(cross(oc_ray00.dir, oc_ray10.dir))) < 1e-6
+    @test abs(squared_norm(cross(oc_ray00.dir, oc_ray11.dir))) < 1e-6
+    @test is_close(at(oc_ray00, 1.0), Point(0.0, 16/9, -1.0))
+    @test is_close(at(oc_ray01, 1.0), Point(0.0, 16/9, 1.0))
+    @test is_close(at(oc_ray10, 1.0), Point(0.0, -16/9, -1.0))
+    @test is_close(at(oc_ray11, 1.0), Point(0.0, -16/9, 1.0))
+
+    OC_2 = OrthogonalCamera(16/9, translation(Vec(0.0,-2.0,0.0))(rotation("z", π/2)))
+    oc_ray = fire_single_ray(OC_2, 0.5, 0.5)
+    @test is_close(at(oc_ray,1.0), Point(0.0,-2.0,0.0))
+
+    pc_ray00 = fire_single_ray(PC, 0.0, 0.0)
+    pc_ray01 = fire_single_ray(PC, 0.0, 1.0)
+    pc_ray10 = fire_single_ray(PC, 1.0, 0.0)
+    pc_ray11 = fire_single_ray(PC, 1.0, 1.0)
+    @test is_close(at(pc_ray00,0.0), pc_ray01.origin)
+    @test is_close(at(pc_ray00,0.0), pc_ray10.origin)
+    @test is_close(at(pc_ray00,0.0), pc_ray11.origin)
+    @test is_close(at(pc_ray00, 1.0), Point(0.0, 16/9, -1.0))
+    @test is_close(at(pc_ray01, 1.0), Point(0.0, 16/9, 1.0))
+    @test is_close(at(pc_ray10, 1.0), Point(0.0, -16/9, -1.0))
+    @test is_close(at(pc_ray11, 1.0), Point(0.0, -16/9, 1.0))
+    
+    PC_2 = PerspectiveCamera(1.0, 16/9, translation(Vec(0.0,-2.0,0.0))(rotation("z", π/2)))
+    pc_ray = fire_single_ray(PC_2, 0.5, 0.5)
+    @test is_close(at(oc_ray,1.0), Point(0.0,-2.0,0.0))
 
 end
 
@@ -227,9 +328,9 @@ end
     n_2 = Normal(1.0, 0.0, 0.0)
     n_3 = Normal(-1.0, 0.0, 0.0)
 
-    @test quick_ray_intersection(sph_1, ray_1) == true
-    @test quick_ray_intersection(sph_1, ray_2) == true
-    @test quick_ray_intersection(sph_1, ray_3) == true
+    @test quick_ray_intersection(sph_1, ray_1)
+    @test quick_ray_intersection(sph_1, ray_2)
+    @test quick_ray_intersection(sph_1, ray_3)
 
     hr_1 = ray_intersection(sph_1, ray_1)
     hr_2 = ray_intersection(sph_1, ray_2) 
@@ -252,8 +353,8 @@ end
     p_4 = Point(10.0, 0.0, 1.0)
     p_5 = Point(11.0, 0.0, 0.0)
 
-    @test quick_ray_intersection(sph_2, ray_4) == true
-    @test quick_ray_intersection(sph_2, ray_5) == true
+    @test quick_ray_intersection(sph_2, ray_4)
+    @test quick_ray_intersection(sph_2, ray_5)
 
     hr_4 = ray_intersection(sph_2, ray_4)
     hr_5 = ray_intersection(sph_2, ray_5)
@@ -268,9 +369,9 @@ end
     ray_7 = Ray(Point(-15.0, 0.0, 0.0), Vec(0.0, 0.0, -1.0))
     ray_8 = Ray(Point(5.0, 0.0, 0.0), Vec(-1.0, 0.0, 0.0))
 
-    @test quick_ray_intersection(sph_1, ray_6) == false
-    @test quick_ray_intersection(sph_1, ray_7) == false
-    @test quick_ray_intersection(sph_2, ray_8) == false
+    @test !quick_ray_intersection(sph_1, ray_6)
+    @test !quick_ray_intersection(sph_1, ray_7)
+    @test !quick_ray_intersection(sph_2, ray_8)
 
     hr_6 = ray_intersection(sph_1, ray_6)
     hr_7 = ray_intersection(sph_1, ray_7)
@@ -301,16 +402,16 @@ end
     ray_4 = Ray(Point(0.0, 0.0, 1.0), Vec(0.0, 1.0, 0.0))
     ray_5 = Ray(Point(0.0, 0.0, 2.0), Vec(0.0, 0.0, 1.0))
 
-    @test quick_ray_intersection(pl_1, ray_1) == true
-    @test quick_ray_intersection(pl_1, ray_2) == true
-    @test quick_ray_intersection(pl_1, ray_3) == false
-    @test quick_ray_intersection(pl_2, ray_1) == true
-    @test quick_ray_intersection(pl_2, ray_3) == false
-    @test quick_ray_intersection(pl_3, ray_1) == true
-    @test quick_ray_intersection(pl_3, ray_3) == false
-    @test quick_ray_intersection(pl_3, ray_4) == true
-    @test quick_ray_intersection(pl_1, ray_5) == false
-    @test quick_ray_intersection(pl_2, ray_5) == true
+    @test quick_ray_intersection(pl_1, ray_1)
+    @test quick_ray_intersection(pl_1, ray_2)
+    @test !quick_ray_intersection(pl_1, ray_3)
+    @test quick_ray_intersection(pl_2, ray_1)
+    @test !quick_ray_intersection(pl_2, ray_3)
+    @test quick_ray_intersection(pl_3, ray_1)
+    @test !quick_ray_intersection(pl_3, ray_3)
+    @test quick_ray_intersection(pl_3, ray_4)
+    @test !quick_ray_intersection(pl_1, ray_5)
+    @test quick_ray_intersection(pl_2, ray_5)
 
     hr_11 = ray_intersection(pl_1, ray_1)
     hr_12 = ray_intersection(pl_1, ray_2) 
@@ -341,54 +442,54 @@ end
     ray_5 = Ray(Point(0.5, 1.0, 5.0), Vec(0.0, 0.0, 1.0))
     ray_6 = Ray(Point(0.5, 1.0, 5.0), Vec(0.0, 0.0, -1.0))
 
-    @test quick_ray_intersection(box1, ray_1) == false
+    @test !quick_ray_intersection(box1, ray_1)
     @test ray_intersection(box1, ray_1) === nothing
-    @test quick_ray_intersection(box2, ray_1) == false
+    @test !quick_ray_intersection(box2, ray_1)
     @test ray_intersection(box2, ray_1) === nothing
-    @test quick_ray_intersection(box3, ray_1) == false
+    @test !quick_ray_intersection(box3, ray_1)
     @test ray_intersection(box3, ray_1) === nothing
 
-    @test quick_ray_intersection(box1, ray_2) == true
+    @test quick_ray_intersection(box1, ray_2)
     hr12 = ray_intersection(box1, ray_2)
     @test abs(hr12.t - 1.0) < 1e-6
     @test is_close(hr12.world_point, Point(0.0, 0.5, 2.0))
-    @test quick_ray_intersection(box2, ray_2) == false
+    @test !quick_ray_intersection(box2, ray_2)
     @test ray_intersection(box2, ray_2) === nothing
-    @test quick_ray_intersection(box3, ray_2) == true
+    @test quick_ray_intersection(box3, ray_2)
     hr32 = ray_intersection(box3, ray_2)
     @test abs(hr32.t - 1.0) < 1e-6
     @test is_close(hr32.normal, Normal(-1.0, 0.0, 0.0))
 
-    @test quick_ray_intersection(box1, ray_3) == true
+    @test quick_ray_intersection(box1, ray_3)
     hr13 = ray_intersection(box1, ray_3)
     @test abs(hr13.t - 5.0) < 1e-6
-    @test quick_ray_intersection(box2, ray_3) == false
+    @test !quick_ray_intersection(box2, ray_3)
     @test ray_intersection(box2, ray_3) === nothing
-    @test quick_ray_intersection(box3, ray_3) == true
+    @test quick_ray_intersection(box3, ray_3)
     hr33 = ray_intersection(box3, ray_3)
     @test abs(hr33.t - 3.0) < 1e-6
 
-    @test quick_ray_intersection(box1, ray_4) == true
+    @test quick_ray_intersection(box1, ray_4)
     @test ray_intersection(box1, ray_4) !== nothing
-    @test quick_ray_intersection(box2, ray_4) == false
+    @test !quick_ray_intersection(box2, ray_4)
     @test ray_intersection(box2, ray_4) === nothing
-    @test quick_ray_intersection(box3, ray_4) == false
+    @test !quick_ray_intersection(box3, ray_4)
     @test ray_intersection(box3, ray_4) === nothing
 
-    @test quick_ray_intersection(box1, ray_5) == false
+    @test !quick_ray_intersection(box1, ray_5)
     @test ray_intersection(box1, ray_5) === nothing
-    @test quick_ray_intersection(box2, ray_5) == true
+    @test quick_ray_intersection(box2, ray_5)
     hr25 = ray_intersection(box2, ray_5)
     @test abs(hr25.t - 5.0) < 1e-6
-    @test quick_ray_intersection(box3, ray_5) == false
+    @test !quick_ray_intersection(box3, ray_5)
     @test ray_intersection(box3, ray_5) === nothing
 
-    @test quick_ray_intersection(box1, ray_6) == true
+    @test quick_ray_intersection(box1, ray_6)
     hr16 = ray_intersection(box1, ray_6)
     @test abs(hr16.t - 2.0) < 1e-6
-    @test quick_ray_intersection(box2, ray_6) == false
+    @test !quick_ray_intersection(box2, ray_6)
     @test ray_intersection(box2, ray_6) === nothing
-    @test quick_ray_intersection(box3, ray_6) == false
+    @test !quick_ray_intersection(box3, ray_6)
     @test ray_intersection(box3, ray_6) === nothing
 end
 
@@ -402,36 +503,36 @@ end
     ray3 = Ray(Point(-3.0,2.0,-7.0), Vec(1.0,-2.0,3.0))
     ray4 = Ray(Point(0.0,0.0,1.5), Vec(0.0,0.0,-1.0))
 
-    @test quick_ray_intersection(cyl1, ray1) == true
+    @test quick_ray_intersection(cyl1, ray1)
     @test ray_intersection(cyl1, ray1) !== nothing
-    @test quick_ray_intersection(cyl2, ray1) == true
+    @test quick_ray_intersection(cyl2, ray1)
     @test ray_intersection(cyl2, ray1) !== nothing
-    @test quick_ray_intersection(cyl3, ray1) == false
+    @test !quick_ray_intersection(cyl3, ray1)
     @test ray_intersection(cyl3, ray1) === nothing
 
-    @test quick_ray_intersection(cyl1, ray2) == false
+    @test !quick_ray_intersection(cyl1, ray2)
     @test ray_intersection(cyl1, ray2) === nothing
-    @test quick_ray_intersection(cyl2, ray2) == true
+    @test quick_ray_intersection(cyl2, ray2)
     @test ray_intersection(cyl2, ray2) !== nothing
-    @test quick_ray_intersection(cyl3, ray2) == false
+    @test !quick_ray_intersection(cyl3, ray2)
     @test ray_intersection(cyl3, ray2) === nothing
 
-    @test quick_ray_intersection(cyl1, ray3) == false
+    @test !quick_ray_intersection(cyl1, ray3)
     @test ray_intersection(cyl1, ray3) === nothing
-    @test quick_ray_intersection(cyl2, ray3) == false
+    @test !quick_ray_intersection(cyl2, ray3)
     @test ray_intersection(cyl2, ray3) === nothing
-    @test quick_ray_intersection(cyl3, ray3) == true
+    @test quick_ray_intersection(cyl3, ray3)
     @test ray_intersection(cyl3, ray3) !== nothing
 
-    @test quick_ray_intersection(cyl1, ray4) == true
+    @test quick_ray_intersection(cyl1, ray4)
     hr14 = ray_intersection(cyl1, ray4)
     @test abs(hr14.t - 0.5) < 1e-6
     @test is_close(hr14.normal, Normal(0.0, 0.0, 1.0))
-    @test quick_ray_intersection(cyl2, ray4) == true
+    @test quick_ray_intersection(cyl2, ray4)
     hr24 = ray_intersection(cyl2, ray4)
     @test abs(hr24.t - 1.5) < 1e-6
     @test is_close(hr24.normal, Normal(0.0, 0.0, 1.0))
-    @test quick_ray_intersection(cyl3, ray4) == false
+    @test !quick_ray_intersection(cyl3, ray4)
     @test ray_intersection(cyl3, ray4) === nothing
 end
 
@@ -445,25 +546,25 @@ end
     ray3 = Ray(Point(0.0, 0.1, 3.0), Vec(0.0, 0.0, -1.0))
     ray4 = Ray(Point(4.0, 5.0, -6.0), Vec(0.0, 0.0, 1.0))
 
-    @test quick_ray_intersection(con1, ray1) == true
+    @test quick_ray_intersection(con1, ray1)
     @test ray_intersection(con1, ray1) !== nothing
-    @test quick_ray_intersection(con2, ray1) == true
+    @test quick_ray_intersection(con2, ray1)
     @test ray_intersection(con2, ray1) !== nothing
-    @test quick_ray_intersection(con3, ray1) == true
+    @test quick_ray_intersection(con3, ray1)
     @test ray_intersection(con3, ray1) !== nothing
 
-    @test quick_ray_intersection(con1, ray2) == false
+    @test !quick_ray_intersection(con1, ray2)
     @test ray_intersection(con1, ray2) === nothing
-    @test quick_ray_intersection(con2, ray2) == true
+    @test quick_ray_intersection(con2, ray2)
     @test ray_intersection(con2, ray2) !== nothing
-    @test quick_ray_intersection(con3, ray2) == false
+    @test !quick_ray_intersection(con3, ray2)
     @test ray_intersection(con3, ray2) === nothing
 
-    @test quick_ray_intersection(con1, ray3) == true
+    @test quick_ray_intersection(con1, ray3)
     @test ray_intersection(con1, ray3) !== nothing
-    @test quick_ray_intersection(con2, ray3) == true
+    @test quick_ray_intersection(con2, ray3)
     @test ray_intersection(con2, ray3) !== nothing
-    @test quick_ray_intersection(con3, ray3) == false
+    @test !quick_ray_intersection(con3, ray3)
     @test ray_intersection(con3, ray3) === nothing
 
     cone = Cone(2.0, 2.0, rotation("z", π/2))
@@ -493,28 +594,28 @@ end
     ray4 = Ray(Point(-0.5, -1.0, 1.0), Vec(0.0, 1.0, 0.0))
     ray5 = Ray(Point(-3.0, -1.0, -2.0), Vec(1.0, 2.0, 3.0))
 
-    @test quick_ray_intersection(final, ray1) == true
+    @test quick_ray_intersection(final, ray1)
     hr1 = ray_intersection(final, ray1)
     @test abs(hr1.t - 1.5) < 1e-6
     @test hr1.s == cylinder
     
 
-    @test quick_ray_intersection(final, ray2) == true
+    @test quick_ray_intersection(final, ray2)
     hr2 = ray_intersection(final, ray2)
     @test abs(hr2.t - 1.0) < 1e-6
     @test hr2.s == box
 
-    @test quick_ray_intersection(final, ray3) == true
+    @test quick_ray_intersection(final, ray3)
     hr3 = ray_intersection(final, ray3)
     @test abs(hr3.t - 3.5) < 1e-6
     @test hr3.s == sphere
 
-    @test quick_ray_intersection(final, ray4) == true
+    @test quick_ray_intersection(final, ray4)
     hr4 = ray_intersection(final, ray4)
     @test abs(hr4.t - 1.5) < 1e-4
     @test hr4.s == cone
 
-    @test quick_ray_intersection(final, ray5) == false
+    @test !quick_ray_intersection(final, ray5)
 end
 
 @testset "Check csg (intersection) methods" begin
@@ -528,20 +629,20 @@ end
     ray4 = Ray(Point(6.0, 1.0, 1.5), Vec(0.0, -1.0, 0.0))
     ray5 = Ray(Point(6.5, -5.5, 10.0), Vec(0.0, 0.0, -1.0))
 
-    @test quick_ray_intersection(final, ray1) == true
+    @test quick_ray_intersection(final, ray1)
     hr1 = ray_intersection(final, ray1)
     @test hr1.s == sphere
     
-    @test quick_ray_intersection(box, ray2) == true
-    @test quick_ray_intersection(sphere, ray2) == false
-    @test quick_ray_intersection(final, ray3) == false
+    @test quick_ray_intersection(box, ray2)
+    @test !quick_ray_intersection(sphere, ray2)
+    @test !quick_ray_intersection(final, ray3)
 
-    @test quick_ray_intersection(final, ray4) == true
+    @test quick_ray_intersection(final, ray4)
     hr4 = ray_intersection(final, ray4)
     @test abs(hr4.t - 6.0) < 1e-6
     @test hr4.s == box
 
-    @test quick_ray_intersection(final, ray5) == true
+    @test quick_ray_intersection(final, ray5)
     hr5 = ray_intersection(final, ray5)
     @test hr5.s == sphere
 end
@@ -562,37 +663,37 @@ end
     ray5 = Ray(Point(2.0, 1.0, -5.0), Vec(0.0, 0.0, 1.0))
     ray6 = Ray(Point(2.0, 5.0, 3.0), Vec(1.0, -1.0, 2.0))
 
-    @test quick_ray_intersection(d1, ray1) == true
+    @test quick_ray_intersection(d1, ray1)
     hr11 = ray_intersection(d1, ray1)
     @test abs(hr11.t - 2.0) < 1e-6
     @test hr11.s == bigbox
-    @test quick_ray_intersection(final, ray1) == true
+    @test quick_ray_intersection(final, ray1)
     hr12 = ray_intersection(final, ray1)
     @test abs(hr12.t - 5.0) < 1e-6
     @test hr12.s == smallbox
 
-    @test quick_ray_intersection(d2, ray2) == true
-    @test quick_ray_intersection(cylinder, ray2) == true
-    @test quick_ray_intersection(final, ray2) == false
+    @test quick_ray_intersection(d2, ray2)
+    @test quick_ray_intersection(cylinder, ray2)
+    @test !quick_ray_intersection(final, ray2)
     @test ray_intersection(final, ray2) === nothing
 
-    @test quick_ray_intersection(bigbox, ray3) == true
-    @test quick_ray_intersection(final, ray3) == true
+    @test quick_ray_intersection(bigbox, ray3)
+    @test quick_ray_intersection(final, ray3)
     hr3 = ray_intersection(final, ray3)
     @test abs(hr3.t - 5.0) < 1e-6
     @test hr3.s == smallbox
 
-    @test quick_ray_intersection(final, ray4) == true
+    @test quick_ray_intersection(final, ray4)
     hr4 = ray_intersection(final, ray4)
     @test abs(hr4.t - 1.0) < 1e-6
     @test hr4.s == bigbox
 
-    @test quick_ray_intersection(final, ray5) == true
+    @test quick_ray_intersection(final, ray5)
     hr5 = ray_intersection(final, ray5)
     @test abs(hr5.t - 7.0) < 1e-6
     @test hr5.s == smallbox
 
-    @test quick_ray_intersection(final, ray6) == false
+    @test !quick_ray_intersection(final, ray6)
     @test ray_intersection(final, ray6) === nothing
 end
 
@@ -662,10 +763,10 @@ end
     color = RGB(1.0, 2.0, 3.0)
     pigment = UniformPigment(color)
 
-    @test get_color(pigment, Vec2d(0.0, 0.0)) == color
-    @test get_color(pigment, Vec2d(1.0, 0.0)) == color
-    @test get_color(pigment, Vec2d(0.0, 1.0)) == color
-    @test get_color(pigment, Vec2d(1.0, 1.0)) == color
+    @test is_close(get_color(pigment, Vec2d(0.0, 0.0)), color)
+    @test is_close(get_color(pigment, Vec2d(1.0, 0.0)), color)
+    @test is_close(get_color(pigment, Vec2d(0.0, 1.0)), color)
+    @test is_close(get_color(pigment, Vec2d(1.0, 1.0)), color)
 
     image = HdrImage(2, 2)
     image.pixels[1, 1] = RGB(1.0, 2.0, 3.0)
@@ -674,20 +775,20 @@ end
     image.pixels[2, 2] = RGB(3.0, 2.0, 1.0)
     
     pigment = ImagePigment(image)
-    @test get_color(pigment, Vec2d(0.0, 0.0)) == RGB(1.0, 2.0, 3.0)
-    @test get_color(pigment, Vec2d(1.0, 0.0)) == RGB(2.0, 3.0, 1.0)
-    @test get_color(pigment, Vec2d(0.0, 1.0)) == RGB(2.0, 1.0, 3.0)
-    @test get_color(pigment, Vec2d(1.0, 1.0)) == RGB(3.0, 2.0, 1.0)
+    @test is_close(get_color(pigment, Vec2d(0.0, 0.0)), RGB(1.0, 2.0, 3.0))
+    @test is_close(get_color(pigment, Vec2d(1.0, 0.0)), RGB(2.0, 3.0, 1.0))
+    @test is_close(get_color(pigment, Vec2d(0.0, 1.0)), RGB(2.0, 1.0, 3.0))
+    @test is_close(get_color(pigment, Vec2d(1.0, 1.0)), RGB(3.0, 2.0, 1.0))
 
     color1 = RGB(1.0, 2.0, 3.0)
     color2 = RGB(10.0, 20.0, 30.0)
 
     pigment = CheckeredPigment(color1, color2, 2)
 
-    @test get_color(pigment, Vec2d(0.25, 0.25)) == color1
-    @test get_color(pigment, Vec2d(0.75, 0.25)) == color2
-    @test get_color(pigment, Vec2d(0.25, 0.75)) == color2
-    @test get_color(pigment, Vec2d(0.75, 0.75)) == color1
+    @test is_close(get_color(pigment, Vec2d(0.25, 0.25)), color1)
+    @test is_close(get_color(pigment, Vec2d(0.75, 0.25)), color2)
+    @test is_close(get_color(pigment, Vec2d(0.25, 0.75)), color2)
+    @test is_close(get_color(pigment, Vec2d(0.75, 0.75)), color1)
 
 end
 

@@ -3,13 +3,13 @@ module myRayTracing
 #including libraries and export methods
 
 include("Color_and_HdrImage.jl")
-export RGB, HdrImage, print_image, _read_float, _parse_endianness, _read_line
+export RGB, HdrImage, valid_pixel, print_image
 
 include("PFMfunctions.jl")
-export read_pfm, InvalidPfmFileFormat, write
+export read_pfm, InvalidPfmFileFormat, write, _read_float, _parse_endianness, _read_line, _parse_img_size
 
 include("LdrImage.jl")
-export tone_mapping!, gamma_correction!, read_user_input
+export Value_Error, tone_mapping!, gamma_correction!, read_user_input, _luminosity, _average_luminosity, _normalize_image!, _clamp_image!
 
 include("geometry.jl")
 export Vec, Vec2d, Point, Normal, Type_error, print_element, is_close, neg, squared_norm, norm, normalize, cross, Point_to_Vec, Vec_to_Point, Norm_to_Vec, Vec_to_Normal, create_onb_from_z

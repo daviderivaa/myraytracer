@@ -67,3 +67,11 @@ function Base.:*(c1::RGB, c2::RGB)
 function Base.:*(c1::RGB, c2::RGB)
     return RGB(c1.r*c2.r, c1.g*c2.g, c1.b*c2.b)
 end
+
+"""
+function is_close(color1, color2, epsilon=1e-6)
+    checks if two RGB color are similar
+"""
+function is_close(color1::RGB, color2::RGB, epsilon=1e-6)
+    return abs(color1.r - color2.r) <= epsilon && abs(color1.g - color2.g) <= epsilon && abs(color1.b - color2.b) <= epsilon #Return True if the two variables are similiar, False otherwise
+end
