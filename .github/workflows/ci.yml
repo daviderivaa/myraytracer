@@ -18,6 +18,8 @@ jobs:
           - '1.11'
         os:
           - ubuntu-latest
+          - windows-latest
+          - macOS-latest
 
 
     steps:
