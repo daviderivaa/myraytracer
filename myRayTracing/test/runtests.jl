@@ -276,8 +276,13 @@ end
     OItracer = ImageTracer(image, OC)
     PItracer = ImageTracer(image, PC)
 
-    ray1 = fire_ray(PItracer, 0, 0, 2.5, 1.5)
-    ray2 = fire_ray(PItracer, 2, 1)
+    topleft_ray = fire_ray(PItracer, 1, 1, 0.0, 0.0)
+    bottomright_ray = fire_ray(PItracer, 2, 3, 1.0, 1.0)
+    @test is_close(at(topleft_ray, 1.0), Point(0.0, 16/9, 1.0))
+    @test is_close(at(bottomright_ray, 1.0), Point(0.0, -16/9, -1.0))
+
+    ray1 = fire_ray(PItracer, 1, 1, 1.5, 2.5)
+    ray2 = fire_ray(PItracer, 2, 3)
     @test is_close(ray1, ray2)
 
     function func(ray::Ray)
@@ -297,6 +302,23 @@ end
             @test OItracer.img.pixels[row, col] ≈ RGB(1.0, 2.0, 3.0)
         end
     end
+
+    small_image = HdrImage(1,1)
+    small_camera = OrthogonalCamera(1.0, t)
+    aa_test_tracer = ImageTracer(small_image, small_camera)
+    rays_counter = 0
+
+    function aa_test_func(ray::Ray)
+        p = at(ray,1.0)
+        @test abs(p.x) < 1e-6
+        @test (-1 -1e-6 < p.y < +1 +1e-6)
+        @test (-1 -1e-6 < p.z < +1 +1e-6)
+        rays_counter += 1
+        return RGB(0.0,0.0,0.0)
+    end
+
+    fire_all_rays!(aa_test_tracer, aa_test_func, new_PCG(), 10)
+    @test rays_counter == 100
 
 end
 
