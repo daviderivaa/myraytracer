@@ -330,8 +330,18 @@ end
     
     HR1 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.0), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)), pl)
     HR2 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.0), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)), pl)
+    HR3 = HitRecord(Point(-1.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.0), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)), pl)
+    HR4 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 0.0, 1.0), Vec2d(0.0, 0.0), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)), pl)
+    HR5 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.5), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)), pl)
+    HR6 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.0), 2.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 0.0, 0.0)), pl)
+    HR7 = HitRecord(Point(0.0, 1.0, 2.0), Normal(1.0, 1.0, 1.0), Vec2d(0.0, 0.0), 3.0, Ray(Point(0.0, 0.0, 0.0), Vec(1.0, 1.0, 0.0)), pl)
 
     @test is_close(HR1, HR2)
+    @test !is_close(HR1, HR3)
+    @test !is_close(HR1, HR4)
+    @test !is_close(HR1, HR5)
+    @test !is_close(HR1, HR6)
+    @test !is_close(HR1, HR7)
 
 end
 
