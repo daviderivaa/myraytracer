@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+  ## If you need to run CI builds in pull requests remove "#" in the next two lines
   #pull_request:
     #branches: [main]
 
