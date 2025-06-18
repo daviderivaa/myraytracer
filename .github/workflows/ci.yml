@@ -33,9 +33,9 @@ jobs:
 
       - name: Cache Julia packages
         uses: julia-actions/cache@v2
-        with:
-          # Specifica la directory del progetto
-          path: myRayTracing
+        # with:
+        #   # Specifica la directory del progetto
+        #   path: myRayTracing
 
       - name: Install dependencies
         run: julia --project=./myRayTracing -e 'using Pkg; Pkg.instantiate()'
