@@ -62,7 +62,7 @@ end
     @test_throws InvalidPfmFileFormat _parse_img_size("3 -2")
     @test_throws InvalidPfmFileFormat _parse_img_size("a b")
 
-    form_le, width_le, height_le, endianness_le, pixel_data_le = read_pfm("../PFM_input/reference_le.pfm")
+    form_le, width_le, height_le, endianness_le, pixel_data_le = read_pfm("../../PFM_input/reference_le.pfm")
     @test width_le == 3
     @test height_le == 2
     @test endianness_le == -1.0
@@ -74,7 +74,7 @@ end
     @test is_close(image_le.pixels[2,2], RGB(400.0,500.0,600.0))
     @test is_close(image_le.pixels[2,3], RGB(700.0,800.0,900.0))
 
-    form_be, width_be, height_be, endianness_be, pixel_data_be = read_pfm("../PFM_input/reference_be.pfm")
+    form_be, width_be, height_be, endianness_be, pixel_data_be = read_pfm("../../PFM_input/reference_be.pfm")
     @test width_be == 3
     @test height_be == 2
     @test endianness_be == +1.0
