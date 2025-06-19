@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+  ## If you need to run CI builds in pull requests remove "#" in the next two lines
   #pull_request:
     #branches: [main]
 
@@ -33,9 +34,6 @@ jobs:
 
       - name: Cache Julia packages
         uses: julia-actions/cache@v2
-        with:
-          # Specifica la directory del progetto
-          path: myRayTracing
 
       - name: Install dependencies
         run: julia --project=./myRayTracing -e 'using Pkg; Pkg.instantiate()'
