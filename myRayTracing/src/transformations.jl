@@ -66,7 +66,7 @@ function translation(v)
     creates the transformation in case of translation by a given vector v
 """
 function translation(v)
-    try
+    #try
 
         m = [1.0 0.0 0.0 v.x;
              0.0 1.0 0.0 v.y;
@@ -77,9 +77,9 @@ function translation(v)
 
         return T
 
-    catch
-        throw(Transformation_error("Cannot define a translation"))
-    end
+    #catch
+    #    throw(Transformation_error("Cannot define a translation"))
+    #end
 end
 
 """
@@ -88,7 +88,7 @@ function scaling(a, b=nothing, c=nothing)
     if only "a" is given, it is used on all axes
 """
 function scaling(a, b=nothing, c=nothing)
-    try
+    #try
 
         b === nothing && (b = a)
         c === nothing && (c = a)
@@ -102,9 +102,9 @@ function scaling(a, b=nothing, c=nothing)
 
         return T
         
-    catch
-        throw(Transformation_error("Cannot define a scaling transformation"))
-    end
+    #catch
+    #    throw(Transformation_error("Cannot define a scaling transformation"))
+    #end
 end
 
 """
@@ -143,13 +143,13 @@ function (T::Tranformation)(a::Point)
     allows to apply the transformation on a point by using " T(a) "
 """
 function (T::Transformation)(a::Point)
-    if abs(a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3] + T.m[4,4] - 1.0) < 1e-6
+    #if abs(a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3] + T.m[4,4] - 1.0) < 1e-6
         return Point((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3] + T.m[1,4]), 
                      (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3] + T.m[2,4]), 
                      (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3] + T.m[3,4]))
-    else 
-        throw(Transformation_error("Point type not preserved in transformation"))
-    end
+    #else 
+    #    throw(Transformation_error("Point type not preserved in transformation"))
+    #end
 end
 
 """
@@ -157,13 +157,13 @@ function (T::Transformation)(a::Vec)
     allows to apply the transformation on a vector by using " T(a) "
 """
 function (T::Transformation)(a::Vec)
-    if abs(a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3]) < 1e-6
+    #if abs(a.x*T.m[4,1] + a.y*T.m[4,2] + a.z*T.m[4,3]) < 1e-6
         return Vec((a.x*T.m[1,1] + a.y*T.m[1,2] + a.z*T.m[1,3]), 
                    (a.x*T.m[2,1] + a.y*T.m[2,2] + a.z*T.m[2,3]), 
                    (a.x*T.m[3,1] + a.y*T.m[3,2] + a.z*T.m[3,3]))
-    else
-        throw(Transformation_error("Vector type not preserved in transformation"))
-    end
+    #else
+    #    throw(Transformation_error("Vector type not preserved in transformation"))
+    #end
 end
 
 """
@@ -171,13 +171,9 @@ function (T::Transformation)(a::Normal)
     allows to apply the transformation on a normal by using " T(a) "
 """ 
 function (T::Transformation)(a::Normal)
-    #if abs(a.x*T.invm[1,4] + a.y*T.invm[2,4] + a.z*T.invm[3,4]) < 1e-6
-        return Normal((a.x*T.invm[1,1] + a.y*T.invm[2,1] + a.z*T.invm[3,1]), 
-                      (a.x*T.invm[1,2] + a.y*T.invm[2,2] + a.z*T.invm[3,2]), 
-                      (a.x*T.invm[1,3] + a.y*T.invm[2,3] + a.z*T.invm[3,3]))
-    #else
-    #    throw(Transformation_error("Normal type not preserved in transformation"))
-    #end
+    return Normal((a.x*T.invm[1,1] + a.y*T.invm[2,1] + a.z*T.invm[3,1]), 
+                    (a.x*T.invm[1,2] + a.y*T.invm[2,2] + a.z*T.invm[3,2]), 
+                    (a.x*T.invm[1,3] + a.y*T.invm[2,3] + a.z*T.invm[3,3]))
 end
 
 """
