@@ -1,0 +1,37 @@
+#Cornell Box with pathtracing render
+
+material standard(diffuse(uniform(<0.9,0.69,0.45>)), uniform(<0.00,0.00,0.00>))
+material redwall(diffuse(uniform(<0.86,0.16,0.16>)), uniform(<0.0,0.0,0.0>))
+material greenwall(diffuse(uniform(<0.35,0.55,0.22>)), uniform(<0.0,0.0,0.0>))
+material lightsource(diffuse(uniform(<0.5,0.5,0.5>)), uniform(<0.5,0.5,0.5>))
+material smallbox(diffuse(uniform(<0.83,0.63,0.40>)), uniform(<0.0,0.0,0.0>))
+#material sphere_dif(diffuse(uniform(<0.7,0.7,0.7>)), uniform(<0.0,0.0,0.0>))
+material sphere_spec(specular(uniform(<0.7,0.7,0.7>)), uniform(<0.0,0.0,0.0>))
+
+#Big box
+box(6.0,2.2,2.0,standard,translation[{-4.0,-0.1,0.0}])	#box
+box(6.0,1.0,2.0,redwall,translation[{-4.0,2.0,0.0}]) #left wall
+box(6.0,1.0,2.0,greenwall,translation[{-4.0,-1.0,0.0}]) #right wall
+
+#light
+box(0.6,0.6,0.02,lightsource,translation[{0.7,0.7,1.98}])
+light({1.0,1.0,1.97},<0.7,0.5,0.5>,1.0)
+
+#small box 1
+box(0.404,0.606,0.6,smallbox,translation[{0.429,1.429,0.0}]*rotation_z[-45])
+#small box 2
+box(0.606,0.404,0.9,smallbox,translation[{0.429,0.571,0.0}]*rotation_z[-45])
+
+#sphere
+#sphere(sphere_dif, translation[{0.786,1.5,0.85}]*scaling[0.25])
+sphere(sphere_spec, translation[{0.786,1.5,0.85}]*scaling[0.25]) #specular or not depending of the renderer activated
+
+camera(perspective, translation[{0.0,1.0,1.0}], 1.0, 3.0)
+
+hdr_image(450,450,4)
+
+#renderer(flat)
+renderer(path, <0.0,0.0,0.0>, 5, 4, 2)
+#renderer(point_light, <0.0,0.0,0.0>)
+
+#eof
