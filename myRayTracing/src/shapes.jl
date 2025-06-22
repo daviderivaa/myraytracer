@@ -16,7 +16,7 @@ function ray_intersection(shape::Shape, r::Ray)
 end
 
 """Abstract method for quick_ray_intersection"""
-function quick_ray_intersection(shape::Shape, r::Ray)
+function quick_ray_intersection(shape::Shape, r::Ray, max_dist::Float64=Inf)
     throw(Type_error("quick_ray_intersection method not implemented for $(typeof(shape))"))
 end
 
@@ -154,7 +154,7 @@ end
 function quick_ray_intersection(shape, r)
     given a sphere and a ray, it returns true/false if there is/isn't intersection
 """
-function quick_ray_intersection(shape::Sphere, r::Ray)
+function quick_ray_intersection(shape::Sphere, r::Ray, max_dist::Float64=Inf)
     inv_r = inverse(shape.T)(r)
     o_vec = Point_to_Vec(inv_r.origin)
 
@@ -172,11 +172,7 @@ function quick_ray_intersection(shape::Sphere, r::Ray)
     t_1 = ( -b - sqrt_delta ) / a
     t_2 = ( -b + sqrt_delta ) / a
 
-    if (t_1 > inv_r.tmin) && (t_1 < inv_r.tmax) || (t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)
-        return true
-    else
-        return false
-    end
+    return (t_1 > inv_r.tmin) && (t_1 < inv_r.tmax) && (t_1 < max_dist) || (t_2 > inv_r.tmin) && (t_2 < inv_r.tmax) && (t_2 < max_dist)
 end
 
 
@@ -258,14 +254,14 @@ end
 function quick_ray_intersection(shape, r)
     given a plane and a ray, it returns true/false if there is/isn't intersection
 """
-function quick_ray_intersection(shape::Plane, r::Ray)
+function quick_ray_intersection(shape::Plane, r::Ray, max_dist::Float64=Inf)
     inv_r = inverse(shape.T)(r)
 
     if abs(inv_r.dir.z) < 1e-6
         return false
     else 
         t_hit = - inv_r.origin.z / inv_r.dir.z
-        if t_hit < inv_r.tmin || t_hit > inv_r.tmax
+        if t_hit < inv_r.tmin || t_hit > inv_r.tmax || t_hit > max_dist
             return false
         else
             return true
@@ -367,7 +363,7 @@ end
 function quick_ray_intersection(shape, r)
     given a rectangle and a ray, it returns true/false if there is/isn't intersection
 """
-function quick_ray_intersection(rect::Rectangle, r::Ray)
+function quick_ray_intersection(rect::Rectangle, r::Ray, max_dist::Float64=Inf)
 
     inv_r = inverse(rect.T)(r)
  
@@ -379,7 +375,7 @@ function quick_ray_intersection(rect::Rectangle, r::Ray)
     d = dot(rect.normal, Point_to_Vec(rect.origin))
     t_hit = (d - dot(rect.normal, Point_to_Vec(inv_r.origin))) / denom
 
-    if t_hit < inv_r.tmin || t_hit > inv_r.tmax
+    if t_hit < inv_r.tmin || t_hit > inv_r.tmax || t_hit > max_dist
         return false
     end
 
@@ -566,7 +562,7 @@ end
 function quick_ray_intersection(box, r)
     given a box and a ray, it returns whether the intersection between the ray and the box happens or not
 """
-function quick_ray_intersection(box::Box, r::Ray)
+function quick_ray_intersection(box::Box, r::Ray, max_dist::Float64=Inf)
 
     inv_r = inverse(box.T)(r)
 
@@ -608,11 +604,7 @@ function quick_ray_intersection(box::Box, r::Ray)
     t_1 = max(int_x[1], int_y[1], int_z[1])
     t_2 = min(int_x[2], int_y[2], int_z[2])
 
-    if ((t_2-t_1) > 1e-6) && ( ((t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)) || ((t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)) )
-        return true  
-    else
-        return false
-    end
+    return ((t_2-t_1) > 1e-6) && ( ((t_1 > inv_r.tmin) && (t_1 < inv_r.tmax) && (t_1 < max_dist)) || ((t_2 > inv_r.tmin) && (t_2 < inv_r.tmax) && (t_2 < max_dist)) )
 end
 
 
@@ -783,7 +775,7 @@ end
 function quick_ray_intersection(cyl, r)
     given a cylinder and a ray, it returns whether the intersection between the ray and the ray and the cylinder happens or not
 """
-function quick_ray_intersection(cyl::Cylinder, r::Ray)
+function quick_ray_intersection(cyl::Cylinder, r::Ray, max_dist::Float64=Inf)
     inv_r = inverse(cyl.T)(r)
 
     if abs(inv_r.dir.x) < 1e-6 && abs(inv_r.dir.y) < 1e-6
@@ -819,12 +811,7 @@ function quick_ray_intersection(cyl::Cylinder, r::Ray)
     t_1 = max(int_xy[1], int_z[1])
     t_2 = min(int_xy[2], int_z[2])
 
-    if ((t_2-t_1) > 1e-6) && ( ((t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)) || ((t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)) )
-        return true  
-    else
-        return false
-    end
-
+    return ((t_2-t_1) > 1e-6) && ( ((t_1 > inv_r.tmin) && (t_1 < inv_r.tmax) && (t_1 < max_dist)) || ((t_2 > inv_r.tmin) && (t_2 < inv_r.tmax) && (t_2 < max_dist)) )
 end
 
 ###################################################################################################
@@ -1033,7 +1020,7 @@ end
 function quick_ray_intersection(cone, r)
     given a cone and a ray, it returns whether the intersection between the ray and the ray and the cone happens or not
 """
-function quick_ray_intersection(cone::Cone, r::Ray)
+function quick_ray_intersection(cone::Cone, r::Ray, max_dist::Float64=Inf)
     inv_r = inverse(cone.T)(r)
 
     if abs(inv_r.dir.x) < 1e-6 && abs(inv_r.dir.y) < 1e-6
@@ -1107,11 +1094,7 @@ function quick_ray_intersection(cone::Cone, r::Ray)
     t_1 = max(int_xy[1], int_z[1])
     t_2 = min(int_xy[2], int_z[2])
 
-    if ((t_2-t_1) > 1e-6) && ( ((t_1 > inv_r.tmin) && (t_1 < inv_r.tmax)) || ((t_2 > inv_r.tmin) && (t_2 < inv_r.tmax)) )
-        return true  
-    else
-        return false
-    end
+    return ((t_2-t_1) > 1e-6) && ( ((t_1 > inv_r.tmin) && (t_1 < inv_r.tmax) && (t_1 < max_dist)) || ((t_2 > inv_r.tmin) && (t_2 < inv_r.tmax) && (t_2 < max_dist)) )
 end
 
 ####################################################################################################
@@ -1357,12 +1340,12 @@ end
 function quick_ray_intersection(u_shape::union_shape, r::Ray)
     Given a union of shapes and a ray, it returns whether the intersection between the ray and the shape happens or not
 """
-function quick_ray_intersection(u_shape::union_shape, r::Ray)
+function quick_ray_intersection(u_shape::union_shape, r::Ray, max_dist::Float64=Inf)
     all_hits_intervals = all_ray_intersection(u_shape, r)
 
     if !isempty(all_hits_intervals)
         for (entry_hit, exit_hit) in all_hits_intervals
-            if entry_hit.t > r.tmin || exit_hit.t > r.tmin
+            if r.tmin < entry_hit.t < max_dist || r.tmin < exit_hit.t < max_dist
                 return true
             end
         end
@@ -1434,12 +1417,12 @@ end
 function quick_ray_intersection(i_shape::intersec_shape, r::Ray)
     Given an intersection of shapes and a ray, it returns whether the intersection between the ray and the shape happens or not
 """
-function quick_ray_intersection(i_shape::intersec_shape, r::Ray)
+function quick_ray_intersection(i_shape::intersec_shape, r::Ray, max_dist::Float64=Inf)
     all_hits_intervals = all_ray_intersection(i_shape, r)
 
     if !isempty(all_hits_intervals)
         for (entry_hit, exit_hit) in all_hits_intervals
-            if entry_hit.t > r.tmin || exit_hit.t > r.tmin
+            if r.tmin < entry_hit.t < max_dist || r.tmin < exit_hit.t < max_dist
                 return true
             end
         end
@@ -1511,12 +1494,12 @@ end
 function quick_ray_intersection(d_shape::diff_shape, r::Ray)
     Given a difference of shapes and a ray, it returns whether the intersection between the ray and the shape happens or not
 """
-function quick_ray_intersection(d_shape::diff_shape, r::Ray)
+function quick_ray_intersection(d_shape::diff_shape, r::Ray, max_dist::Float64=Inf)
     all_hits_intervals = all_ray_intersection(d_shape, r)
 
     if !isempty(all_hits_intervals)
         for (entry_hit, exit_hit) in all_hits_intervals
-            if entry_hit.t > r.tmin || exit_hit.t > r.tmin
+            if r.tmin < entry_hit.t < max_dist || r.tmin < exit_hit.t < max_dist
                 return true
             end
         end

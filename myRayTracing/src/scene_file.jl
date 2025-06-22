@@ -1124,7 +1124,7 @@ function parse_renderer(input_file::InputStream, scene::Scene)::Renderer
         tok_1 = read_token(input_file)
         if tok_1 isa SymbolToken && tok_1.symbol == ")"
             return PointLightRenderer(scene.world)
-        elseif tok_1 isa SymbolToken && tok_!.symbol == ","
+        elseif tok_1 isa SymbolToken && tok_1.symbol == ","
             b_col = parse_color(input_file, scene)
             tok_2 = read_token(input_file)
             if tok_2 isa SymbolToken && tok_2.symbol == ")"
